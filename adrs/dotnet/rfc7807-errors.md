@@ -1,0 +1,25 @@
+# RFC 7807 Problem Details for API Errors
+
+**Category:** dotnet
+**Status:** Active
+**Requires:** —
+**Conflicts with:** —
+
+## Decision
+All API errors use the RFC 7807 Problem Details format. A global exception-handling middleware catches unhandled exceptions and returns structured `ProblemDetails` responses. Validation errors return HTTP 400 with field-level error details. The application uses ASP.NET Core's built-in `ProblemDetails` support — no custom error envelopes.
+
+## Rationale
+- RFC 7807 is an IETF standard for machine-readable error responses. Using it ensures consistency across all endpoints and gives API consumers a single, predictable error format to handle.
+- Alternatives considered: custom error envelope (e.g., `{ "success": false, "errors": [...] }`) — rejected because it reinvents what RFC 7807 already standardizes and is not supported by tooling. Plain status codes with no body (rejected — insufficient detail for client error handling).
+- ASP.NET Core has first-class support for ProblemDetails via `builder.Services.AddProblemDetails()` and the `IExceptionHandler` interface, making adoption straightforward with no custom plumbing.
+- Validation errors leverage ASP.NET Core's built-in model validation with automatic ProblemDetails formatting when `AddProblemDetails()` is configured.
+
+## Constraints (non-negotiable for AI)
+- ALL error responses MUST use the `application/problem+json` content type and the `ProblemDetails` structure.
+- Register `builder.Services.AddProblemDetails()` in `Program.cs`.
+- Implement a global `IExceptionHandler` to catch unhandled exceptions, log them, and return a `ProblemDetails` response with a 500 status code (without leaking stack traces or internal details in production).
+- Validation errors (400) MUST include field-level details in the `errors` extension property, using ASP.NET Core's built-in `ValidationProblemDetails`.
+- NEVER create custom error response classes or envelopes.
+- NEVER return raw exception messages or stack traces in production error responses.
+- Use standard HTTP status codes: 400 for validation errors, 401 for authentication, 403 for authorization, 404 for not found, 409 for conflicts, 500 for unhandled server errors.
+- Service layer methods SHOULD throw specific exceptions (e.g., `NotFoundException`, `ConflictException`) that the exception handler maps to appropriate HTTP status codes.
