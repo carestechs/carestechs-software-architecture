@@ -6,7 +6,7 @@
 
 # [Decision Title]
 
-**Category:** dotnet | python | angular | react | database | api | ai
+**Category:** dotnet | python | typescript | angular | react | database | api | ai | deployment
 **Status:** Active
 **Requires:** [ADR file paths this decision depends on, e.g., `adrs/dotnet/modular-monolith.md` — omit if none]
 **Conflicts with:** [ADR file paths that are mutually exclusive with this decision — omit if none]

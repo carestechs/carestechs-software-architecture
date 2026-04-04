@@ -1,11 +1,11 @@
-# Stack Profile: Python + React Modular Monolith with AI Agent
+# Stack Profile: Python + React Modular Monolith with AI Agent (Docker Compose)
 
 **Status:** Active
-**Assumes:** Python 3.12+, FastAPI 0.110+, React 19+, PostgreSQL 16+ (with pgvector), SQLAlchemy 2.0+, Tailwind CSS 4+, Vite 6+, Redis
+**Assumes:** Python 3.12+, FastAPI 0.110+, React 19+, PostgreSQL 16+ (with pgvector), SQLAlchemy 2.0+, Tailwind CSS 4+, Vite 6+, Redis, Docker 24+, Docker Compose v2+
 
 ## Overview
 
-A curated set of ADRs for building a modular monolith backend with Python/FastAPI and a React SPA frontend, extended with AI agent capabilities. This stack builds on the base `Python + React Modular Monolith` profile and adds ADRs for LLM integration, tool calling, RAG, and conversation management. This is the industry-standard stack for AI-powered developer tools, research automation, and intelligent API products. ADRs are categorized by how essential they are to the stack's coherence.
+A curated set of ADRs for building a modular monolith backend with Python/FastAPI and a React SPA frontend, extended with AI agent capabilities, deployed via Docker Compose. This stack builds on the base `Python + React Modular Monolith` profile and adds ADRs for LLM integration, tool calling, RAG, and conversation management. This is the industry-standard stack for AI-powered developer tools, research automation, and intelligent API products. ADRs are categorized by how essential they are to the stack's coherence.
 
 ---
 
@@ -15,7 +15,12 @@ A curated set of ADRs for building a modular monolith backend with Python/FastAP
 myapp/
 ├── pyproject.toml                          # Project metadata, dependencies (uv/poetry)
 ├── alembic.ini                             # Alembic migration config
-├── docker-compose.yml                      # PostgreSQL (pgvector), Redis, app services
+├── Dockerfile                              # Backend multi-stage build (python:slim)
+├── .dockerignore                           # Build context exclusions
+├── docker-compose.yml                      # Dev: PostgreSQL (pgvector) + Redis only
+├── docker-compose.prod.yml                 # Prod: API + worker + frontend on shared infra network
+├── .env.example                            # Dev environment variable template
+├── .env.production.example                 # Prod environment variable template
 │
 ├── src/
 │   └── app/
@@ -92,9 +97,14 @@ myapp/
 │   │   ├── lib/                            # Utilities (cn(), api client, etc.)
 │   │   └── styles.css                      # Global Tailwind imports only
 │   │
+│   ├── Dockerfile                           # Multi-stage: Node build → nginx
+│   ├── nginx.conf                           # SPA serving + API reverse proxy
 │   ├── tailwind.config.ts
 │   ├── vite.config.ts
 │   └── package.json
+│
+├── scripts/
+│   └── verify-docker.sh                     # Deployment smoke test
 │
 └── tests/
     ├── conftest.py                         # Shared fixtures (async test client, test DB)
@@ -123,6 +133,10 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/ai/ai-module-python.md` | AI agent is a dedicated module (`src/app/modules/ai/`) following all modular monolith conventions. | `modular-packages`, `service-layer-logic`, `pydantic-at-boundary`, `sqlalchemy-async` |
 | `adrs/ai/llm-abstraction-python.md` | All LLM and embedding calls go through a provider-agnostic abstraction. Provider SDKs only in composition root. | `async-all-the-way`, `service-layer-logic` |
 | `adrs/ai/tool-calling-via-services-python.md` | AI tools are thin adapters that delegate to existing service functions. No business logic in tools. | `modular-packages`, `service-layer-logic`, `llm-abstraction-python` |
+| `adrs/deployment/docker-multi-stage-builds.md` | All components packaged as Docker images with multi-stage builds. Slim final stages. | — |
+| `adrs/deployment/env-connection-urls.md` | All config via env vars. External services via connection URLs. Pydantic BaseSettings validates at startup. | — |
+| `adrs/deployment/container-per-process.md` | API, worker, and frontend as separate containers. Same image + different command for backend services. | `docker-multi-stage-builds` |
+| `adrs/deployment/local-dev-compose.md` | `docker-compose.yml` for local infra, `docker-compose.prod.yml` for app services on shared network. | `docker-multi-stage-builds`, `env-connection-urls` |
 
 ## Recommended (strong defaults — can be swapped with noted alternatives)
 
@@ -140,6 +154,7 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 | `adrs/react/tailwind-shadcn.md` | Tailwind CSS + shadcn/ui components. Full ownership, no runtime dependency. | Material UI or Chakra UI (heavier, opinionated) |
 | `adrs/ai/rag-pgvector-python.md` | RAG pipeline using pgvector for vector storage and cosine similarity search. | Dedicated vector DB (Pinecone, Qdrant) if scale demands it |
 | `adrs/ai/conversation-history-python.md` | Multi-turn conversation persistence with token-aware context windowing. | Stateless single-turn interactions (if no conversation continuity needed) |
+| `adrs/deployment/nginx-spa-proxy.md` | Nginx serves built SPA and reverse-proxies `/api/` to backend. `try_files` for client-side routing. | Serving SPA from backend framework or separate CDN |
 
 ## Optional (pick based on project needs)
 
@@ -167,10 +182,49 @@ When using this stack, these patterns emerge from the combination of ADRs:
 - **Context window safety:** Conversation history is always pruned before being sent to the LLM. Unbounded token usage is architecturally prevented.
 - **RAG prompt hygiene:** Retrieved context is clearly delimited in prompts, chunk sizes are configurable, and all embeddings go through the provider-agnostic abstraction.
 - **Background jobs:** Celery tasks (explorations, embedding generation, long-running AI operations) are thin wrappers that call the same service functions used by route handlers, ensuring consistent behavior.
+- **Image reuse across process types:** The API server and Celery worker containers use the same Docker image with different `command` overrides. Only the frontend uses a separate image (nginx-based).
+- **Environment parity via connection URLs:** The same application code connects to `postgresql://localhost:5432` in development and `postgresql://infra-postgres:5432` in production. The infrastructure topology is invisible to the application.
+- **No secrets in images:** Environment variables (including LLM API keys) are injected at runtime via `.env` files or orchestrator configuration. Docker images are environment-agnostic.
+- **Health check chain:** PostgreSQL and Redis report health via `pg_isready` / `redis-cli ping`. The API reports health via `GET /health`. Docker Compose enforces startup order via `depends_on` with `condition: service_healthy`.
 
 ## Development Workflow
 
-- **Local development first:** Set up local development immediately after the base project structure exists (FastAPI app running, database connected, Alembic initialized, one module scaffolded). The application must start, serve the OpenAPI docs, and accept requests before adding feature code. Use Docker Compose for PostgreSQL (with pgvector) and Redis.
+- **Local development first:** Set up local development immediately after the base project structure exists (FastAPI app running, database connected, Alembic initialized, one module scaffolded). The application must start, serve the OpenAPI docs, and accept requests before adding feature code.
 - **Dependency management:** Use `uv` (recommended) or `poetry` for Python dependency management. Pin all dependencies in `pyproject.toml`.
 - **Type checking:** Use `mypy` or `pyright` in strict mode. Python's type hints combined with Pydantic provide strong type safety.
 - **AI development loop:** Test LLM interactions with a lightweight provider (local Ollama or a cheap model) during development. Reserve expensive models for staging/production.
+
+### Local Development Commands
+
+```bash
+# Start backing services (PostgreSQL with pgvector + Redis)
+docker compose up -d
+
+# Run migrations
+uv run alembic upgrade head
+
+# Start API with hot-reload
+uv run uvicorn src.app.main:app --reload
+
+# Start Celery worker (separate terminal)
+uv run celery -A src.app.core.celery worker -l info
+
+# Start frontend dev server (separate terminal, proxies /api to localhost:8000)
+cd client && npm run dev
+```
+
+### Production Deployment
+
+```bash
+# Build images
+docker compose -f docker-compose.prod.yml build
+
+# Start application services (infra network must already exist)
+docker compose -f docker-compose.prod.yml up -d
+
+# Run migrations
+docker exec <api-container> uv run alembic upgrade head
+
+# Verify
+curl http://localhost:<port>/health
+```

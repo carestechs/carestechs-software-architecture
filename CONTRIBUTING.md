@@ -8,11 +8,13 @@
 |----------|-----|--------|
 | dotnet | .NET / C# architecture and conventions | `adrs/dotnet/` |
 | python | Python / FastAPI architecture and conventions | `adrs/python/` |
+| typescript | TypeScript / Node.js architecture and conventions | `adrs/typescript/` |
 | angular | Angular frontend patterns | `adrs/angular/` |
 | react | React frontend patterns | `adrs/react/` |
 | database | Database design, naming, types | `adrs/database/` |
 | api | REST API design, auth, pagination | `adrs/api/` |
 | ai | AI agent modules, LLM abstraction, RAG, tool calling | `adrs/ai/` |
+| deployment | Docker, configuration, infrastructure, dev/prod topology | `adrs/deployment/` |
 
 ### 2. Use the ADR Format
 
@@ -54,20 +56,20 @@ Before submitting:
 
 ## How to Create a New Profile
 
-Profiles are curated sets of ADRs organized into Required, Recommended, and Optional tiers for specific tech stack combinations.
+Profiles are curated sets of ADRs for specific tech stack and deployment mode combinations.
 
 ### 1. Define the Stack
 
 ```markdown
-# Stack Profile: [Stack Name]
+# Stack Profile: [Stack Name] ([Deploy Mode])
 
 **Status:** Active
-**Assumes:** [Runtime versions, database, key dependencies]
+**Assumes:** [Runtime versions, database, deployment tooling, key dependencies]
 ```
 
 ### 2. List ADRs by Tier
 
-Organize ADRs into three tiers:
+Organize ADRs into three tiers. Include both application architecture and deployment ADRs together:
 
 - **Required** — Core to the stack's coherence. Removing any breaks the architecture.
 - **Recommended** — Battle-tested defaults. Can be swapped with noted alternatives.
@@ -75,17 +77,33 @@ Organize ADRs into three tiers:
 
 ### 3. Add Cross-Cutting Concerns
 
-Document patterns that emerge from the combination of ADRs (naming translation, auth flow, ID strategy, etc.).
+Document patterns that emerge from the combination of ADRs (naming translation, auth flow, ID strategy, deployment topology, etc.).
 
 ### 4. Add Solution Structure
 
-Include a representative file tree showing how the stack's conventions map to project structure.
+Include a representative file tree showing how the stack's conventions map to project structure, including deployment files (Dockerfiles, Compose files, config templates).
+
+### 5. Add Development Workflow
+
+Include concrete commands for local development setup and production deployment.
+
+### Naming Convention
+
+Profile names encode both the stack and the deployment mode:
+
+```
+[backend]-[frontend]-[architecture]-[deploy-mode].md
+```
+
+Examples:
+- `python-react-modular-monolith-docker-compose.md`
+- `dotnet-angular-ai-agent-docker-compose.md`
 
 ## Naming Conventions
 
 - **File names**: `kebab-case.md` (e.g., `modular-monolith.md`, `uuid-primary-keys.md`)
 - **Category folders**: Match the Category field values exactly
-- **Profile names**: Stack description in kebab-case (e.g., `dotnet-angular-modular-monolith.md`)
+- **Profile names**: `[backend]-[frontend]-[architecture]-[deploy-mode].md`
 - **Language variants**: Use `-python` suffix for Python variants when a .NET version exists
 
 ## Review Process

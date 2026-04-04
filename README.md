@@ -66,39 +66,46 @@ carestechs-software-architecture/
 │   │   ├── jwt-bearer-auth.md
 │   │   └── offset-pagination.md
 │   │
-│   └── ai/                        # AI agent decisions
-│       ├── ai-agent-module.md           # .NET variant
-│       ├── ai-module-python.md          # Python variant
-│       ├── meai-abstraction.md          # .NET (M.E.AI)
-│       ├── llm-abstraction-python.md    # Python (provider-agnostic)
-│       ├── tool-calling-via-services.md         # .NET variant
-│       ├── tool-calling-via-services-python.md  # Python variant
-│       ├── rag-pgvector.md              # .NET variant
-│       ├── rag-pgvector-python.md       # Python variant
-│       ├── conversation-history.md      # .NET variant
-│       └── conversation-history-python.md       # Python variant
+│   ├── ai/                        # AI agent decisions
+│   │   ├── ai-agent-module.md           # .NET variant
+│   │   ├── ai-module-python.md          # Python variant
+│   │   ├── meai-abstraction.md          # .NET (M.E.AI)
+│   │   ├── llm-abstraction-python.md    # Python (provider-agnostic)
+│   │   ├── tool-calling-via-services.md         # .NET variant
+│   │   ├── tool-calling-via-services-python.md  # Python variant
+│   │   ├── rag-pgvector.md              # .NET variant
+│   │   ├── rag-pgvector-python.md       # Python variant
+│   │   ├── conversation-history.md      # .NET variant
+│   │   └── conversation-history-python.md       # Python variant
+│   │
+│   └── deployment/                # Containerization, config, and infrastructure
+│       ├── docker-multi-stage-builds.md
+│       ├── env-connection-urls.md
+│       ├── container-per-process.md
+│       ├── local-dev-compose.md
+│       └── nginx-spa-proxy.md
 │
-└── profiles/                  # Pre-built ADR sets for common combos
-    ├── dotnet-angular-modular-monolith.md
-    ├── dotnet-angular-ai-agent.md
-    ├── python-react-modular-monolith.md
-    └── python-react-ai-agent.md
+└── profiles/                  # Pre-built ADR sets (stack + deployment mode)
+    ├── dotnet-angular-modular-monolith-docker-compose.md
+    ├── dotnet-angular-ai-agent-docker-compose.md
+    ├── python-react-modular-monolith-docker-compose.md
+    └── python-react-ai-agent-docker-compose.md
 ```
 
-**42 ADRs** across 7 categories, **4 stack profiles**.
+**47 ADRs** across 8 categories, **4 stack profiles**.
 
 ## How to Use
 
 ### 1. Pick a Profile (or Select Individual ADRs)
 
-Profiles are curated sets of ADRs organized into Required, Recommended, and Optional tiers. Start with the profile closest to your tech stack:
+Profiles are curated sets of ADRs organized into Required, Recommended, and Optional tiers. Each profile covers the full stack: application architecture, deployment mode, and workflow. Start with the profile closest to your tech stack:
 
-| Profile | Stack | Architecture |
-|---------|-------|--------------|
-| **dotnet-angular-modular-monolith** | .NET + Angular + PostgreSQL | Modular monolith |
-| **dotnet-angular-ai-agent** | .NET + Angular + PostgreSQL + AI | Modular monolith + AI module |
-| **python-react-modular-monolith** | Python + React + PostgreSQL | Modular monolith |
-| **python-react-ai-agent** | Python + React + PostgreSQL + AI | Modular monolith + AI module |
+| Profile | Stack | Deploy Mode |
+|---------|-------|-------------|
+| **python-react-modular-monolith-docker-compose** | Python + React + PostgreSQL | Docker Compose |
+| **python-react-ai-agent-docker-compose** | Python + React + PostgreSQL + AI | Docker Compose |
+| **dotnet-angular-modular-monolith-docker-compose** | .NET + Angular + PostgreSQL | Docker Compose |
+| **dotnet-angular-ai-agent-docker-compose** | .NET + Angular + PostgreSQL + AI | Docker Compose |
 
 Or select individual ADRs from any category to build a custom set.
 
@@ -137,6 +144,7 @@ After compiling, you still need to fill in:
 | database | 4 | UUID PKs, snake_case naming, soft deletes, timestamptz |
 | api | 3 | REST envelope, JWT auth, offset pagination |
 | ai | 10 | AI agent modules, LLM abstraction, tool calling, RAG, conversation history |
+| deployment | 5 | Docker multi-stage builds, env-based config, container-per-process, dev/prod Compose, nginx SPA proxy |
 
 ## ADR Format
 
@@ -145,7 +153,7 @@ Every ADR follows this standard format (see `ADR-FORMAT.md` for the full templat
 ```markdown
 # [Decision Title]
 
-**Category:** dotnet | python | angular | react | database | api | ai
+**Category:** dotnet | python | angular | react | database | api | ai | deployment
 **Status:** Active
 **Requires:** [ADR dependencies — file paths, or omit if none]
 **Conflicts with:** [Mutually exclusive ADRs — file paths, or omit if none]
