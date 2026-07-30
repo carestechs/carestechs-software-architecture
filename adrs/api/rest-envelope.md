@@ -6,7 +6,7 @@
 **Conflicts with:** —
 
 ## Decision
-All API responses use a standard `{ data, meta }` envelope structure. This provides a consistent contract for frontend consumers.
+All successful (2xx) API responses use a standard `{ data, meta }` envelope structure. This provides a consistent contract for frontend consumers.
 
 ## Rationale
 - A uniform envelope means the frontend always knows where to find the payload and metadata
@@ -16,7 +16,7 @@ All API responses use a standard `{ data, meta }` envelope structure. This provi
 ## Constraints (non-negotiable for AI)
 - Single item responses: `{ "data": { ... } }`
 - List responses: `{ "data": [ ... ], "meta": { "totalCount": N, "page": N, "pageSize": N } }`
-- Error responses follow a separate error envelope (not covered by this ADR)
-- Never return a raw array or raw object at the top level
+- Error responses are NOT wrapped in this envelope — they use the stack's Problem Details ADR (`adrs/dotnet/rfc7807-errors.md` or `adrs/python/rfc7807-errors.md`) with `application/problem+json`
+- Never return a raw array or unwrapped object at the top level of a successful response
 - Create generic response wrapper classes: `ApiResponse<T>` for single items, `ApiListResponse<T>` for lists
 - Controllers must always wrap return values in the envelope

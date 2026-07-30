@@ -16,8 +16,9 @@ Authentication uses JWT Bearer tokens sent via the Authorization header. Access 
 ## Constraints (non-negotiable for AI)
 - Tokens sent in `Authorization: Bearer <token>` header on every authenticated request
 - Access tokens contain claims: user ID (`sub`), role(s), issued-at, expiration
-- Access token lifetime: 15-60 minutes (configurable)
-- Refresh tokens are long-lived, stored securely (httpOnly cookie or secure storage), and rotated on every use
-- Never store JWTs in localStorage — use httpOnly cookies or in-memory storage on the frontend
-- Token validation must check signature, expiration, issuer, and audience
-- Protect endpoints with `[Authorize]` attribute; role-based access with `[Authorize(Roles = "...")]`
+- Access token lifetime: 15 minutes by default (configurable); MUST NOT exceed 60 minutes
+- Refresh tokens are long-lived but bounded by an absolute maximum lifetime (e.g., 30 days), stored in an httpOnly cookie (web) or OS-secure storage (native), and rotated on every use; on detected reuse of an already-rotated token, revoke the entire token family and force re-authentication
+- Never store JWTs in localStorage or sessionStorage — use httpOnly cookies or in-memory storage on the frontend
+- Token validation must check signature, expiration, issuer, and audience against an explicit algorithm allowlist (e.g., RS256/ES256 only) — NEVER accept the `none` algorithm or trust the token header's `alg`; tolerate at most ~60 seconds of clock skew
+- Cookie-delivered refresh tokens MUST set `Secure`, `HttpOnly`, and `SameSite=Strict` (or `Lax`), and the refresh endpoint MUST be CSRF-protected
+- Protect endpoints with `[Authorize]` attribute (or FastAPI auth dependencies); role-based access with `[Authorize(Roles = "...")]` or an equivalent role guard
