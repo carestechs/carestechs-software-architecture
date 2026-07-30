@@ -115,7 +115,8 @@ carestechs-software-architecture/
 │       ├── maintenance-cli-scheduler.md
 │       ├── npm-cli-package.md
 │       ├── zod-config-validation.md
-│       └── github-action-composite.md
+│       ├── github-action-composite.md
+│       └── github-actions-ci.md
 │
 └── profiles/                  # Pre-built ADR sets (stack + deployment mode)
     ├── dotnet-angular-modular-monolith-docker-compose.md
@@ -127,7 +128,7 @@ carestechs-software-architecture/
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**74 ADRs** across 9 categories, **7 stack profiles**.
+**75 ADRs** across 9 categories, **7 stack profiles**.
 
 ## How to Use
 
@@ -183,7 +184,7 @@ After compiling, you still need to fill in:
 | database | 5 | UUID PKs, snake_case naming, lowercase naming, soft deletes, timestamptz |
 | api | 4 | REST envelope, JWT auth, role-based authorization, offset pagination |
 | ai | 11 | AI agent modules, LLM abstraction, tool calling, RAG, conversation history, Claude Agent SDK |
-| deployment | 16 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions, Zod config, maintenance scheduler |
+| deployment | 17 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions CI + composite action, Zod config, maintenance scheduler |
 
 ## ADR Format
 

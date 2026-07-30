@@ -131,6 +131,7 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 | `adrs/python/celery-background-jobs.md` | Celery + Redis for background task processing. Tasks delegate to services. | ARQ or Dramatiq (smaller ecosystem) |
 | `adrs/python/pytest-testing.md` | pytest + pytest-asyncio, httpx ASGI test client, per-test DB isolation. | unittest (not recommended) |
 | `adrs/python/structured-logging.md` | stdlib logging, per-module loggers, JSON formatter, correlation-ID middleware. | structlog (heavier, viable) |
+| `adrs/deployment/github-actions-ci.md` | CI gate on every push/PR: lint (enforcement configs), typecheck, tests, build. Deploys are separate workflows. | GitLab CI / Azure DevOps (if repos move) |
 | `adrs/database/uuid-primary-keys.md` | All PKs are UUIDs. No auto-increment. | Auto-increment integers (simpler but less secure for external APIs) |
 | `adrs/database/snake-case-naming.md` | snake_case tables/columns. Native to both Python and PostgreSQL. | — (already the natural convention for Python + PostgreSQL) |
 | `adrs/database/timestamptz-always.md` | All datetimes are timestamptz. Python uses `datetime` with UTC timezone. | timestamp without timezone (loses timezone context) |
