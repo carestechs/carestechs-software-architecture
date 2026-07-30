@@ -3,6 +3,7 @@
 **Category:** typescript
 **Status:** Active
 **Requires:** `adrs/typescript/strict-typescript.md`
+**Conflicts with:** —
 
 ## Decision
 

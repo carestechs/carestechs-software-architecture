@@ -3,7 +3,7 @@
 **Category:** angular
 **Status:** Active
 **Requires:** —
-**Conflicts with:** —
+**Conflicts with:** `adrs/react/functional-components.md`
 
 ## Decision
 All components, directives, and pipes must be standalone. NgModules are not used anywhere in the application.
@@ -14,7 +14,7 @@ All components, directives, and pipes must be standalone. NgModules are not used
 - Alternatives considered: traditional NgModule-based architecture, SCAM (Single Component Angular Module) pattern — both rejected for unnecessary complexity
 
 ## Constraints (non-negotiable for AI)
-- Every `@Component`, `@Directive`, and `@Pipe` must include `standalone: true`
+- Standalone is the default since Angular v19 — NEVER set `standalone: false`, and do not add a redundant `standalone: true` on v19+ (on older Angular versions, every `@Component`, `@Directive`, and `@Pipe` must set it explicitly)
 - Dependencies are declared in the `imports` array directly on the component decorator
 - Route configuration must use `loadComponent` for lazy loading individual components
 - Never generate or reference an `NgModule` class

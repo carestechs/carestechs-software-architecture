@@ -3,6 +3,7 @@
 **Category:** typescript
 **Status:** Active
 **Requires:** `adrs/typescript/strict-typescript.md`
+**Conflicts with:** —
 
 ## Decision
 
@@ -16,7 +17,7 @@ The application is structured as a core engine (business logic, data processing,
 
 ## Constraints (non-negotiable for AI)
 
-- The core engine MUST expose a single entry-point function (e.g., `runReview(options): Promise<Result>`) that accepts typed input and returns typed output.
+- The core engine MUST expose a single entry-point function (e.g., `runTool(options): Promise<Result>`) that accepts typed input and returns typed output.
 - The core engine MUST NOT import any adapter-specific code (no `@actions/core`, no CLI framework, no Express/Hono).
 - Adapters MUST NOT contain business logic — they collect input, call the core, and format output.
 - All data flowing between adapters and the core MUST use shared types from a `types/` directory.

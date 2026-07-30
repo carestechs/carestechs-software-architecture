@@ -2,6 +2,8 @@
 
 **Category:** typescript
 **Status:** Active
+**Requires:** —
+**Conflicts with:** —
 
 ## Decision
 

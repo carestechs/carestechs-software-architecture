@@ -3,7 +3,7 @@
 **Category:** angular
 **Status:** Active
 **Requires:** —
-**Conflicts with:** —
+**Conflicts with:** `adrs/react/tanstack-query.md`
 
 ## Decision
 All reactive component state uses Angular Signals. RxJS is reserved for HTTP calls and complex async streams only.
