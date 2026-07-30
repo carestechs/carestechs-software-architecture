@@ -1,7 +1,7 @@
 # Stack Profile: TypeScript AI Agent CLI Tool (npm)
 
 **Status:** Active
-**Assumes:** Node.js 20+, TypeScript 5.5+, npm 10+, Vitest 2+, Claude Agent SDK (`@anthropic-ai/agent-sdk`)
+**Assumes:** Node.js 20+, TypeScript 5.5+, npm 10+, Vitest 2+, Claude Agent SDK (`@anthropic-ai/claude-agent-sdk`)
 
 ## Overview
 
@@ -127,7 +127,7 @@ These address specific concerns that not every AI tool has.
 
 When using this stack, these patterns emerge from the combination of ADRs. All concerns from the base `TypeScript CLI Tool (npm)` profile apply, plus:
 
-- **AI orchestrator isolation:** All Claude Agent SDK interaction is encapsulated in `src/core/ai/`. No other component imports `@anthropic-ai/agent-sdk`. If the AI backend changes, only this directory is affected.
+- **AI orchestrator isolation:** All Claude Agent SDK interaction is encapsulated in `src/core/ai/`. No other component imports `@anthropic-ai/claude-agent-sdk`. If the AI backend changes, only this directory is affected.
 - **AI responses as untrusted input:** The orchestrator calls Claude, receives a response, and validates it through a Zod schema before returning typed data to the rest of the engine. Malformed AI output produces a typed error, not a runtime crash.
 - **Prompt construction is code:** Prompt templates live in `prompts.ts` as functions that accept typed context and return strings. They are version-controlled, testable, and reviewable — not hidden in config files or databases.
 - **Tool definitions as declarations:** Claude Agent SDK tools are declared as typed objects with name, description, and parameter schema. Tool implementations delegate to existing core functions — no business logic in tool handlers.
