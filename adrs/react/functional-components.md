@@ -27,3 +27,21 @@ All components are functional components using hooks for state, effects, and con
 - Shared reusable components MUST live in `src/components/` (or `src/shared/`).
 - Components MUST be exported as named exports. Default exports are reserved for route-level page components only.
 - Custom hooks MUST be prefixed with `use` and live in a `hooks/` directory within their feature or in a shared `src/hooks/` directory.
+
+## Examples
+
+**Violation — class component:**
+```tsx
+class CatalogList extends React.Component<Props, State> {
+  componentDidMount() { /* ... */ }
+  render() { return <ul>{/* ... */}</ul>; }
+}
+```
+
+**Compliant:**
+```tsx
+export function CatalogList({ filter }: CatalogListProps) {
+  const [selected, setSelected] = useState<string | null>(null);
+  return <ul>{/* ... */}</ul>;
+}
+```

@@ -29,3 +29,20 @@ Background and long-running tasks are processed by Celery workers with Redis as 
 - Redis MUST be used as the Celery broker (`broker_url = "redis://..."`) and result backend.
 - Tasks MUST define explicit `max_retries`, `default_retry_delay`, and error handling. NEVER allow tasks to retry infinitely.
 - Celery configuration MUST live in a dedicated module (e.g., `src/app/core/celery.py`), not scattered across task files.
+
+## Examples
+
+**Violation — ORM instance as task argument and logic in the task:**
+```python
+@celery_app.task
+def process(order: Order):            # ORM object cannot serialize safely
+    order.status = "processed"        # business logic inside the task
+    session.commit()
+```
+
+**Compliant:**
+```python
+@celery_app.task(max_retries=3, default_retry_delay=30)
+def process_order(order_id: str) -> None:
+    asyncio.run(order_service.process_order(order_id))  # thin wrapper, id-only arg
+```

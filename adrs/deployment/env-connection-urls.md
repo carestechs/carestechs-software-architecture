@@ -27,3 +27,18 @@ All runtime configuration is provided through environment variables. External se
 - A `.env.production.example` SHOULD exist showing production-specific variable expectations (e.g., different default model, stricter CORS origins).
 - API keys and secrets MUST NOT have default values in the settings class. The application MUST fail to start if required secrets are missing.
 - The settings/configuration class MUST be a singleton loaded once at startup. NEVER re-read environment variables scattered across the codebase.
+
+## Examples
+
+**Violation — hardcoded connection string in code:**
+```python
+DATABASE_URL = "postgresql+asyncpg://admin:s3cret@prod-db:5432/app"  # in source
+```
+
+**Compliant:**
+```python
+class Settings(BaseSettings):
+    database_url: PostgresDsn      # read and validated from the environment at startup
+
+settings = Settings()  # fails fast if DATABASE_URL is missing or malformed
+```

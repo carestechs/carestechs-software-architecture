@@ -27,3 +27,23 @@ Use `interface` to define component contracts (what a component exposes to consu
 - All data types MUST be JSON-serializable — no class instances, no `Date` objects (use ISO strings), no functions, no circular references.
 - Use `Readonly<>` for types that represent immutable data (config, resolved docs).
 - NEVER mix concerns: a single type should not serve as both a component contract and a data transfer shape.
+
+## Examples
+
+**Violation — non-serializable Date in a data shape:**
+```ts
+interface RunResult {          // interface used for plain data
+  completedAt: Date;           // dies on JSON.stringify/parse round-trip
+}
+```
+
+**Compliant:**
+```ts
+type RunResult = {
+  completedAt: string; // ISO 8601
+};
+
+export interface DiffProvider { // interface reserved for component contracts
+  getDiff(ref: string): Promise<Diff>;
+}
+```

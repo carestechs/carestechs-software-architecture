@@ -30,3 +30,24 @@ All LLM and embedding calls go through a provider-agnostic abstraction layer. Se
 - The abstraction MUST support tool/function calling. Tool definitions MUST be passed through the abstraction, not provider-specific formats.
 - The abstraction MUST support streaming responses for real-time output scenarios.
 - Swapping from one provider to another MUST require changes only in the composition root or adapter module, not in service code.
+
+## Examples
+
+**Violation — provider SDK imported in the AI service:**
+```python
+# src/app/modules/ai/service.py
+from anthropic import AsyncAnthropic   # provider coupling in service code
+
+client = AsyncAnthropic()
+```
+
+**Compliant:**
+```python
+# src/app/modules/ai/service.py
+class ChatClient(Protocol):
+    async def chat(self, messages: list[ChatMessage], tools: list[ToolDef] | None = None) -> ChatResult: ...
+
+async def answer(chat: ChatClient, question: str) -> str:  # adapter injected at composition root
+    result = await chat.chat(build_messages(question))
+    return result.text
+```

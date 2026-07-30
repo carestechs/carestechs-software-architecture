@@ -29,3 +29,20 @@ All API errors use the Problem Details format (RFC 9457, which obsoletes RFC 780
 - NEVER return raw exception messages or stack traces in production error responses.
 - Use standard HTTP status codes: 400 for validation errors, 401 for authentication, 403 for authorization, 404 for not found, 409 for conflicts, 500 for unhandled server errors.
 - Service layer methods MUST throw specific exceptions (e.g., `NotFoundException`, `ConflictException`) that the exception handler maps to appropriate HTTP status codes.
+
+## Examples
+
+**Violation — custom error envelope:**
+```json
+{ "success": false, "errors": ["Product not found"] }
+```
+
+**Compliant:**
+```json
+{
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Product 0198c9a1-... was not found."
+}
+// Content-Type: application/problem+json — emitted by the global IExceptionHandler
+```

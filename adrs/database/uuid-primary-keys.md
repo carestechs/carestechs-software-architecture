@@ -24,3 +24,19 @@ All primary keys are UUIDs, generated server-side or by the database. Auto-incre
 - Never define a primary key as `int`, `long`, or `serial`
 - Foreign keys referencing PKs must also be `uuid`/`Guid`
 - EF Core entity configurations must specify `.ValueGeneratedOnAdd()` for UUID PKs when using database defaults
+
+## Examples
+
+**Violation — auto-increment integer key:**
+```sql
+create table products (
+  id serial primary key
+);
+```
+
+**Compliant:**
+```sql
+create table products (
+  id uuid primary key default gen_random_uuid() -- uuidv7() on PostgreSQL 18+
+);
+```

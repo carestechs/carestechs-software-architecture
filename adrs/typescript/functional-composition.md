@@ -26,3 +26,22 @@ Prefer plain functions and plain objects over classes. Use function composition 
 - NEVER use decorators for control flow or dependency injection.
 - Service logic MUST be implemented as exported functions, not as class methods.
 - Configuration and data MUST be plain objects conforming to interfaces/types, not class instances.
+
+## Examples
+
+**Violation — class hierarchy for stateless logic:**
+```ts
+abstract class BaseFormatter {
+  protected indent(s: string): string { /* ... */ }
+}
+class JsonFormatter extends BaseFormatter {
+  format(result: Result): string { /* ... */ }
+}
+```
+
+**Compliant:**
+```ts
+export function formatJson(result: Result): string { /* ... */ }
+
+const output = formatJson(await runTool(options)); // plain function composition
+```

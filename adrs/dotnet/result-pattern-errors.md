@@ -33,3 +33,25 @@ Command handlers return `Result<T>` or `Result` instead of throwing exceptions f
 - Exceptions are ONLY for truly unexpected failures (network errors, null reference bugs, configuration errors). These propagate to global error handling.
 - NEVER catch and swallow exceptions inside handlers — let unexpected failures bubble up.
 - Generic error factory methods (`GenericErrors.NotFound(id, description)`, `GenericErrors.Validation(id, description)`) MUST be used for consistent error creation; `GenericErrors` lives in `Common.Lib/Errors/` alongside the `Error` record.
+
+## Examples
+
+**Violation — throwing for an expected business failure:**
+```csharp
+public async Task<Result<Guid>> HandleAsync(ShipOrderCommand cmd, CancellationToken ct)
+{
+    var order = await _orders.GetByIdAsync(cmd.OrderId, ct)
+        ?? throw new NotFoundException($"order {cmd.OrderId}"); // hidden control flow
+}
+```
+
+**Compliant:**
+```csharp
+public async Task<Result<Guid>> HandleAsync(ShipOrderCommand cmd, CancellationToken ct)
+{
+    var order = await _orders.GetByIdAsync(cmd.OrderId, ct);
+    if (order is null)
+        return Result<Guid>.Failure(GenericErrors.NotFound(cmd.OrderId, "Order not found"));
+    // ... endpoint maps ErrorType.NotFound -> 404 via Results.Problem()
+}
+```

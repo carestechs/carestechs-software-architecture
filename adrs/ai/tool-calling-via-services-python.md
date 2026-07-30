@@ -31,3 +31,21 @@ AI tools (functions the LLM can call) are thin adapters that delegate to existin
 - Tools MUST return Pydantic-serializable results. NEVER return raw ORM model instances from tools.
 - NEVER allow tools to perform destructive operations (DELETE, hard mutations) without an explicit confirmation mechanism (e.g., human approval or a two-step confirm parameter).
 - NEVER give a tool unrestricted database query capability (e.g., raw SQL execution or open-ended query builders).
+
+## Examples
+
+**Violation — direct data access and logic inside a tool:**
+```python
+async def search_products(term: str) -> list[dict]:
+    async with async_session() as session:      # tool talks to the database itself
+        rows = await session.execute(
+            select(Product).where(Product.name.contains(term)))
+        return [row._asdict() for row in rows]
+```
+
+**Compliant:**
+```python
+async def search_products(term: str) -> list[ProductRead]:
+    """Search the product catalog by name or SKU."""
+    return await catalog_service.search_products(term)  # same service the API uses
+```

@@ -27,3 +27,23 @@ All list endpoints use offset-based pagination with `page` and `pageSize` query 
 - Validate `sortBy` against an allowlist of sortable columns — never pass raw user input to ORDER BY
 - Create a shared `PaginationParams` class for binding query parameters
 - Use `.Skip((page - 1) * pageSize).Take(pageSize)` for EF Core queries
+
+## Examples
+
+**Violation — unclamped page size and client-controlled sort column:**
+```csharp
+var items = await query
+    .OrderBy(request.SortBy)                       // raw client string into ORDER BY
+    .Skip((request.Page - 1) * request.PageSize)
+    .Take(request.PageSize)                        // pageSize unbounded
+    .ToListAsync(ct);
+```
+
+**Compliant:**
+```csharp
+var pageSize = Math.Clamp(request.PageSize, 1, 100);
+var sort = SortMap.TryGetValue(request.SortBy ?? "name", out var s)
+    ? s : throw new ValidationException("Unknown sortBy"); // allowlisted columns only
+var items = await query.OrderBy(sort)
+    .Skip((request.Page - 1) * pageSize).Take(pageSize).ToListAsync(ct);
+```
