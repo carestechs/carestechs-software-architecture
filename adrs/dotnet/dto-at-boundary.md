@@ -28,3 +28,22 @@ API endpoints (controllers or Minimal API delegates) never expose EF Core entiti
 - DTOs MUST be simple data carriers — no business logic, no behavior methods, no dependencies (compiler-generated `record` members are fine).
 - DTOs SHOULD use `record` types for immutability and value equality when practical.
 - Request DTOs MAY carry data annotation attributes for input validation.
+
+## Examples
+
+**Violation — EF entity exposed directly by an endpoint:**
+```csharp
+[HttpGet("{id}")]
+public async Task<Product> Get(Guid id) =>
+    await _db.Products.FindAsync(id); // entity (and schema) leaks into the API contract
+```
+
+**Compliant:**
+```csharp
+[HttpGet("{id}")]
+public async Task<ActionResult<ProductDto>> Get(Guid id, CancellationToken ct)
+{
+    var dto = await _catalogService.GetProductByIdAsync(id, ct); // service maps entity -> DTO
+    return dto is null ? NotFound() : Ok(dto);
+}
+```

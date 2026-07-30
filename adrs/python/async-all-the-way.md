@@ -26,3 +26,22 @@ All I/O-bound operations use `async`/`await` consistently from route handlers do
 - NEVER call blocking I/O (synchronous HTTP requests, file reads, `time.sleep()`) directly in async functions. Use `asyncio.to_thread()` if wrapping unavoidable sync libraries.
 - The application MUST run on an ASGI server (Uvicorn or Hypercorn). NEVER use a WSGI server.
 - NEVER use `asyncio.run()` inside route handlers or services — the event loop is already running.
+
+## Examples
+
+**Violation — sync session and blocking HTTP inside the event loop:**
+```python
+@router.get("/products/{product_id}")
+def get_product(product_id: UUID, session: Session = Depends(get_session)):
+    data = requests.get(PRICE_API).json()  # blocks the event loop
+    return session.get(Product, product_id)
+```
+
+**Compliant:**
+```python
+@router.get("/products/{product_id}", response_model=ProductRead)
+async def get_product(product_id: UUID, session: AsyncSession = Depends(get_session)):
+    async with httpx.AsyncClient() as client:
+        data = (await client.get(PRICE_API)).json()
+    return await product_service.get_product(session, product_id)
+```

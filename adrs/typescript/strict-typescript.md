@@ -26,3 +26,19 @@ All TypeScript code uses strict mode with no escape hatches. The `any` type and 
 - NEVER use `@ts-ignore` or `@ts-expect-error` directives.
 - NEVER use non-null assertion operator (`!`) unless the surrounding code makes the invariant obvious (e.g., immediately after a null check in a map).
 - All function parameters and return types MUST be explicitly typed (no reliance on inference for public API).
+
+## Examples
+
+**Violation — any and @ts-ignore to silence the compiler:**
+```ts
+const config = JSON.parse(raw) as any;
+// @ts-ignore
+await runTool(config.options);
+```
+
+**Compliant:**
+```ts
+const parsed: unknown = JSON.parse(raw);
+const config = configSchema.parse(parsed); // Zod narrows unknown -> Config
+await runTool(config.options);
+```

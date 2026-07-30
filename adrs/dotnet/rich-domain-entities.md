@@ -31,3 +31,30 @@ Domain entities use private setters, a private parameterless constructor (for EF
 - State-changing logic (e.g., `MarkProcessing()`, `Deactivate()`, `Update()`) MUST be instance methods on the entity.
 - Collection navigation properties MUST use a private backing field (e.g., `private readonly List<Child> _children = new()`) with a public `IReadOnlyCollection<Child>` accessor.
 - NEVER put orchestration logic (calling repositories, publishing events, coordinating multiple entities) in entities — that belongs in command handlers.
+
+## Examples
+
+**Violation — public setters let any caller corrupt state:**
+```csharp
+public class Order
+{
+    public OrderStatus Status { get; set; }
+}
+order.Status = OrderStatus.Shipped; // from anywhere, no invariant check
+```
+
+**Compliant:**
+```csharp
+public class Order
+{
+    public OrderStatus Status { get; private set; }
+    private Order() { } // EF Core materialization
+
+    public void Ship()
+    {
+        if (Status != OrderStatus.Paid)
+            throw new InvalidOperationException("Only paid orders can ship.");
+        Status = OrderStatus.Shipped;
+    }
+}
+```

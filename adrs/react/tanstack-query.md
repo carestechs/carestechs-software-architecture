@@ -27,3 +27,21 @@ All server state (data fetched from APIs) is managed by TanStack Query (React Qu
 - `QueryClient` MUST be configured once in the app root and provided via `QueryClientProvider`.
 - NEVER store server-fetched data in `useState` or global state — let TanStack Query own it.
 - Loading and error states MUST be handled using the v5 hook properties — `isPending` for the initial load (mutations also expose `isPending`; `isLoading` no longer exists on v5 mutations), `isError`, and `error` — or via React Suspense boundaries with `useSuspenseQuery`.
+
+## Examples
+
+**Violation — hand-rolled fetching with useEffect + useState:**
+```tsx
+const [items, setItems] = useState<Item[]>([]);
+useEffect(() => {
+  fetch("/api/items").then(r => r.json()).then(setItems); // no cache, races, no error state
+}, []);
+```
+
+**Compliant:**
+```tsx
+const { data: items, isPending, isError } = useQuery({
+  queryKey: ["items"],
+  queryFn: fetchItems, // defined in the feature's api.ts
+});
+```

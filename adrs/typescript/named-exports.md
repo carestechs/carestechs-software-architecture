@@ -25,3 +25,17 @@ All modules use named exports exclusively. Default exports are banned. Each comp
 - Each component directory (e.g., `src/core/config/`) MUST have an `index.ts` barrel file exporting its public API.
 - Internal helper functions that are not part of the public API MUST NOT be re-exported from the barrel file.
 - Import from the barrel path (e.g., `from "../config"`) for cross-component usage, not from internal files (e.g., `from "../config/config-loader"`).
+
+## Examples
+
+**Violation — default export renames itself at every import site:**
+```ts
+export default function loadConfig(path: string): Config { /* ... */ }
+// elsewhere: import cfgLoader from "./config-loader";
+```
+
+**Compliant:**
+```ts
+export function loadConfig(path: string): Config { /* ... */ }
+// elsewhere: import { loadConfig } from "./config-loader";
+```

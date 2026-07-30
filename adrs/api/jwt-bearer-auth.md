@@ -26,3 +26,16 @@ Authentication uses JWT Bearer tokens sent via the Authorization header. Access 
 - Token validation must check signature, expiration, issuer, and audience against an explicit algorithm allowlist (e.g., RS256/ES256 only) — NEVER accept the `none` algorithm or trust the token header's `alg`; tolerate at most ~60 seconds of clock skew
 - Cookie-delivered refresh tokens MUST set `Secure`, `HttpOnly`, and `SameSite=Strict` (or `Lax`), and the refresh endpoint MUST be CSRF-protected
 - Protect endpoints with `[Authorize]` attribute (or FastAPI auth dependencies); role-based access with `[Authorize(Roles = "...")]` or an equivalent role guard
+
+## Examples
+
+**Violation — token persisted where any injected script can read it:**
+```ts
+localStorage.setItem("access_token", token);
+```
+
+**Compliant:**
+```ts
+let accessToken: string | null = null; // in-memory only, per tab
+// refresh token arrives as an httpOnly, Secure, SameSite=Strict cookie set by the server
+```
