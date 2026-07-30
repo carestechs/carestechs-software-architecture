@@ -7,6 +7,8 @@ requires:
 conflicts_with:
   - adrs/angular/signals-state.md
 last_reviewed: 2026-07-29
+verify_against:
+  - TanStack Query 5
 ---
 
 # TanStack Query for Server State

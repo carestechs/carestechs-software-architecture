@@ -6,6 +6,9 @@ requires: []
 conflicts_with:
   - adrs/python/pytest-testing.md
 last_reviewed: 2026-07-30
+verify_against:
+  - xUnit
+  - Testcontainers
 ---
 
 # xUnit with Per-Module Test Projects

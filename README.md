@@ -115,7 +115,8 @@ carestechs-software-architecture/
 │       ├── maintenance-cli-scheduler.md
 │       ├── npm-cli-package.md
 │       ├── zod-config-validation.md
-│       └── github-action-composite.md
+│       ├── github-action-composite.md
+│       └── github-actions-ci.md
 │
 └── profiles/                  # Pre-built ADR sets (stack + deployment mode)
     ├── dotnet-angular-modular-monolith-docker-compose.md
@@ -127,7 +128,7 @@ carestechs-software-architecture/
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**74 ADRs** across 9 categories, **7 stack profiles**.
+**75 ADRs** across 9 categories, **7 stack profiles**.
 
 ## How to Use
 
@@ -183,7 +184,7 @@ After compiling, you still need to fill in:
 | database | 5 | UUID PKs, snake_case naming, lowercase naming, soft deletes, timestamptz |
 | api | 4 | REST envelope, JWT auth, role-based authorization, offset pagination |
 | ai | 11 | AI agent modules, LLM abstraction, tool calling, RAG, conversation history, Claude Agent SDK |
-| deployment | 16 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions, Zod config, maintenance scheduler |
+| deployment | 17 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions CI + composite action, Zod config, maintenance scheduler |
 
 ## ADR Format
 
@@ -221,7 +222,7 @@ ADRs can declare dependencies and conflicts in their metadata:
 - **Conflicts with:** Lists ADR files that are mutually exclusive. Conflicting ADRs should not both be selected. Conflicts are declared symmetrically: if A lists B, B lists A.
 - **Stack:** Which technology stack the ADR's constraints assume (`any` = cross-stack). Same-slot variants for different stacks conflict with each other; filter by Stack to find the variant that applies to your project.
 
-Run `python scripts/validate_adrs.py` to check the catalog: frontmatter format, referenced files, conflict symmetry, dependency cycles, and profile consistency. CI runs the same script on every push and pull request.
+Run `python scripts/validate_adrs.py` to check the catalog: frontmatter format, referenced files, conflict symmetry, dependency cycles, and profile consistency. CI runs the same script on every push and pull request. `python scripts/validate_adrs.py --stale` additionally reports version-sensitive ADRs (those with a `verify_against` list) that are due for re-review.
 
 Example: `adrs/dotnet/dbcontext-per-module.md` requires `adrs/dotnet/modular-monolith.md` — you can't have per-module DbContexts without module boundaries.
 

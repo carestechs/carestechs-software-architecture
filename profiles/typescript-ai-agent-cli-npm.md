@@ -112,6 +112,7 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 | ADR | Summary | Alternative |
 |-----|---------|-------------|
 | `adrs/deployment/github-action-composite.md` | GitHub Action as composite action running Node.js. Same core engine as CLI. | JavaScript action with `@vercel/ncc` bundle (single file, more complex build) |
+| `adrs/deployment/github-actions-ci.md` | CI gate on every push/PR: lint (enforcement configs), typecheck, tests, build. Deploys are separate workflows. | GitLab CI / Azure DevOps (if repos move) |
 
 ## Optional (pick based on project needs)
 

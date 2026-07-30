@@ -6,6 +6,8 @@ requires: []
 conflicts_with:
   - adrs/react/tailwind-shadcn.md
 last_reviewed: 2026-07-29
+verify_against:
+  - Tailwind CSS 4
 ---
 
 # Tailwind CSS Only — No Component Stylesheets

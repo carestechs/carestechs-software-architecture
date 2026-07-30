@@ -3,6 +3,9 @@
 
 Run from anywhere:  python scripts/validate_adrs.py
 Exit code 0 = no errors (warnings allowed), 1 = at least one error.
+`--stale [months]` instead prints version-sensitive ADRs (those carrying a
+`verify_against` list) whose `last_reviewed` is older than the given number
+of months (default 6), then exits 0 — an informational freshness report.
 Stdlib only — safe to run locally and in CI without installing anything.
 
 Frontmatter format (strict subset of YAML, enforced here)
@@ -64,7 +67,7 @@ ADR_DIR = ROOT / "adrs"
 PROFILE_DIR = ROOT / "profiles"
 
 REQUIRED_KEYS = ("category", "stack", "status", "requires", "conflicts_with")
-OPTIONAL_KEYS = ("last_reviewed", "superseded_by")
+OPTIONAL_KEYS = ("last_reviewed", "superseded_by", "verify_against")
 KNOWN_KEYS = set(REQUIRED_KEYS) | set(OPTIONAL_KEYS)
 LIST_KEYS = {"requires", "conflicts_with"}
 
@@ -189,13 +192,18 @@ def load_adrs() -> dict[str, dict]:
                 err(f"{rel}: has 'superseded_by' but status is '{meta.get('status')}' (must be Superseded)")
         elif meta.get("status") == "Superseded":
             err(f"{rel}: status is Superseded but no 'superseded_by' key points at the replacement")
+        verify_against = meta.get("verify_against")
+        if verify_against is not None and not isinstance(verify_against, list):
+            err(f"{rel}: verify_against must be a list of framework/version strings")
+            verify_against = []
         requires = parse_path_items(meta.get("requires", []), f"{rel} [requires]",
                                     allow_alternatives=True)
         conflict_groups = parse_path_items(meta.get("conflicts_with", []), f"{rel} [conflicts_with]",
                                            allow_alternatives=False)
         conflicts = [g[0] for g in conflict_groups if g]
         adrs[rel] = {"requires": requires, "conflicts": conflicts,
-                     "stack": stack, "superseded_by": superseded_by}
+                     "stack": stack, "superseded_by": superseded_by,
+                     "last_reviewed": reviewed, "verify_against": verify_against or []}
     return adrs
 
 
@@ -359,6 +367,28 @@ def check_profiles(adrs: dict[str, dict]) -> None:
                      f"(addable: {fmt_group(usable)})")
 
 
+def report_stale(adrs: dict[str, dict], months: int) -> None:
+    """List version-sensitive ADRs whose last review is older than `months`."""
+    import datetime
+    cutoff = datetime.date.today() - datetime.timedelta(days=months * 30)
+    stale = []
+    for rel in sorted(adrs):
+        data = adrs[rel]
+        if not data["verify_against"]:
+            continue
+        reviewed = data.get("last_reviewed")
+        reviewed_date = (datetime.date.fromisoformat(str(reviewed))
+                         if reviewed and DATE_RE.match(str(reviewed)) else None)
+        if reviewed_date is None or reviewed_date < cutoff:
+            stale.append((rel, reviewed or "never", ", ".join(data["verify_against"])))
+    if not stale:
+        print(f"No version-sensitive ADRs older than {months} months. All fresh.")
+        return
+    print(f"Version-sensitive ADRs not reviewed in the last {months} months:")
+    for rel, reviewed, targets in stale:
+        print(f"  {rel}  (last reviewed: {reviewed})  -> re-verify against: {targets}")
+
+
 def main() -> int:
     try:  # keep output readable on Windows consoles that are not UTF-8
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -367,7 +397,15 @@ def main() -> int:
     if not ADR_DIR.is_dir():
         print(f"error: {ADR_DIR} not found (run from the repo or keep the script in scripts/)")
         return 1
+    stale_months = None
+    if "--stale" in sys.argv:
+        idx = sys.argv.index("--stale")
+        stale_months = (int(sys.argv[idx + 1])
+                        if idx + 1 < len(sys.argv) and sys.argv[idx + 1].isdigit() else 6)
     adrs = load_adrs()
+    if stale_months is not None:
+        report_stale(adrs, stale_months)
+        return 0
     check_references(adrs)
     check_graph(adrs)
     if PROFILE_DIR.is_dir():

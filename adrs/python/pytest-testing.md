@@ -7,6 +7,9 @@ requires:
 conflicts_with:
   - adrs/dotnet/xunit-per-module-tests.md
 last_reviewed: 2026-07-30
+verify_against:
+  - pytest-asyncio
+  - httpx
 ---
 
 # pytest with Async Fixtures

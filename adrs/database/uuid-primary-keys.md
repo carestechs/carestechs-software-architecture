@@ -5,6 +5,10 @@ status: Active
 requires: []
 conflicts_with: []
 last_reviewed: 2026-07-29
+verify_against:
+  - PostgreSQL 18
+  - .NET 9
+  - Python 3.14
 ---
 
 # UUID Primary Keys

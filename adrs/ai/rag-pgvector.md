@@ -10,6 +10,8 @@ requires:
 conflicts_with:
   - adrs/ai/rag-pgvector-python.md
 last_reviewed: 2026-07-29
+verify_against:
+  - Pgvector.EntityFrameworkCore
 ---
 
 # RAG Pipeline with pgvector

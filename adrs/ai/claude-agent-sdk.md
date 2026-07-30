@@ -8,6 +8,8 @@ conflicts_with:
   - adrs/ai/meai-abstraction.md
   - adrs/ai/llm-abstraction-python.md
 last_reviewed: 2026-07-29
+verify_against:
+  - @anthropic-ai/claude-agent-sdk
 ---
 
 # Claude Agent SDK for AI-Powered Analysis (TypeScript)
