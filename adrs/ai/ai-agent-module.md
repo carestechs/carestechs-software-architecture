@@ -1,11 +1,20 @@
-# AI Agent as a Dedicated Module
+---
+category: ai
+stack: dotnet
+status: Active
+requires:
+  - adrs/dotnet/modular-monolith.md
+  - adrs/dotnet/dbcontext-per-module.md
+  - adrs/dotnet/cross-module-by-id.md
+  - adrs/dotnet/thin-api-host.md
+  - adrs/dotnet/service-layer-logic.md
+  - adrs/dotnet/dto-at-boundary.md
+conflicts_with:
+  - adrs/ai/ai-module-python.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Stack:** dotnet
-**Status:** Active
-**Requires:** `adrs/dotnet/modular-monolith.md`, `adrs/dotnet/dbcontext-per-module.md`, `adrs/dotnet/cross-module-by-id.md`, `adrs/dotnet/thin-api-host.md`, `adrs/dotnet/service-layer-logic.md`, `adrs/dotnet/dto-at-boundary.md`
-**Conflicts with:** `adrs/ai/ai-module-python.md`
-**Last reviewed:** 2026-07-29
+# AI Agent as a Dedicated Module
 
 ## Decision
 The AI agent is a dedicated feature module (`MyApp.Modules.AI`) that follows all modular monolith conventions: its own .csproj, its own `AIDbContext`, its own Controllers/Services/Entities/DTOs/Tools folder structure, and an `AddAIModule()` extension method for DI registration. The AI module accesses other modules exclusively through shared contract interfaces.

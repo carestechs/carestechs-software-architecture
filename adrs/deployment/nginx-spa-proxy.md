@@ -1,11 +1,14 @@
-# Nginx Reverse Proxy for SPA Serving
+---
+category: deployment
+stack: any
+status: Active
+requires:
+  - adrs/deployment/docker-multi-stage-builds.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** deployment
-**Stack:** any
-**Status:** Active
-**Requires:** `adrs/deployment/docker-multi-stage-builds.md`
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# Nginx Reverse Proxy for SPA Serving
 
 ## Decision
 The frontend is served via nginx running in a container. Nginx serves the built SPA static files and reverse-proxies API requests (e.g., `/api/`) to the backend service. Client-side routing is handled with a `try_files` fallback to `index.html`. The nginx configuration is stored in the repository alongside the frontend source.

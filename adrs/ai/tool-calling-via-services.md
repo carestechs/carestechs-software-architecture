@@ -1,11 +1,17 @@
-# AI Tool Calling via Existing Service Interfaces
+---
+category: ai
+stack: dotnet
+status: Active
+requires:
+  - adrs/dotnet/modular-monolith.md
+  - adrs/dotnet/service-layer-logic.md
+  - adrs/ai/meai-abstraction.md
+conflicts_with:
+  - adrs/ai/tool-calling-via-services-python.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Stack:** dotnet
-**Status:** Active
-**Requires:** `adrs/dotnet/modular-monolith.md`, `adrs/dotnet/service-layer-logic.md`, `adrs/ai/meai-abstraction.md`
-**Conflicts with:** `adrs/ai/tool-calling-via-services-python.md`
-**Last reviewed:** 2026-07-29
+# AI Tool Calling via Existing Service Interfaces
 
 ## Decision
 AI tools (functions the LLM can invoke) are thin adapters in the AI module that delegate to existing module service interfaces. Tools contain no business logic — they parse parameters, call a service method, and return the result. Tool definitions are created with `AIFunctionFactory.Create()` or `AIFunction` from M.E.AI.

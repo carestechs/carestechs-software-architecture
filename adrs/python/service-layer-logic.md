@@ -1,11 +1,13 @@
-# Service Layer Owns All Business Logic
+---
+category: python
+stack: python
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** python
-**Stack:** python
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# Service Layer Owns All Business Logic
 
 ## Decision
 All business logic lives in service classes or functions within each module's `service.py`. Route handlers are thin: they validate input (via Pydantic), call a service function, and return the result. No business logic is permitted in route handlers or direct database queries within routes.

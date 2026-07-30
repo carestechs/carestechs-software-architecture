@@ -1,11 +1,18 @@
-# AI Agent as a Dedicated Python Module
+---
+category: ai
+stack: python
+status: Active
+requires:
+  - adrs/python/modular-packages.md
+  - adrs/python/service-layer-logic.md
+  - adrs/python/pydantic-at-boundary.md
+  - adrs/python/sqlalchemy-async.md
+conflicts_with:
+  - adrs/ai/ai-agent-module.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Stack:** python
-**Status:** Active
-**Requires:** `adrs/python/modular-packages.md`, `adrs/python/service-layer-logic.md`, `adrs/python/pydantic-at-boundary.md`, `adrs/python/sqlalchemy-async.md`
-**Conflicts with:** `adrs/ai/ai-agent-module.md`
-**Last reviewed:** 2026-07-29
+# AI Agent as a Dedicated Python Module
 
 ## Decision
 The AI agent is a dedicated feature module (`src/app/modules/ai/`) that follows all modular monolith conventions: its own package directory, its own SQLAlchemy models, its own routers/services/schemas, and clearly attributed Alembic migrations. The AI module accesses other modules exclusively through shared contract interfaces.

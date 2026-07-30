@@ -1,11 +1,14 @@
-# DbContext Per Module
+---
+category: dotnet
+stack: dotnet
+status: Active
+requires:
+  - adrs/dotnet/modular-monolith.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** dotnet
-**Stack:** dotnet
-**Status:** Active
-**Requires:** `adrs/dotnet/modular-monolith.md`
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# DbContext Per Module
 
 ## Decision
 Each feature module owns its own DbContext that maps only that module's entities. There is no shared or "master" DbContext. EF Core migrations are generated and applied per module, scoped to that module's table set. All modules share the default schema by default; a schema-per-module layout is an acceptable alternative — pick one approach per solution and use it consistently.

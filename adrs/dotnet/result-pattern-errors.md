@@ -1,11 +1,15 @@
-# Result Pattern for Error Handling
+---
+category: dotnet
+stack: dotnet
+status: Active
+requires:
+  - adrs/dotnet/cqrs-handlers.md
+conflicts_with:
+  - adrs/dotnet/rfc7807-errors.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** dotnet
-**Stack:** dotnet
-**Status:** Active
-**Requires:** `adrs/dotnet/cqrs-handlers.md`
-**Conflicts with:** `adrs/dotnet/rfc7807-errors.md`
-**Last reviewed:** 2026-07-29
+# Result Pattern for Error Handling
 
 ## Decision
 

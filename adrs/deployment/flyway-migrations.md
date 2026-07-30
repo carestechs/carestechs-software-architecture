@@ -1,11 +1,13 @@
-# Flyway SQL Migrations
+---
+category: deployment
+stack: dotnet
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** deployment
-**Stack:** dotnet
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# Flyway SQL Migrations
 
 ## Decision
 

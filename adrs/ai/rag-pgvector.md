@@ -1,11 +1,18 @@
-# RAG Pipeline with pgvector
+---
+category: ai
+stack: dotnet
+status: Active
+requires:
+  - adrs/ai/meai-abstraction.md
+  - adrs/ai/ai-agent-module.md
+  - adrs/database/uuid-primary-keys.md
+  - adrs/database/timestamptz-always.md
+conflicts_with:
+  - adrs/ai/rag-pgvector-python.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Stack:** dotnet
-**Status:** Active
-**Requires:** `adrs/ai/meai-abstraction.md`, `adrs/ai/ai-agent-module.md`, `adrs/database/uuid-primary-keys.md`, `adrs/database/timestamptz-always.md`
-**Conflicts with:** `adrs/ai/rag-pgvector-python.md`
-**Last reviewed:** 2026-07-29
+# RAG Pipeline with pgvector
 
 ## Decision
 Retrieval-augmented generation (RAG) uses `IEmbeddingGenerator` from M.E.AI for embedding generation and PostgreSQL with the pgvector extension for vector storage and similarity search. The pipeline follows: chunk documents → generate embeddings → store in vector table → at query time, embed the user query → perform similarity search → inject retrieved context into the LLM prompt.

@@ -1,11 +1,13 @@
-# Async All the Way
+---
+category: dotnet
+stack: dotnet
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** dotnet
-**Stack:** dotnet
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# Async All the Way
 
 ## Decision
 All I/O-bound operations use async/await consistently from the HTTP entry point (controller actions or Minimal API endpoint delegates) down through services or command/query handlers to DbContext calls. Controller actions return `Task<IActionResult>`; Minimal API delegates return `Task<IResult>` (or a `Task` of a typed result). Service methods and handlers return `Task<T>`. All EF Core queries use their async variants. Service interface methods use the `Async` suffix.

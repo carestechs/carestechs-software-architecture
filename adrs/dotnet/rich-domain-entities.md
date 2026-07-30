@@ -1,11 +1,15 @@
-# Rich Domain Entities with Factory Methods
+---
+category: dotnet
+stack: dotnet
+status: Active
+requires:
+  - adrs/dotnet/clean-architecture-layers.md
+conflicts_with:
+  - adrs/dotnet/service-layer-logic.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** dotnet
-**Stack:** dotnet
-**Status:** Active
-**Requires:** `adrs/dotnet/clean-architecture-layers.md`
-**Conflicts with:** `adrs/dotnet/service-layer-logic.md`
-**Last reviewed:** 2026-07-29
+# Rich Domain Entities with Factory Methods
 
 ## Decision
 

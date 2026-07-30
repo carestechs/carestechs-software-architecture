@@ -1,11 +1,15 @@
-# Problem Details (RFC 9457) for API Errors
+---
+category: dotnet
+stack: dotnet
+status: Active
+requires: []
+conflicts_with:
+  - adrs/dotnet/result-pattern-errors.md
+  - adrs/python/rfc7807-errors.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** dotnet
-**Stack:** dotnet
-**Status:** Active
-**Requires:** —
-**Conflicts with:** `adrs/dotnet/result-pattern-errors.md`, `adrs/python/rfc7807-errors.md`
-**Last reviewed:** 2026-07-29
+# Problem Details (RFC 9457) for API Errors
 
 ## Decision
 All API errors use the Problem Details format (RFC 9457, which obsoletes RFC 7807). A global exception-handling middleware catches unhandled exceptions and returns structured `ProblemDetails` responses. Validation errors return HTTP 400 with field-level error details. The application uses ASP.NET Core's built-in `ProblemDetails` support — no custom error envelopes.

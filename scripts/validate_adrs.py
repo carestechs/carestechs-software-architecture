@@ -1,43 +1,45 @@
 #!/usr/bin/env python3
-"""Validate the ADR catalog: metadata format, Requires/Conflicts graph, and profiles.
+"""Validate the ADR catalog: frontmatter metadata, Requires/Conflicts graph, profiles.
 
 Run from anywhere:  python scripts/validate_adrs.py
 Exit code 0 = no errors (warnings allowed), 1 = at least one error.
+Stdlib only — safe to run locally and in CI without installing anything.
 
-Metadata syntax
----------------
-  **Stack:** dotnet | python | typescript | angular | react | any
-      Which technology stack the ADR's constraints assume; `any` = cross-stack.
-  **Requires:** `adrs/a.md`, `adrs/b.md` | `adrs/c.md`
-      Comma separates AND-groups; `|` inside a group separates alternatives —
-      the group is satisfied when ANY one alternative is selected.
-  **Conflicts with:** `adrs/x.md`, `adrs/y.md`
-      Flat comma-separated list; `|` is not allowed. Conflicts MUST be
-      declared symmetrically (if A lists B, B must list A).
-  **Last reviewed:** YYYY-MM-DD          (optional)
-  **Superseded by:** `adrs/<path>.md`    (optional; requires Status: Superseded)
-  Use the em dash (—) for an empty value; the non-optional lines are mandatory.
+Frontmatter format (strict subset of YAML, enforced here)
+----------------------------------------------------------
+Every ADR starts with a frontmatter block:
+
+    ---
+    category: dotnet          # must match the folder name
+    stack: dotnet             # dotnet|python|typescript|angular|react|any
+    status: Active            # Active|Deprecated|Superseded
+    requires:                 # [] when empty; one AND-group per item;
+      - adrs/a.md             # alternatives inside an item separated by " | "
+      - adrs/b.md | adrs/c.md
+    conflicts_with: []        # flat path list; must be symmetric; no "|"
+    last_reviewed: 2026-07-29 # optional, YYYY-MM-DD
+    superseded_by: adrs/x.md  # optional; requires status: Superseded
+    ---
 
 Checks
 ------
 Per ADR file (adrs/**/*.md):
-  A1  Category / Stack / Status / Requires / Conflicts-with lines present,
-      no duplicates
-  A2  Category field matches the folder name; in language folders
-      (dotnet/python/typescript/angular/react) Stack must equal the folder name
-  A3  Status is one of: Active, Deprecated, Superseded; Stack is a valid value;
-      Last reviewed (if present) is a YYYY-MM-DD date
-  A4  Requires / Conflicts entries are backticked `adrs/<cat>/<file>.md` paths
-      (semicolons and un-backticked paths are errors; `|` only in Requires)
-  A5  Referenced ADR files exist (including Superseded by targets)
+  A1  Frontmatter present, closed, no duplicate keys, required keys present
+  A2  category matches the folder name; in language folders
+      (dotnet/python/typescript/angular/react) stack must equal the folder
+  A3  status/stack values valid; last_reviewed is a YYYY-MM-DD date
+  A4  requires/conflicts entries are adrs/<cat>/<file>.md paths;
+      "|" alternatives only in requires
+  A5  Referenced ADR files exist (including superseded_by targets)
   A6  No self-references
-  A7  Superseded by present <=> Status is Superseded
+  A7  superseded_by present <=> status is Superseded
+  A8  No legacy bold-line metadata (**Category:** etc.) left in the body
 
 Graph:
   G1  Conflicts are symmetric: if A lists B, B must list A
-  G2  A Requires group whose alternatives ALL conflict with the declaring ADR
-      is an error (a partially conflicting group is a warning)
-  G3  No cycles in the Requires graph (conservative: follows every alternative)
+  G2  A requires-group whose alternatives ALL conflict with the declaring
+      ADR is an error (a partially conflicting group is a warning)
+  G3  No cycles in the requires graph (conservative: follows every alternative)
   G4  An ADR's deterministic dependency closure (single-alternative groups)
       contains no conflicting pair
 
@@ -45,10 +47,10 @@ Per profile (profiles/*.md):
   P1  Every referenced ADR path exists
   P2  No ADR listed in more than one tier (warning)
   P3  No two selected ADRs conflict with each other
-  P4  Every Requires group of a selected ADR (and of its transitively missing
-      single dependencies) is satisfied by the profile. Missing dependency =
-      warning; missing dependency whose every alternative conflicts with a
-      selected ADR = error (the profile set is unsatisfiable as declared).
+  P4  Every requires-group of a selected ADR (and of its transitively
+      missing single dependencies) is satisfied by the profile. Missing
+      dependency = warning; missing dependency whose every alternative
+      conflicts with a selected ADR = error (unsatisfiable as declared).
 """
 
 from __future__ import annotations
@@ -61,17 +63,22 @@ ROOT = Path(__file__).resolve().parent.parent
 ADR_DIR = ROOT / "adrs"
 PROFILE_DIR = ROOT / "profiles"
 
-META_KEYS = ("Category", "Stack", "Status", "Requires", "Conflicts with")
-OPTIONAL_KEYS = ("Last reviewed", "Superseded by")
-META_RE = re.compile(
-    r"^\*\*(Category|Stack|Status|Requires|Conflicts with|Last reviewed|Superseded by):\*\*\s*(.*?)\s*$")
-BACKTICK_PATH_RE = re.compile(r"`(adrs/[A-Za-z0-9._/-]+\.md)`")
+REQUIRED_KEYS = ("category", "stack", "status", "requires", "conflicts_with")
+OPTIONAL_KEYS = ("last_reviewed", "superseded_by")
+KNOWN_KEYS = set(REQUIRED_KEYS) | set(OPTIONAL_KEYS)
+LIST_KEYS = {"requires", "conflicts_with"}
+
+KEY_RE = re.compile(r"^([a-z_]+):\s*(.*?)\s*$")
+ITEM_RE = re.compile(r"^  - (\S.*?)\s*$")
+PATH_RE = re.compile(r"^adrs/[A-Za-z0-9._/-]+\.md$")
 LOOSE_PATH_RE = re.compile(r"adrs/[A-Za-z0-9._/-]+\.md")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+LEGACY_RE = re.compile(
+    r"^\*\*(Category|Stack|Status|Requires|Conflicts with|Last reviewed|Superseded by):\*\*")
+
 VALID_STATUS = {"Active", "Deprecated", "Superseded"}
 VALID_STACKS = {"dotnet", "python", "typescript", "angular", "react", "any"}
 LANGUAGE_FOLDERS = {"dotnet", "python", "typescript", "angular", "react"}
-EMPTY_MARKERS = {"—", "-", "–", ""}  # em dash, hyphen, en dash
 
 errors: list[str] = []
 warnings: list[str] = []
@@ -89,33 +96,62 @@ def fmt_group(group: list[str]) -> str:
     return " | ".join(group)
 
 
-def parse_groups(raw: str, where: str, allow_alternatives: bool) -> list[list[str]]:
-    """Parse a metadata value into AND-groups of alternative ADR paths."""
-    if raw in EMPTY_MARKERS:
-        return []
-    if ";" in raw:
-        err(f"{where}: uses ';' as separator — groups must be comma-separated")
-        raw = raw.replace(";", ",")
-    groups: list[list[str]] = []
-    for part in raw.split(","):
-        part = part.strip()
-        if not part:
+def parse_frontmatter(lines: list[str], where: str) -> tuple[dict, int]:
+    """Parse the strict frontmatter subset. Returns (meta, index-after-closing-fence)."""
+    meta: dict = {}
+    if not lines or lines[0].strip() != "---":
+        err(f"{where}: file must start with a '---' frontmatter block")
+        return meta, 0
+    i = 1
+    while i < len(lines):
+        line = lines[i].rstrip()
+        if line == "---":
+            return meta, i + 1
+        m = KEY_RE.match(line)
+        if not m:
+            err(f"{where}: unparseable frontmatter line {line!r}")
+            i += 1
             continue
-        members: list[str] = []
-        for alt in part.split("|"):
-            alt = alt.strip()
-            paths = BACKTICK_PATH_RE.findall(alt)
-            loose = LOOSE_PATH_RE.findall(alt)
-            if len(loose) != len(paths):
-                err(f"{where}: ADR path(s) not wrapped in backticks in {alt!r}")
-            if len(paths) != 1:
-                err(f"{where}: unparseable entry {alt!r} (expected exactly one backticked adrs/... path)")
-                continue
-            members.append(paths[0])
+        key, value = m.group(1), m.group(2)
+        if key in meta:
+            err(f"{where}: duplicate frontmatter key '{key}'")
+        if key not in KNOWN_KEYS:
+            err(f"{where}: unknown frontmatter key '{key}'")
+        if value == "":
+            items: list[str] = []
+            i += 1
+            while i < len(lines):
+                im = ITEM_RE.match(lines[i].rstrip())
+                if not im:
+                    break
+                items.append(im.group(1))
+                i += 1
+            meta[key] = items
+            continue
+        meta[key] = [] if value == "[]" else value
+        i += 1
+    err(f"{where}: frontmatter block is not closed with '---'")
+    return meta, len(lines)
+
+
+def parse_path_items(items, where: str, allow_alternatives: bool) -> list[list[str]]:
+    """Turn frontmatter list items into groups of ADR paths."""
+    if not isinstance(items, list):
+        err(f"{where}: expected a list (use [] when empty), got {items!r}")
+        return []
+    groups: list[list[str]] = []
+    for item in items:
+        members = [alt.strip() for alt in item.split("|")]
         if len(members) > 1 and not allow_alternatives:
-            err(f"{where}: '|' alternatives are not allowed here ({fmt_group(members)})")
-        if members:
-            groups.append(members)
+            err(f"{where}: '|' alternatives are not allowed here ({item!r})")
+        good: list[str] = []
+        for alt in members:
+            if not PATH_RE.match(alt):
+                err(f"{where}: entry {alt!r} is not an adrs/<category>/<file>.md path")
+                continue
+            good.append(alt)
+        if good:
+            groups.append(good)
     return groups
 
 
@@ -123,44 +159,40 @@ def load_adrs() -> dict[str, dict]:
     adrs: dict[str, dict] = {}
     for path in sorted(ADR_DIR.rglob("*.md")):
         rel = path.relative_to(ROOT).as_posix()
-        meta: dict[str, str] = {}
-        for line in path.read_text(encoding="utf-8").splitlines():
-            m = META_RE.match(line)
-            if m:
-                key, value = m.group(1), m.group(2)
-                if key in meta:
-                    err(f"{rel}: duplicate metadata line '**{key}:**'")
-                meta[key] = value
-        for key in META_KEYS:
+        lines = path.read_text(encoding="utf-8").splitlines()
+        meta, body_start = parse_frontmatter(lines, rel)
+        for line in lines[body_start:]:
+            if LEGACY_RE.match(line):
+                err(f"{rel}: legacy bold-line metadata found in body: {line.strip()!r}")
+        for key in REQUIRED_KEYS:
             if key not in meta:
-                err(f"{rel}: missing metadata line '**{key}:**' (use — if none)")
+                err(f"{rel}: missing frontmatter key '{key}'")
         folder = path.parent.name
-        if meta.get("Category") and meta["Category"] != folder:
-            err(f"{rel}: Category '{meta['Category']}' does not match folder '{folder}'")
-        if meta.get("Status") and meta["Status"] not in VALID_STATUS:
-            err(f"{rel}: unknown Status '{meta['Status']}'")
-        stack = meta.get("Stack", "")
+        if meta.get("category") and meta["category"] != folder:
+            err(f"{rel}: category '{meta['category']}' does not match folder '{folder}'")
+        if meta.get("status") and meta["status"] not in VALID_STATUS:
+            err(f"{rel}: unknown status '{meta['status']}'")
+        stack = meta.get("stack", "")
         if stack and stack not in VALID_STACKS:
-            err(f"{rel}: unknown Stack '{stack}' (expected one of {', '.join(sorted(VALID_STACKS))})")
+            err(f"{rel}: unknown stack '{stack}' (expected one of {', '.join(sorted(VALID_STACKS))})")
         if folder in LANGUAGE_FOLDERS and stack and stack != folder:
-            err(f"{rel}: Stack '{stack}' must equal the language folder '{folder}'")
-        reviewed = meta.get("Last reviewed")
-        if reviewed is not None and not DATE_RE.match(reviewed):
-            err(f"{rel}: Last reviewed '{reviewed}' is not a YYYY-MM-DD date")
-        superseded_by = None
-        if "Superseded by" in meta:
-            targets = BACKTICK_PATH_RE.findall(meta["Superseded by"])
-            if len(targets) != 1:
-                err(f"{rel}: Superseded by must contain exactly one backticked adrs/... path")
-            else:
-                superseded_by = targets[0]
-            if meta.get("Status") != "Superseded":
-                err(f"{rel}: has 'Superseded by' but Status is '{meta.get('Status')}' (must be Superseded)")
-        elif meta.get("Status") == "Superseded":
-            err(f"{rel}: Status is Superseded but no 'Superseded by' line points at the replacement")
-        requires = parse_groups(meta.get("Requires", "—"), f"{rel} [Requires]", allow_alternatives=True)
-        conflict_groups = parse_groups(meta.get("Conflicts with", "—"), f"{rel} [Conflicts with]",
-                                       allow_alternatives=False)
+            err(f"{rel}: stack '{stack}' must equal the language folder '{folder}'")
+        reviewed = meta.get("last_reviewed")
+        if reviewed is not None and not DATE_RE.match(str(reviewed)):
+            err(f"{rel}: last_reviewed '{reviewed}' is not a YYYY-MM-DD date")
+        superseded_by = meta.get("superseded_by")
+        if superseded_by is not None:
+            if not isinstance(superseded_by, str) or not PATH_RE.match(superseded_by):
+                err(f"{rel}: superseded_by must be a single adrs/... path")
+                superseded_by = None
+            if meta.get("status") != "Superseded":
+                err(f"{rel}: has 'superseded_by' but status is '{meta.get('status')}' (must be Superseded)")
+        elif meta.get("status") == "Superseded":
+            err(f"{rel}: status is Superseded but no 'superseded_by' key points at the replacement")
+        requires = parse_path_items(meta.get("requires", []), f"{rel} [requires]",
+                                    allow_alternatives=True)
+        conflict_groups = parse_path_items(meta.get("conflicts_with", []), f"{rel} [conflicts_with]",
+                                           allow_alternatives=False)
         conflicts = [g[0] for g in conflict_groups if g]
         adrs[rel] = {"requires": requires, "conflicts": conflicts,
                      "stack": stack, "superseded_by": superseded_by}
@@ -175,20 +207,20 @@ def check_references(adrs: dict[str, dict]) -> None:
     for rel, data in adrs.items():
         for target in all_required_members(data):
             if target == rel:
-                err(f"{rel}: Requires references itself")
+                err(f"{rel}: requires references itself")
             elif target not in adrs:
-                err(f"{rel}: Requires references missing file '{target}'")
+                err(f"{rel}: requires references missing file '{target}'")
         for target in data["conflicts"]:
             if target == rel:
-                err(f"{rel}: Conflicts with references itself")
+                err(f"{rel}: conflicts_with references itself")
             elif target not in adrs:
-                err(f"{rel}: Conflicts with references missing file '{target}'")
+                err(f"{rel}: conflicts_with references missing file '{target}'")
         if data.get("superseded_by"):
             target = data["superseded_by"]
             if target == rel:
-                err(f"{rel}: Superseded by references itself")
+                err(f"{rel}: superseded_by references itself")
             elif target not in adrs:
-                err(f"{rel}: Superseded by references missing file '{target}'")
+                err(f"{rel}: superseded_by references missing file '{target}'")
 
 
 def conflicts_between(a: str, b: str, adrs: dict[str, dict]) -> bool:
@@ -222,7 +254,7 @@ def check_graph(adrs: dict[str, dict]) -> None:
                 continue
             if color[nxt] == GRAY:
                 cycle = stack[stack.index(nxt):] + [nxt] if nxt in stack else [node, nxt]
-                err("Requires cycle: " + " -> ".join(cycle))
+                err("requires cycle: " + " -> ".join(cycle))
             elif color[nxt] == WHITE:
                 visit(nxt, stack + [nxt])
         color[node] = BLACK
@@ -242,7 +274,7 @@ def check_graph(adrs: dict[str, dict]) -> None:
 
 
 def deterministic_closure(seed: set[str], adrs: dict[str, dict]) -> set[str]:
-    """Transitive closure following only single-alternative Requires groups."""
+    """Transitive closure following only single-alternative requires groups."""
     closure = set(seed)
     frontier = list(seed)
     while frontier:

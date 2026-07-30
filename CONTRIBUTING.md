@@ -21,13 +21,16 @@
 Create a file with kebab-case naming in the appropriate category folder. See `ADR-FORMAT.md` for the full template:
 
 ```markdown
-# [Decision Title]
+---
+category: [folder name]
+stack: dotnet | python | typescript | angular | react | any
+status: Active
+requires: []          # ADR dependencies; " | " inside an item separates alternatives
+conflicts_with: []    # mutually exclusive ADRs — always declared symmetrically
+last_reviewed: YYYY-MM-DD
+---
 
-**Category:** [category]
-**Stack:** [dotnet | python | typescript | angular | react | any]
-**Status:** Active
-**Requires:** [comma-separated file paths of ADR dependencies, or — if none]
-**Conflicts with:** [comma-separated file paths of mutually exclusive ADRs, or — if none]
+# [Decision Title]
 
 ## Decision
 [1-2 sentences: what was decided]
@@ -51,10 +54,10 @@ Before submitting:
 - [ ] Rationale has at least 2 bullets explaining *why*
 - [ ] At least 2 Constraints are defined
 - [ ] Constraints use concrete, testable language (MUST/NEVER phrasing)
-- [ ] All five metadata lines are present (`Category`, `Stack`, `Status`, `Requires`, `Conflicts with`) — use `—` when empty
-- [ ] `Stack` names the technology stack the constraints assume (`any` for cross-stack); in language category folders it equals the folder name
-- [ ] `Requires` and `Conflicts with` list actual ADR file paths, backticked and comma-separated (in `Requires`, use ` | ` between alternatives when any one of them satisfies the dependency)
-- [ ] Conflicts are **symmetric**: if this ADR lists another in `Conflicts with`, edit that ADR to list this one back (language-specific variants must conflict with each other in both directions)
+- [ ] Frontmatter includes `category`, `stack`, `status`, `requires`, `conflicts_with` (use `[]` when empty)
+- [ ] `stack` names the technology stack the constraints assume (`any` for cross-stack); in language category folders it equals the folder name
+- [ ] `requires` and `conflicts_with` list actual repo-relative ADR paths, one requirement per list item (in `requires`, separate alternatives with ` | ` inside a single item when any one of them satisfies the dependency)
+- [ ] Conflicts are **symmetric**: if this ADR lists another in `conflicts_with`, edit that ADR to list this one back (language-specific variants must conflict with each other in both directions)
 - [ ] `python scripts/validate_adrs.py` passes with no new errors
 
 ## How to Create a New Profile
@@ -113,14 +116,14 @@ Examples:
 
 Never delete an ADR. When a decision changes:
 
-- Set `**Status:** Deprecated` when the decision no longer applies and has no replacement.
-- Set `**Status:** Superseded` and add `**Superseded by:** `adrs/<path>.md`` when a newer ADR replaces it (the validator enforces this pairing).
-- Update `**Last reviewed:**` (YYYY-MM-DD) whenever an ADR is re-verified against current framework versions.
+- Set `status: Deprecated` when the decision no longer applies and has no replacement.
+- Set `status: Superseded` and add `superseded_by: adrs/<path>.md` when a newer ADR replaces it (the validator enforces this pairing).
+- Update `last_reviewed` (YYYY-MM-DD) whenever an ADR is re-verified against current framework versions.
 
 ## Review Process
 
-1. Run `python scripts/validate_adrs.py` — it checks metadata format, that referenced files exist, conflict symmetry, Requires cycles, and profile consistency (selected sets must not conflict, and their Requires must be satisfiable)
+1. Run `python scripts/validate_adrs.py` (CI runs it on every push/PR) — it checks frontmatter format, that referenced files exist, conflict symmetry, requires cycles, and profile consistency (selected sets must not conflict, and their requires must be satisfiable)
 2. Check constraint phrasing — rules should be concrete and testable
 3. Verify the ADR doesn't duplicate an existing ADR's scope
-4. If creating a language variant, ensure both variants declare `Conflicts with` against each other (the validator enforces symmetry)
+4. If creating a language variant, ensure both variants declare `conflicts_with` against each other (the validator enforces symmetry)
 5. Run a test compilation using `compile-adrs.md` to verify the ADR integrates correctly

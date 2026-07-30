@@ -4,14 +4,16 @@
 
 ---
 
-# [Decision Title]
+---
+category: <folder name>
+stack: dotnet | python | typescript | angular | react | any
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: YYYY-MM-DD
+---
 
-**Category:** dotnet | python | typescript | angular | react | database | api | ai | deployment
-**Stack:** dotnet | python | typescript | angular | react | any — [the technology stack this ADR's constraints assume; `any` means cross-stack. In a language category folder (dotnet/python/typescript/angular/react) this must equal the folder name. Same-slot variants for different stacks (e.g., the .NET and Python RAG ADRs) declare mutual Conflicts; the Stack field tells a consumer which variant applies to their project.]
-**Status:** Active
-**Requires:** [comma-separated ADR file paths this decision depends on, e.g., `adrs/dotnet/modular-monolith.md` — use — if none. When any one of several ADRs satisfies a dependency, separate the alternatives with ` | ` (e.g., `adrs/dotnet/modular-monolith.md` | `adrs/dotnet/clean-architecture-layers.md`)]
-**Conflicts with:** [comma-separated ADR file paths that are mutually exclusive with this decision — use — if none. Conflicts MUST be declared symmetrically: if this ADR lists another, that ADR must list this one back]
-**Last reviewed:** [YYYY-MM-DD — optional; the date the ADR was last verified against current framework/library versions]
+# [Decision Title]
 
 ## Decision
 
@@ -30,12 +32,26 @@
 
 ---
 
+## Field Reference
+
+| Key | Required | Meaning |
+|-----|----------|---------|
+| `category` | yes | Must match the folder the file lives in. |
+| `stack` | yes | The technology stack the constraints assume; `any` = cross-stack. In language folders (dotnet/python/typescript/angular/react) it must equal the folder name. Same-slot variants for different stacks declare mutual `conflicts_with`; `stack` tells a consumer which variant applies. |
+| `status` | yes | `Active`, `Deprecated`, or `Superseded`. |
+| `requires` | yes | List of ADR paths this decision depends on (`[]` when none). Each list item is one requirement; separate alternatives inside an item with ` \| ` when any one of them satisfies it (e.g., `adrs/dotnet/modular-monolith.md \| adrs/dotnet/clean-architecture-layers.md`). |
+| `conflicts_with` | yes | Flat list of mutually exclusive ADR paths (`[]` when none). MUST be symmetric: if this ADR lists another, that ADR must list this one back. No alternatives. |
+| `last_reviewed` | no | `YYYY-MM-DD` — when the ADR was last verified against current framework/library versions. |
+| `superseded_by` | no | Path of the replacing ADR. Present if and only if `status: Superseded`. |
+
+Paths are repo-relative (`adrs/<category>/<file>.md`), plain — no backticks or quotes. The frontmatter is a strict subset of YAML enforced by `scripts/validate_adrs.py`.
+
 ## Lifecycle
 
 ADRs are never deleted — their history is part of the record:
 
 - **Active** — the decision is current and enforced.
 - **Deprecated** — the decision no longer applies and has no direct replacement. Keep the file; new projects must not select it.
-- **Superseded** — a newer ADR replaces this one. Set `**Status:** Superseded` and add `**Superseded by:** `adrs/<path>.md`` pointing at the replacement (the validator enforces that the two always appear together).
+- **Superseded** — a newer ADR replaces this one. Set `status: Superseded` and add `superseded_by: adrs/<path>.md` pointing at the replacement (the validator enforces that the two always appear together).
 
-Update `**Last reviewed:**` whenever an ADR is re-verified against current framework versions — stale review dates signal where version-sensitive claims may have drifted.
+Update `last_reviewed` whenever an ADR is re-verified against current framework versions — stale review dates signal where version-sensitive claims may have drifted.

@@ -1,11 +1,14 @@
-# SQLAlchemy 2.0 Async with Alembic
+---
+category: python
+stack: python
+status: Active
+requires:
+  - adrs/python/async-all-the-way.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** python
-**Stack:** python
-**Status:** Active
-**Requires:** `adrs/python/async-all-the-way.md`
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# SQLAlchemy 2.0 Async with Alembic
 
 ## Decision
 SQLAlchemy 2.0 with async engine and sessions is the ORM. Alembic handles all database migrations. Each module defines its models in `models.py`, and all models inherit from a shared declarative base. The async session is provided to services via FastAPI's dependency injection.

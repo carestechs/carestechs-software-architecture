@@ -1,11 +1,14 @@
-# AWS SAM/CloudFormation Infrastructure as Code
+---
+category: deployment
+stack: dotnet
+status: Active
+requires:
+  - adrs/deployment/aws-lambda-serverless.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** deployment
-**Stack:** dotnet
-**Status:** Active
-**Requires:** `adrs/deployment/aws-lambda-serverless.md`
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# AWS SAM/CloudFormation Infrastructure as Code
 
 ## Decision
 

@@ -1,11 +1,13 @@
-# Tauri 2 Desktop Shell
+---
+category: deployment
+stack: angular
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** deployment
-**Stack:** angular
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# Tauri 2 Desktop Shell
 
 ## Decision
 

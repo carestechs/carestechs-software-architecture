@@ -1,11 +1,16 @@
-# Claude Agent SDK for AI-Powered Analysis (TypeScript)
+---
+category: ai
+stack: typescript
+status: Active
+requires:
+  - adrs/typescript/strict-typescript.md
+conflicts_with:
+  - adrs/ai/meai-abstraction.md
+  - adrs/ai/llm-abstraction-python.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Stack:** typescript
-**Status:** Active
-**Requires:** `adrs/typescript/strict-typescript.md`
-**Conflicts with:** `adrs/ai/meai-abstraction.md`, `adrs/ai/llm-abstraction-python.md`
-**Last reviewed:** 2026-07-29
+# Claude Agent SDK for AI-Powered Analysis (TypeScript)
 
 ## Decision
 

@@ -1,11 +1,14 @@
-# Vitest with Co-Located Test Files
+---
+category: typescript
+stack: typescript
+status: Active
+requires:
+  - adrs/typescript/strict-typescript.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** typescript
-**Stack:** typescript
-**Status:** Active
-**Requires:** `adrs/typescript/strict-typescript.md`
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# Vitest with Co-Located Test Files
 
 ## Decision
 

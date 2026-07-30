@@ -1,11 +1,14 @@
-# DTOs at the API Boundary
+---
+category: dotnet
+stack: dotnet
+status: Active
+requires:
+  - adrs/dotnet/service-layer-logic.md | adrs/dotnet/cqrs-handlers.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** dotnet
-**Stack:** dotnet
-**Status:** Active
-**Requires:** `adrs/dotnet/service-layer-logic.md` | `adrs/dotnet/cqrs-handlers.md`
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# DTOs at the API Boundary
 
 ## Decision
 API endpoints (controllers or Minimal API delegates) never expose EF Core entities directly. Every endpoint uses dedicated request and response DTOs. Mapping between entities and DTOs happens in the service layer (service-layer architecture) or in command/query handlers (CQRS). DTOs live in each module's `DTOs/` folder, or in the Application layer's `Models/` folder under Clean Architecture.

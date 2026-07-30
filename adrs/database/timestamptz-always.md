@@ -1,11 +1,13 @@
-# Always Use timestamptz for Datetime Columns
+---
+category: database
+stack: any
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** database
-**Stack:** any
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# Always Use timestamptz for Datetime Columns
 
 ## Decision
 All datetime columns use `timestamptz` (TIMESTAMP WITH TIME ZONE) in PostgreSQL and `DateTimeOffset` in C#. All values are stored in UTC.

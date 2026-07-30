@@ -1,11 +1,14 @@
-# Docker Containerization with Multi-Stage Builds
+---
+category: deployment
+stack: any
+status: Active
+requires: []
+conflicts_with:
+  - adrs/deployment/aws-lambda-serverless.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** deployment
-**Stack:** any
-**Status:** Active
-**Requires:** —
-**Conflicts with:** `adrs/deployment/aws-lambda-serverless.md`
-**Last reviewed:** 2026-07-29
+# Docker Containerization with Multi-Stage Builds
 
 ## Decision
 All application components are packaged as Docker images using multi-stage builds. Backend images use a slim runtime base with dependencies installed in a separate stage. Frontend images use a Node build stage to produce static assets, then copy the output to an nginx runtime stage. Build tools, dev dependencies, and source artifacts never appear in the final image.

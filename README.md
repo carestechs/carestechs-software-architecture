@@ -185,13 +185,16 @@ After compiling, you still need to fill in:
 Every ADR follows this standard format (see `ADR-FORMAT.md` for the full template):
 
 ```markdown
-# [Decision Title]
+---
+category: dotnet | python | typescript | angular | react | database | api | ai | deployment
+stack: dotnet | python | typescript | angular | react | any
+status: Active
+requires: []          # ADR dependencies; " | " inside an item separates alternatives
+conflicts_with: []    # mutually exclusive ADRs — always declared symmetrically
+last_reviewed: YYYY-MM-DD
+---
 
-**Category:** dotnet | python | typescript | angular | react | database | api | ai | deployment
-**Stack:** dotnet | python | typescript | angular | react | any
-**Status:** Active
-**Requires:** [ADR dependencies — file paths, or omit if none]
-**Conflicts with:** [Mutually exclusive ADRs — file paths, or omit if none]
+# [Decision Title]
 
 ## Decision
 [What was decided — 1-2 sentences]
@@ -213,7 +216,7 @@ ADRs can declare dependencies and conflicts in their metadata:
 - **Conflicts with:** Lists ADR files that are mutually exclusive. Conflicting ADRs should not both be selected. Conflicts are declared symmetrically: if A lists B, B lists A.
 - **Stack:** Which technology stack the ADR's constraints assume (`any` = cross-stack). Same-slot variants for different stacks conflict with each other; filter by Stack to find the variant that applies to your project.
 
-Run `python scripts/validate_adrs.py` to check the catalog: metadata format, referenced files, conflict symmetry, dependency cycles, and profile consistency.
+Run `python scripts/validate_adrs.py` to check the catalog: frontmatter format, referenced files, conflict symmetry, dependency cycles, and profile consistency. CI runs the same script on every push and pull request.
 
 Example: `adrs/dotnet/dbcontext-per-module.md` requires `adrs/dotnet/modular-monolith.md` — you can't have per-module DbContexts without module boundaries.
 

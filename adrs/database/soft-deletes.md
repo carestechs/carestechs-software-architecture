@@ -1,11 +1,13 @@
-# Soft Deletes via deleted_at Column
+---
+category: database
+stack: any
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** database
-**Stack:** any
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# Soft Deletes via deleted_at Column
 
 ## Decision
 Entities support soft deletion through a nullable `deleted_at` (timestamptz) column. Application code never performs hard deletes.

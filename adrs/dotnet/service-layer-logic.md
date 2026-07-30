@@ -1,11 +1,15 @@
-# Service Layer Owns All Business Logic
+---
+category: dotnet
+stack: dotnet
+status: Active
+requires: []
+conflicts_with:
+  - adrs/dotnet/cqrs-handlers.md
+  - adrs/dotnet/rich-domain-entities.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** dotnet
-**Stack:** dotnet
-**Status:** Active
-**Requires:** —
-**Conflicts with:** `adrs/dotnet/cqrs-handlers.md`, `adrs/dotnet/rich-domain-entities.md`
-**Last reviewed:** 2026-07-29
+# Service Layer Owns All Business Logic
 
 ## Decision
 All business logic lives in service classes. Controllers are thin: they validate input, call a service method, and return the result. Services are registered as scoped and injected via interfaces. No business logic is permitted in controllers or repository classes.

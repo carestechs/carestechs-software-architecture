@@ -1,11 +1,14 @@
-# Snake Case Database Naming Convention
+---
+category: database
+stack: any
+status: Active
+requires: []
+conflicts_with:
+  - adrs/database/lowercase-naming.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** database
-**Stack:** any
-**Status:** Active
-**Requires:** —
-**Conflicts with:** `adrs/database/lowercase-naming.md`
-**Last reviewed:** 2026-07-29
+# Snake Case Database Naming Convention
 
 ## Decision
 All database tables and columns use snake_case naming. C# properties remain PascalCase — the EF Core naming convention package handles translation automatically.

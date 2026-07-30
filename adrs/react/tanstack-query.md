@@ -1,11 +1,15 @@
-# TanStack Query for Server State
+---
+category: react
+stack: react
+status: Active
+requires:
+  - adrs/react/functional-components.md
+conflicts_with:
+  - adrs/angular/signals-state.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** react
-**Stack:** react
-**Status:** Active
-**Requires:** `adrs/react/functional-components.md`
-**Conflicts with:** `adrs/angular/signals-state.md`
-**Last reviewed:** 2026-07-29
+# TanStack Query for Server State
 
 ## Decision
 All server state (data fetched from APIs) is managed by TanStack Query (React Query). Local UI state uses `useState`/`useReducer`. TanStack Query handles caching, background refetching, stale-while-revalidate, optimistic updates, and loading/error states.

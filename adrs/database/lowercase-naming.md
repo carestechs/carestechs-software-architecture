@@ -1,11 +1,15 @@
-# Lowercase Database Naming via OnModelCreating
+---
+category: database
+stack: dotnet
+status: Active
+requires:
+  - adrs/deployment/flyway-migrations.md
+conflicts_with:
+  - adrs/database/snake-case-naming.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** database
-**Stack:** dotnet
-**Status:** Active
-**Requires:** `adrs/deployment/flyway-migrations.md`
-**Conflicts with:** `adrs/database/snake-case-naming.md`
-**Last reviewed:** 2026-07-29
+# Lowercase Database Naming via OnModelCreating
 
 ## Decision
 

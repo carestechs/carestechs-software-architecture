@@ -1,11 +1,13 @@
-# Functional Composition over Classes
+---
+category: typescript
+stack: typescript
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** typescript
-**Stack:** typescript
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# Functional Composition over Classes
 
 ## Decision
 

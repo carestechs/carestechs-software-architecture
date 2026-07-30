@@ -1,11 +1,18 @@
-# Conversation History with Token-Aware Context Management
+---
+category: ai
+stack: dotnet
+status: Active
+requires:
+  - adrs/ai/meai-abstraction.md
+  - adrs/ai/ai-agent-module.md
+  - adrs/database/uuid-primary-keys.md
+  - adrs/database/timestamptz-always.md
+conflicts_with:
+  - adrs/ai/conversation-history-python.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Stack:** dotnet
-**Status:** Active
-**Requires:** `adrs/ai/meai-abstraction.md`, `adrs/ai/ai-agent-module.md`, `adrs/database/uuid-primary-keys.md`, `adrs/database/timestamptz-always.md`
-**Conflicts with:** `adrs/ai/conversation-history-python.md`
-**Last reviewed:** 2026-07-29
+# Conversation History with Token-Aware Context Management
 
 ## Decision
 Multi-turn conversations are persisted in `conversations` and `messages` tables owned by the AI module's `AIDbContext`. A token-aware context windowing strategy prunes or summarizes conversation history before sending it to the LLM. The system never sends unbounded message history to the model.

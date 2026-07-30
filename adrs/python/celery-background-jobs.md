@@ -1,11 +1,14 @@
-# Celery with Redis for Background Jobs
+---
+category: python
+stack: python
+status: Active
+requires:
+  - adrs/python/service-layer-logic.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** python
-**Stack:** python
-**Status:** Active
-**Requires:** `adrs/python/service-layer-logic.md`
-**Conflicts with:** —
-**Last reviewed:** 2026-07-29
+# Celery with Redis for Background Jobs
 
 ## Decision
 Background and long-running tasks are processed by Celery workers with Redis as the message broker. API endpoints enqueue tasks and return immediately with a task ID. Task status and results are queryable via dedicated endpoints. Celery tasks delegate to service functions — they do not contain business logic.
