@@ -21,4 +21,5 @@ AI tools (functions the LLM can call) are thin adapters that delegate to existin
 - Every tool MUST have a clear `name`, `description`, and parameter schema. Descriptions MUST be written for LLM comprehension.
 - Tool functions MUST be `async def` when they call async services.
 - Tools MUST return Pydantic-serializable results. NEVER return raw ORM model instances from tools.
-- NEVER allow tools to perform destructive operations (DELETE, hard mutations) without explicit confirmation mechanisms.
+- NEVER allow tools to perform destructive operations (DELETE, hard mutations) without an explicit confirmation mechanism (e.g., human approval or a two-step confirm parameter).
+- NEVER give a tool unrestricted database query capability (e.g., raw SQL execution or open-ended query builders).

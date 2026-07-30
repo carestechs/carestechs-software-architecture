@@ -3,14 +3,14 @@
 **Category:** ai
 **Status:** Active
 **Requires:** `adrs/python/async-all-the-way.md`, `adrs/python/service-layer-logic.md`
-**Conflicts with:** `adrs/ai/meai-abstraction.md`
+**Conflicts with:** `adrs/ai/meai-abstraction.md`, `adrs/ai/claude-agent-sdk.md`
 
 ## Decision
-All LLM and embedding calls go through a provider-agnostic abstraction layer. Service code depends on abstract interfaces (protocols or ABC classes) for chat completion and embedding generation. Provider-specific SDKs (Anthropic, OpenAI, etc.) are only imported in the composition root or adapter modules. LangChain may be used as the abstraction layer, or a thin custom adapter — but service code never imports provider SDKs directly.
+All LLM and embedding calls go through a provider-agnostic abstraction layer. Service code depends on abstract interfaces (protocols or ABC classes) for chat completion and embedding generation. Provider-specific SDKs (Anthropic, OpenAI, etc.) are only imported in the composition root or adapter modules. The default abstraction is a thin custom adapter (a Protocol plus one adapter module per provider); adopt LangChain as the abstraction only when its ecosystem (chains, loaders, integrations) is concretely needed. Either way, service code never imports provider SDKs directly.
 
 ## Rationale
 - A provider-agnostic layer allows swapping LLM providers (OpenAI, Anthropic, Azure OpenAI, local models) without changing service code. This is critical for an AI-first application where provider capabilities, pricing, and availability evolve rapidly.
-- Alternatives considered: direct Anthropic/OpenAI SDK usage throughout (rejected — creates hard provider coupling, makes switching expensive), LangChain as the sole abstraction (acceptable — provides provider-agnostic interfaces, chain orchestration, and tool calling; heavier but well-maintained), custom thin adapter (acceptable — lighter but requires more manual work).
+- Alternatives considered: direct Anthropic/OpenAI SDK usage throughout (rejected — creates hard provider coupling, makes switching expensive), LangChain as the sole abstraction (rejected as the default — heavier dependency and its own orchestration model; acceptable when chains/loaders/integrations are concretely needed), thin custom adapter (chosen default — lighter, matches the "provider SDKs only in adapters" rule with minimal surface area).
 - The abstraction MUST cover at minimum: chat completion (with tool calling support), embedding generation, and streaming responses.
 - Provider SDKs and API keys are configured in the application's composition root (`main.py` or `core/config.py`), keeping provider details out of business modules.
 

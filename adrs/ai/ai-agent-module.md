@@ -3,7 +3,7 @@
 **Category:** ai
 **Status:** Active
 **Requires:** `adrs/dotnet/modular-monolith.md`, `adrs/dotnet/dbcontext-per-module.md`, `adrs/dotnet/cross-module-by-id.md`, `adrs/dotnet/thin-api-host.md`, `adrs/dotnet/service-layer-logic.md`, `adrs/dotnet/dto-at-boundary.md`
-**Conflicts with:** —
+**Conflicts with:** `adrs/ai/ai-module-python.md`
 
 ## Decision
 The AI agent is a dedicated feature module (`MyApp.Modules.AI`) that follows all modular monolith conventions: its own .csproj, its own `AIDbContext`, its own Controllers/Services/Entities/DTOs/Tools folder structure, and an `AddAIModule()` extension method for DI registration. The AI module accesses other modules exclusively through shared contract interfaces.
@@ -15,7 +15,7 @@ The AI agent is a dedicated feature module (`MyApp.Modules.AI`) that follows all
 - Cross-module references use plain Guids rather than navigation properties, consistent with the `cross-module-by-id` decision.
 
 ## Constraints (non-negotiable for AI)
-- The AI module MUST be its own .csproj named `MyApp.Modules.AI`.
+- The AI module MUST be its own .csproj named `MyApp.Modules.AI` (substitute `MyApp` with the solution's root namespace — it is a placeholder, not a literal name).
 - The AI module MUST contain `Controllers/`, `Services/`, `Entities/`, `DTOs/`, and `Tools/` folders.
 - The AI module MUST define `AIDbContext` that maps only AI-owned entities (conversations, messages, embeddings).
 - Cross-module references MUST be plain Guid values — no navigation properties to entities owned by other modules.
