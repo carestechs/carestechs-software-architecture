@@ -372,6 +372,16 @@ def main() -> int:
     check_graph(adrs)
     if PROFILE_DIR.is_dir():
         check_profiles(adrs)
+    enforcement_dir = ROOT / "enforcement"
+    if enforcement_dir.is_dir():
+        for path in sorted(enforcement_dir.rglob("*")):
+            if not path.is_file():
+                continue
+            rel = path.relative_to(ROOT).as_posix()
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            for ref in LOOSE_PATH_RE.findall(text):
+                if ref not in adrs:
+                    err(f"{rel}: references missing ADR '{ref}'")
 
     for msg in errors:
         print(f"ERROR   {msg}")
