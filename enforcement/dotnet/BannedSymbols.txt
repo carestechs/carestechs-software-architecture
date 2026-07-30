@@ -1,0 +1,4 @@
+P:System.Threading.Tasks.Task`1.Result;adrs/dotnet/async-all-the-way.md - await the task instead of blocking on .Result
+M:System.Threading.Tasks.Task.Wait;adrs/dotnet/async-all-the-way.md - await the task instead of blocking on .Wait()
+T:System.Console;adrs/dotnet/structured-logging.md - log through the injected ILogger<T>
+P:System.DateTime.Now;adrs/database/timestamptz-always.md - use DateTimeOffset.UtcNow

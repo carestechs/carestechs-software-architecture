@@ -225,6 +225,10 @@ Run `python scripts/validate_adrs.py` to check the catalog: frontmatter format, 
 
 Example: `adrs/dotnet/dbcontext-per-module.md` requires `adrs/dotnet/modular-monolith.md` — you can't have per-module DbContexts without module boundaries.
 
+## Enforcement
+
+Machine-checkable constraints ship as ready-to-copy lint and analyzer configurations in `enforcement/` — BannedApiAnalyzers + `.editorconfig` rules for .NET, a `ruff.toml` for Python, and an ESLint flat config + base `tsconfig` for TypeScript, each annotated with the ADR it enforces. See `enforcement/README.md` for the constraint-to-rule mapping and adoption instructions. Constraints without a rule remain prompt-only (compiled CLAUDE.md + review).
+
 ## Versioning
 
 Catalog releases are tagged `vMAJOR.MINOR.PATCH`:
