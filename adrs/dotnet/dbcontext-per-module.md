@@ -6,7 +6,7 @@
 **Conflicts with:** —
 
 ## Decision
-Each feature module owns its own DbContext that maps only that module's entities. There is no shared or "master" DbContext. EF Core migrations are generated and applied per module, scoped to that module's schema or table set.
+Each feature module owns its own DbContext that maps only that module's entities. There is no shared or "master" DbContext. EF Core migrations are generated and applied per module, scoped to that module's table set. All modules share the default schema by default; a schema-per-module layout is an acceptable alternative — pick one approach per solution and use it consistently.
 
 ## Rationale
 - A DbContext per module enforces data ownership at the ORM level. A module cannot accidentally query or modify another module's tables because those tables simply do not exist in its DbContext.

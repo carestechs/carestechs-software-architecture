@@ -3,14 +3,14 @@
 **Category:** dotnet
 **Status:** Active
 **Requires:** —
-**Conflicts with:** —
+**Conflicts with:** `adrs/dotnet/cqrs-handlers.md`, `adrs/dotnet/rich-domain-entities.md`
 
 ## Decision
 All business logic lives in service classes. Controllers are thin: they validate input, call a service method, and return the result. Services are registered as scoped and injected via interfaces. No business logic is permitted in controllers or repository classes.
 
 ## Rationale
 - Centralizing business logic in the service layer provides a single, testable location for domain rules. Controllers handle HTTP concerns; services handle business concerns. This separation makes unit testing straightforward — services can be tested without HTTP infrastructure.
-- Alternatives considered: rich domain model with logic in entities (can complement services for entity-level invariants, but orchestration and cross-entity logic still belongs in services), MediatR handlers (adds indirection without clear benefit at current scale; can be adopted later per module if needed), logic in controllers (rejected — untestable without integration test infrastructure, mixes HTTP and domain concerns).
+- Alternatives considered: rich domain model with logic in entities (can complement services for entity-level invariants, but orchestration and cross-entity logic still belongs in services), MediatR handlers (adds indirection without clear benefit at current scale), CQRS with dedicated handlers (a valid alternative used by the Clean Architecture stack — see the conflicting `cqrs-handlers.md`; never mix the two patterns in one solution), logic in controllers (rejected — untestable without integration test infrastructure, mixes HTTP and domain concerns).
 - Scoped lifetime aligns with the per-request DbContext lifetime, ensuring services and their DbContext share the same scope.
 
 ## Constraints (non-negotiable for AI)

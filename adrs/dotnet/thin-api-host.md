@@ -15,9 +15,9 @@ The API host project (e.g., `MyApp.Api`) contains only `Program.cs` with DI regi
 - If a module is removed, the host project requires only the removal of its registration call and project reference — no business logic cleanup.
 
 ## Constraints (non-negotiable for AI)
-- The API host project MUST contain only `Program.cs` (and optionally `appsettings.json`, `launchSettings.json`, and similar configuration files).
+- The API host project MUST contain only `Program.cs`, configuration files (`appsettings.json`, `launchSettings.json`), and an optional `Infrastructure/` folder for cross-cutting host plumbing (the global `IExceptionHandler`, ProblemDetails wiring, custom middleware).
 - NEVER place controllers, services, entities, DTOs, or business logic in the API host project.
 - Each module MUST provide an `Add<ModuleName>Module(this IServiceCollection services)` extension method for DI registration.
 - Each module MAY provide a `Use<ModuleName>Module(this IApplicationBuilder app)` extension method for middleware registration if needed.
 - `Program.cs` MUST call each module's registration method explicitly — no assembly scanning magic for module discovery.
-- Cross-cutting middleware (authentication, CORS, global error handling, request logging) is the only logic allowed in the host's `Program.cs`.
+- Cross-cutting middleware (authentication, CORS, global error handling, request logging) is the only logic allowed in the host — wired in `Program.cs`, with implementations in the host's `Infrastructure/` folder.
