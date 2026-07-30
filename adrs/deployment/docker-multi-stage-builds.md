@@ -26,3 +26,25 @@ All application components are packaged as Docker images using multi-stage build
 - A `.dockerignore` file MUST exist at the build context root, excluding at minimum: `.venv`, `node_modules`, `.git`, `__pycache__`, `.env`, `tests/`, `docs/`, and IDE configuration files.
 - NEVER install dev dependencies in the final stage. Use `--no-dev`, `--only=production`, or equivalent flags when installing dependencies for production.
 - NEVER copy the entire source tree into the final stage if only a build artifact (e.g., compiled output, static files) is needed.
+
+## Examples
+
+**Violation — single-stage image shipping build tooling:**
+```dockerfile
+FROM python:3.12
+COPY . .
+RUN pip install .
+CMD ["uvicorn", "src.app.main:app", "--host", "0.0.0.0"]
+```
+
+**Compliant:**
+```dockerfile
+FROM python:3.12 AS build
+COPY . .
+RUN pip wheel --wheel-dir /wheels .
+
+FROM python:3.12-slim
+COPY --from=build /wheels /wheels
+RUN pip install --no-index --find-links=/wheels app && rm -rf /wheels
+CMD ["uvicorn", "src.app.main:app", "--host", "0.0.0.0"]
+```

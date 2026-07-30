@@ -26,3 +26,20 @@ The API host project (e.g., `MyApp.Api`) contains only `Program.cs` with DI regi
 - Each module MAY provide a `Use<ModuleName>Module(this IApplicationBuilder app)` extension method for middleware registration if needed.
 - `Program.cs` MUST call each module's registration method explicitly — no assembly scanning magic for module discovery.
 - Cross-cutting middleware (authentication, CORS, global error handling, request logging) is the only logic allowed in the host — wired in `Program.cs`, with implementations in the host's `Infrastructure/` folder.
+
+## Examples
+
+**Violation — controller living in the host project:**
+```csharp
+// MyApp.Api/Controllers/ReportsController.cs
+[ApiController]
+public class ReportsController : ControllerBase { /* belongs to a module */ }
+```
+
+**Compliant:**
+```csharp
+// MyApp.Api/Program.cs — composition root only
+builder.Services.AddCatalogModule(builder.Configuration);
+builder.Services.AddIdentityModule(builder.Configuration);
+builder.Services.AddAIModule(builder.Configuration);
+```

@@ -25,3 +25,17 @@ Entities support soft deletion through a nullable `deleted_at` (timestamptz) col
 - Hard deletes (`DELETE FROM`) are only permitted in background data compaction/cleanup jobs, never from application code
 - To query including soft-deleted records, use `.IgnoreQueryFilters()` explicitly
 - Python/SQLAlchemy stacks: the equivalent is a nullable timezone-aware `deleted_at` `mapped_column`, with soft-deleted rows filtered out by default in the service layer's query helpers
+
+## Examples
+
+**Violation — hard delete from application code:**
+```csharp
+_db.Products.Remove(product);
+await _db.SaveChangesAsync(ct);
+```
+
+**Compliant:**
+```csharp
+product.DeletedAt = DateTimeOffset.UtcNow; // global query filter hides it from reads
+await _db.SaveChangesAsync(ct);
+```

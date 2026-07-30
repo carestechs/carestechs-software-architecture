@@ -28,3 +28,20 @@ The system is built as a modular monolith: a single deployable unit composed of 
 - No circular dependencies between modules. If two modules need each other, extract the shared concept into the contracts package.
 - Each module MUST expose a `create_router()` function or a router instance for registration in the main app.
 - Alembic migrations live in the shared `src/app/migrations/` directory with a single linear history; each migration's slug MUST be prefixed with the owning module's name (e.g., `<rev>_catalog_add_products.py`).
+
+## Examples
+
+**Violation — direct import across a module boundary:**
+```python
+# src/app/modules/catalog/service.py
+from app.modules.identity.models import User  # reaches into another module
+```
+
+**Compliant:**
+```python
+# src/app/modules/catalog/service.py
+from app.contracts.identity import IdentityService  # shared contract only
+
+async def get_owner_email(identity: IdentityService, owner_id: UUID) -> str:
+    return (await identity.get_user(owner_id)).email
+```

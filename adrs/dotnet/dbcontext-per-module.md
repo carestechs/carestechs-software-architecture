@@ -26,3 +26,23 @@ Each feature module owns its own DbContext that maps only that module's entities
 - Migrations MUST be generated per module using the `--context` flag to target the correct DbContext.
 - Each module's DbContext MUST be registered in that module's `Add<ModuleName>Module()` extension method.
 - All modules share the same physical database and connection string, but each DbContext maps only its own tables.
+
+## Examples
+
+**Violation — another module's entity mapped into this module's context:**
+```csharp
+public class CatalogDbContext : DbContext
+{
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<User> Users => Set<User>(); // owned by the Identity module
+}
+```
+
+**Compliant:**
+```csharp
+public class CatalogDbContext : DbContext
+{
+    public DbSet<Product> Products => Set<Product>(); // only Catalog-owned entities
+}
+// Identity data is reached via IIdentityService, never via this context
+```

@@ -28,3 +28,20 @@ All API errors use the Problem Details format (RFC 9457, which obsoletes RFC 780
 - NEVER create custom error response classes or envelopes.
 - NEVER return raw exception messages or stack traces in production error responses.
 - Use standard HTTP status codes: 400/422 for validation errors, 401 for authentication, 403 for authorization, 404 for not found, 409 for conflicts, 500 for unhandled server errors.
+
+## Examples
+
+**Violation — FastAPI's default error shape:**
+```json
+{ "detail": "Order not found" }
+```
+
+**Compliant:**
+```json
+{
+  "title": "Not Found",
+  "status": 404,
+  "detail": "Order 0198c9a1-... was not found."
+}
+// Content-Type: application/problem+json — emitted by the global exception handler
+```

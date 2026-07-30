@@ -25,3 +25,24 @@ All styling uses Tailwind CSS utility classes applied directly in templates. Com
 - Custom design tokens (colors, spacing, fonts) are defined CSS-first via `@theme` in the global stylesheet (Tailwind v4+); a `tailwind.config.js` is legacy — only for projects still on Tailwind v3
 - `@apply` is permitted only in global stylesheets (`styles.css`) for truly reusable base patterns (e.g., `.btn-primary`)
 - Never use inline `style` attributes for anything Tailwind can handle
+
+## Examples
+
+**Violation — component stylesheet:**
+```ts
+@Component({
+  selector: "app-catalog-list",
+  templateUrl: "./catalog-list.component.html",
+  styleUrls: ["./catalog-list.component.scss"], // component CSS file
+})
+```
+
+**Compliant:**
+```ts
+@Component({
+  selector: "app-catalog-list",
+  templateUrl: "./catalog-list.component.html",
+  styles: [],
+})
+// template: <div class="flex items-center gap-2 p-4"> ... </div>
+```

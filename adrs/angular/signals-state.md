@@ -25,3 +25,20 @@ All reactive component state uses Angular Signals. RxJS is reserved for HTTP cal
 - RxJS is acceptable only for: HTTP calls (`HttpClient`), complex async streams (websockets, debounced inputs, merge/race conditions)
 - Use `toSignal()` to bridge RxJS observables into signal-based templates
 - Use `effect()` sparingly — prefer `computed()` for derived values
+
+## Examples
+
+**Violation — BehaviorSubject for local component state:**
+```ts
+items$ = new BehaviorSubject<Item[]>([]);
+loading$ = new BehaviorSubject<boolean>(false);
+this.items$.next(items); // manual subscription management in the template
+```
+
+**Compliant:**
+```ts
+items = signal<Item[]>([]);
+loading = signal(false);
+totalCount = computed(() => this.items().length);
+this.items.set(items); // template reads items() directly
+```

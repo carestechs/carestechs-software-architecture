@@ -29,3 +29,18 @@ All LLM and embedding calls go through `IChatClient` and `IEmbeddingGenerator<st
 - Cross-cutting concerns (logging, caching, telemetry, rate limiting) MUST be registered as M.E.AI middleware via `ChatClientBuilder` or `EmbeddingGeneratorBuilder`.
 - Model names, API keys, and endpoint URLs MUST come from configuration (`IConfiguration` / `IOptions<T>`). NEVER hardcode provider details.
 - The AI module MUST depend only on the `Microsoft.Extensions.AI.Abstractions` package, not on any provider-specific package.
+
+## Examples
+
+**Violation — provider SDK used directly in service code:**
+```csharp
+private readonly OpenAIClient _openAi; // provider type inside the AI module
+var completion = await _openAi.GetChatClient(model).CompleteChatAsync(prompt);
+```
+
+**Compliant:**
+```csharp
+private readonly IChatClient _chat;    // M.E.AI abstraction only
+var response = await _chat.GetResponseAsync(messages, options, ct);
+// the concrete provider is registered in the API host's composition root
+```

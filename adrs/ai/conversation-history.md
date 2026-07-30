@@ -34,3 +34,20 @@ Multi-turn conversations are persisted in `conversations` and `messages` tables 
 - `user_id` MUST be a plain Guid with no navigation property to any User entity in another module.
 - Both tables MUST be mapped in `AIDbContext` and MUST NOT appear in any other module's DbContext.
 - NEVER send unbounded conversation history to the LLM. Every call MUST respect the configured context window.
+
+## Examples
+
+**Violation — hand-assembled, unbounded message list:**
+```csharp
+var messages = conversation.Messages
+    .Select(m => new ChatMessage(m.Role, m.Content))
+    .ToList(); // grows without limit
+var response = await _chat.GetResponseAsync(messages, options, ct);
+```
+
+**Compliant:**
+```csharp
+var messages = _contextBuilder.Build(conversation, _options.ContextBudget);
+var response = await _chat.GetResponseAsync(messages, options, ct);
+// the single context builder enforces the token budget for every call
+```

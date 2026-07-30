@@ -34,3 +34,27 @@ Business logic is organized as Commands (write operations) and Queries (read ope
 - Handlers MUST be registered as scoped services in `Program.cs` — NEVER use assembly scanning or MediatR.
 - Handlers MUST be injected directly into endpoint delegates. NEVER create a mediator or dispatcher abstraction.
 - Query handlers MUST return response DTOs — the `*Context` record types in `<Module>.Application/Models/` — NEVER domain entities.
+
+## Examples
+
+**Violation — mixed read/write service and a dispatcher abstraction:**
+```csharp
+public class OrderService // reads and writes blur together
+{
+    public async Task<Guid> CreateOrder(CreateOrderRequest r) { /* ... */ }
+    public async Task<List<OrderDto>> GetOrders() { /* ... */ }
+}
+await _mediator.Send(new CreateOrderCommand(customerId)); // MediatR-style dispatch
+```
+
+**Compliant:**
+```csharp
+public sealed record CreateOrderCommand(Guid CustomerId) : ICommand<Result<Guid>>;
+
+public sealed class CreateOrderCommandHandler
+    : ICommandHandler<CreateOrderCommand, Result<Guid>> { /* ... */ }
+
+app.MapPost("/orders", async (CreateOrderRequest req,
+    CreateOrderCommandHandler handler, CancellationToken ct) =>
+    ToResponse(await handler.HandleAsync(new CreateOrderCommand(req.CustomerId), ct)));
+```
