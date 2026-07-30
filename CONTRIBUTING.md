@@ -24,9 +24,10 @@ Create a file with kebab-case naming in the appropriate category folder. See `AD
 # [Decision Title]
 
 **Category:** [category]
+**Stack:** [dotnet | python | typescript | angular | react | any]
 **Status:** Active
-**Requires:** [file paths of ADR dependencies, or omit if none]
-**Conflicts with:** [file paths of mutually exclusive ADRs, or omit if none]
+**Requires:** [comma-separated file paths of ADR dependencies, or — if none]
+**Conflicts with:** [comma-separated file paths of mutually exclusive ADRs, or — if none]
 
 ## Decision
 [1-2 sentences: what was decided]
@@ -50,9 +51,11 @@ Before submitting:
 - [ ] Rationale has at least 2 bullets explaining *why*
 - [ ] At least 2 Constraints are defined
 - [ ] Constraints use concrete, testable language (MUST/NEVER phrasing)
-- [ ] `Requires` field lists actual ADR file paths (or is omitted)
-- [ ] `Conflicts with` is checked — no two selected ADRs should conflict
-- [ ] Language-specific variants declare `Conflicts with` against the other variant
+- [ ] All five metadata lines are present (`Category`, `Stack`, `Status`, `Requires`, `Conflicts with`) — use `—` when empty
+- [ ] `Stack` names the technology stack the constraints assume (`any` for cross-stack); in language category folders it equals the folder name
+- [ ] `Requires` and `Conflicts with` list actual ADR file paths, backticked and comma-separated (in `Requires`, use ` | ` between alternatives when any one of them satisfies the dependency)
+- [ ] Conflicts are **symmetric**: if this ADR lists another in `Conflicts with`, edit that ADR to list this one back (language-specific variants must conflict with each other in both directions)
+- [ ] `python scripts/validate_adrs.py` passes with no new errors
 
 ## How to Create a New Profile
 
@@ -106,10 +109,18 @@ Examples:
 - **Profile names**: `[backend]-[frontend]-[architecture]-[deploy-mode].md`
 - **Language variants**: Use `-python` suffix for Python variants when a .NET version exists
 
+## Lifecycle
+
+Never delete an ADR. When a decision changes:
+
+- Set `**Status:** Deprecated` when the decision no longer applies and has no replacement.
+- Set `**Status:** Superseded` and add `**Superseded by:** `adrs/<path>.md`` when a newer ADR replaces it (the validator enforces this pairing).
+- Update `**Last reviewed:**` (YYYY-MM-DD) whenever an ADR is re-verified against current framework versions.
+
 ## Review Process
 
-1. Verify `Requires` and `Conflicts with` fields reference valid ADR file paths
+1. Run `python scripts/validate_adrs.py` — it checks metadata format, that referenced files exist, conflict symmetry, Requires cycles, and profile consistency (selected sets must not conflict, and their Requires must be satisfiable)
 2. Check constraint phrasing — rules should be concrete and testable
 3. Verify the ADR doesn't duplicate an existing ADR's scope
-4. If creating a language variant, ensure it declares `Conflicts with` against the other variant
+4. If creating a language variant, ensure both variants declare `Conflicts with` against each other (the validator enforces symmetry)
 5. Run a test compilation using `compile-adrs.md` to verify the ADR integrates correctly
