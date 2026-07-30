@@ -234,6 +234,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | ADR | Summary | Alternative |
 |-----|---------|-------------|
 | `adrs/dotnet/xunit-per-module-tests.md` | xUnit test projects mirroring modules/layers. Real PostgreSQL (Testcontainers) for data-access tests. | NUnit (viable alternative) |
+| `adrs/dotnet/structured-logging.md` | ILogger<T> with message templates. JSON output + correlation IDs in production. | Serilog as host provider (compatible) |
 | `adrs/database/uuid-primary-keys.md` | All PKs are UUIDs. Generated server-side with `Guid.NewGuid()`. | Auto-increment integers (simpler but less secure) |
 | `adrs/database/lowercase-naming.md` | Lowercase table/column names via `OnModelCreating` loop. | `snake-case-naming` with naming convention package |
 | `adrs/database/timestamptz-always.md` | All datetimes are `timestamptz`. C# uses `DateTimeOffset`. | `timestamp` without timezone (loses context) |
@@ -252,6 +253,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/database/soft-deletes.md` | Soft deletion via `IsActive` flag or `DeletedAt` column. | Entities needing audit trails or undo |
 | `adrs/api/rest-envelope.md` | All responses wrapped in `{ data, meta }` envelope. | Projects wanting a uniform response contract — required if `offset-pagination` is included |
 | `adrs/api/offset-pagination.md` | Offset pagination with page/pageSize. Requires `rest-envelope`. | Any project with list endpoints |
+| `adrs/api/role-based-authorization.md` | Role gates at the endpoint layer + ownership checks in services. Deny by default. Requires `jwt-bearer-auth`. | Policy engine (OPA/Casbin) at larger scale |
 | `adrs/angular/separate-template-file.md` | Component templates in separate `.html` files. | Team preference for HTML tooling |
 
 ---

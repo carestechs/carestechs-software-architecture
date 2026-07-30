@@ -152,6 +152,7 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 |-----|---------|-------------|
 | `adrs/dotnet/rfc7807-errors.md` | RFC 7807 Problem Details for all errors. Global exception handler. | Custom error envelope (not recommended) |
 | `adrs/dotnet/xunit-per-module-tests.md` | xUnit test projects mirroring modules/layers. Real PostgreSQL (Testcontainers) for data-access tests. | NUnit (viable alternative) |
+| `adrs/dotnet/structured-logging.md` | ILogger<T> with message templates. JSON output + correlation IDs in production. | Serilog as host provider (compatible) |
 | `adrs/database/uuid-primary-keys.md` | All PKs are UUIDs. No auto-increment. | Auto-increment integers (simpler but less secure) |
 | `adrs/database/snake-case-naming.md` | snake_case tables/columns via EF Core naming convention. | PascalCase with quoting (non-idiomatic for PostgreSQL) |
 | `adrs/database/timestamptz-always.md` | All datetimes are timestamptz. C# uses DateTimeOffset. | timestamp without timezone (loses timezone context) |
@@ -172,6 +173,7 @@ These address specific concerns that not every project has.
 |-----|---------|-----------------|
 | `adrs/database/soft-deletes.md` | Soft deletion via nullable `deleted_at` column. | Projects needing audit trails or undo capability |
 | `adrs/api/offset-pagination.md` | Offset pagination with page/pageSize/sortBy/sortDir. Requires `rest-envelope`. | Any project with list endpoints |
+| `adrs/api/role-based-authorization.md` | Role gates at the endpoint layer + ownership checks in services. Deny by default. Requires `jwt-bearer-auth`. | Policy engine (OPA/Casbin) at larger scale |
 
 ---
 

@@ -39,7 +39,8 @@ carestechs-software-architecture/
 │   │   ├── rich-domain-entities.md
 │   │   ├── result-pattern-errors.md
 │   │   ├── event-driven-reactors.md
-│   │   └── xunit-per-module-tests.md
+│   │   ├── xunit-per-module-tests.md
+│   │   └── structured-logging.md
 │   │
 │   ├── python/                    # Python / FastAPI decisions
 │   │   ├── fastapi-framework.md
@@ -50,7 +51,8 @@ carestechs-software-architecture/
 │   │   ├── sqlalchemy-async.md
 │   │   ├── celery-background-jobs.md
 │   │   ├── rfc7807-errors.md
-│   │   └── pytest-testing.md
+│   │   ├── pytest-testing.md
+│   │   └── structured-logging.md
 │   │
 │   ├── angular/                   # Angular decisions
 │   │   ├── standalone-components.md
@@ -81,6 +83,7 @@ carestechs-software-architecture/
 │   ├── api/                       # API design decisions
 │   │   ├── rest-envelope.md
 │   │   ├── jwt-bearer-auth.md
+│   │   ├── role-based-authorization.md
 │   │   └── offset-pagination.md
 │   │
 │   ├── ai/                        # AI agent decisions
@@ -124,7 +127,7 @@ carestechs-software-architecture/
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**71 ADRs** across 9 categories, **7 stack profiles**.
+**74 ADRs** across 9 categories, **7 stack profiles**.
 
 ## How to Use
 
@@ -172,13 +175,13 @@ After compiling, you still need to fill in:
 
 | Category | Count | What It Covers |
 |----------|-------|----------------|
-| dotnet | 14 | Modular monolith, Clean Architecture, CQRS, rich entities, Result pattern, events, DbContext, DTOs, async, xUnit testing |
-| python | 9 | FastAPI, modular packages, Pydantic, SQLAlchemy, Celery, Problem Details errors, pytest testing |
+| dotnet | 15 | Modular monolith, Clean Architecture, CQRS, rich entities, Result pattern, events, DbContext, DTOs, async, xUnit testing, structured logging |
+| python | 10 | FastAPI, modular packages, Pydantic, SQLAlchemy, Celery, Problem Details errors, pytest testing, structured logging |
 | angular | 4 | Standalone components, templates, Signals, Tailwind |
 | react | 3 | Functional components, TanStack Query, Tailwind + shadcn |
 | typescript | 6 | Strict TS, named exports, functional composition, boundary types, core/adapter, Vitest |
 | database | 5 | UUID PKs, snake_case naming, lowercase naming, soft deletes, timestamptz |
-| api | 3 | REST envelope, JWT auth, offset pagination |
+| api | 4 | REST envelope, JWT auth, role-based authorization, offset pagination |
 | ai | 11 | AI agent modules, LLM abstraction, tool calling, RAG, conversation history, Claude Agent SDK |
 | deployment | 16 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions, Zod config, maintenance scheduler |
 
