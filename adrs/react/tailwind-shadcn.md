@@ -7,6 +7,9 @@ requires:
 conflicts_with:
   - adrs/angular/tailwind-no-css.md
 last_reviewed: 2026-07-29
+verify_against:
+  - Tailwind CSS 4
+  - shadcn/ui
 ---
 
 # Tailwind CSS with shadcn/ui Components

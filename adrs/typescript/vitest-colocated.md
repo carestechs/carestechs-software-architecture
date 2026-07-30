@@ -6,6 +6,8 @@ requires:
   - adrs/typescript/strict-typescript.md
 conflicts_with: []
 last_reviewed: 2026-07-29
+verify_against:
+  - Vitest 2
 ---
 
 # Vitest with Co-Located Test Files

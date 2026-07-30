@@ -6,6 +6,8 @@ requires:
   - adrs/python/async-all-the-way.md
 conflicts_with: []
 last_reviewed: 2026-07-29
+verify_against:
+  - SQLAlchemy 2
 ---
 
 # SQLAlchemy 2.0 Async with Alembic

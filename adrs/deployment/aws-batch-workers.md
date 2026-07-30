@@ -7,6 +7,8 @@ requires:
   - adrs/deployment/queue-based-decoupling.md
 conflicts_with: []
 last_reviewed: 2026-07-29
+verify_against:
+  - AWS Batch on Fargate
 ---
 
 # AWS Batch Workers for Compute-Heavy Jobs

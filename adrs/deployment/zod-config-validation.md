@@ -6,6 +6,8 @@ requires:
   - adrs/typescript/strict-typescript.md
 conflicts_with: []
 last_reviewed: 2026-07-29
+verify_against:
+  - Zod
 ---
 
 # Zod for Runtime Validation at System Boundaries

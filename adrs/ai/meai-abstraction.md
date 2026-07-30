@@ -9,6 +9,8 @@ conflicts_with:
   - adrs/ai/llm-abstraction-python.md
   - adrs/ai/claude-agent-sdk.md
 last_reviewed: 2026-07-29
+verify_against:
+  - Microsoft.Extensions.AI
 ---
 
 # Microsoft.Extensions.AI as Sole LLM Abstraction

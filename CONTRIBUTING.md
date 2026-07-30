@@ -121,6 +121,7 @@ Never delete an ADR. When a decision changes:
 - Set `status: Deprecated` when the decision no longer applies and has no replacement.
 - Set `status: Superseded` and add `superseded_by: adrs/<path>.md` when a newer ADR replaces it (the validator enforces this pairing).
 - Update `last_reviewed` (YYYY-MM-DD) whenever an ADR is re-verified against current framework versions.
+- ADRs whose claims depend on framework behavior carry a `verify_against` list naming those frameworks. Run `python scripts/validate_adrs.py --stale` periodically (e.g., quarterly) and re-verify what it lists — version-sensitive claims rot silently otherwise.
 
 ## Review Process
 

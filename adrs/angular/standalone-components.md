@@ -6,6 +6,8 @@ requires: []
 conflicts_with:
   - adrs/react/functional-components.md
 last_reviewed: 2026-07-29
+verify_against:
+  - Angular 19+
 ---
 
 # Standalone Components Only
