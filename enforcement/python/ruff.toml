@@ -1,0 +1,15 @@
+# Enforcement for carestechs ADR constraints.
+# Copy to the repo root, or merge [lint] into [tool.ruff.lint] in pyproject.toml.
+
+[lint]
+select = [
+  "E4", "E7", "E9", "F", # baseline correctness (ruff defaults)
+  "T20",   # adrs/python/structured-logging.md - bans print()/pprint() for diagnostics
+  "G",     # adrs/python/structured-logging.md - bans f-strings/.format() in log calls
+  "ASYNC", # adrs/python/async-all-the-way.md - blocking calls inside async functions
+  "DTZ",   # adrs/database/timestamptz-always.md - naive datetimes without tzinfo
+]
+
+[lint.per-file-ignores]
+# CLI entry points and scripts may print to stdout by design
+"scripts/**" = ["T20"]

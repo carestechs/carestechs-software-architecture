@@ -1,0 +1,8 @@
+<Project>
+  <!-- Enforcement for carestechs ADR constraints. Place next to the solution file
+       together with BannedSymbols.txt; see enforcement/README.md -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" PrivateAssets="all" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
+  </ItemGroup>
+</Project>

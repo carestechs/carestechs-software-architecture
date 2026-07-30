@@ -60,6 +60,7 @@ Before submitting:
 - [ ] Conflicts are **symmetric**: if this ADR lists another in `conflicts_with`, edit that ADR to list this one back (language-specific variants must conflict with each other in both directions)
 - [ ] `python scripts/validate_adrs.py` passes with no new errors
 - [ ] Constraints that agents commonly get wrong have a violation → compliant pair in an `## Examples` section (see ADR-FORMAT.md)
+- [ ] If a new constraint is machine-checkable, the corresponding lint/analyzer rule is added under `enforcement/` with a mapping row in `enforcement/README.md`
 
 ## How to Create a New Profile
 
