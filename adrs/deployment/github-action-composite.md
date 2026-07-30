@@ -3,6 +3,7 @@
 **Category:** deployment
 **Status:** Active
 **Requires:** `adrs/deployment/npm-cli-package.md`
+**Conflicts with:** —
 
 ## Decision
 
@@ -17,9 +18,9 @@ The tool ships as a GitHub Action using the composite action type that runs Node
 ## Constraints (non-negotiable for AI)
 
 - `action.yml` MUST live in the repository root.
-- The action MUST use `runs.using: "composite"` with `runs.steps` that invoke the Node.js CLI.
+- The action MUST use `runs.using: "composite"` with `runs.steps` that set up Node.js (`actions/setup-node`) and invoke the compiled CLI (`npx <package>` or `node dist/cli.js`).
 - All action inputs MUST be declared with `description` and `required` fields in `action.yml`.
 - All action outputs MUST be declared and set via `$GITHUB_OUTPUT`.
-- The action MUST use `@actions/core` for logging (`core.info`, `core.warning`, `core.error`) and output setting — NEVER write to stdout directly for structured output.
+- Structured outputs MUST be written to `$GITHUB_OUTPUT` by the composite steps, and workflow-facing annotations use GitHub's workflow commands (e.g., `::error::`); the CLI itself keeps its normal stdout behavior from `npm-cli-package.md`. (`@actions/core` applies only if the action is later migrated to a JavaScript action.)
 - The action MUST reuse the same core engine as the CLI — NEVER duplicate logic between the action adapter and the CLI adapter.
 - Secrets (API keys, tokens) MUST be passed as inputs, NEVER hardcoded or read from the environment implicitly.

@@ -19,6 +19,6 @@ The frontend is served via nginx running in a container. Nginx serves the built 
 - The built SPA assets MUST be copied to `/usr/share/nginx/html/` in the nginx container.
 - The nginx configuration MUST include a `try_files $uri $uri/ /index.html` directive (or equivalent) to support client-side routing. NEVER let nginx return 404 for valid client-side routes.
 - API requests MUST be reverse-proxied to the backend service using a `location /api/` block with `proxy_pass`. The backend service MUST be referenced by its Docker service name (e.g., `http://research-api:8000`).
-- The nginx configuration MUST set `client_max_body_size` to an appropriate value for the application's upload needs. NEVER rely on the default 1MB limit without explicit consideration.
+- The nginx configuration MUST set `client_max_body_size` explicitly (default to `10m` unless the application's uploads require more). NEVER rely silently on nginx's 1MB default.
 - A custom `nginx.conf` MUST be stored in the frontend directory (e.g., `client/nginx.conf`) and copied into the container at build time. NEVER rely on the default nginx configuration.
 - The `proxy_pass` directive MUST include `proxy_set_header Host`, `X-Real-IP`, and `X-Forwarded-For` headers to preserve client information for the backend.
