@@ -38,7 +38,8 @@ carestechs-software-architecture/
 │   │   ├── cqrs-handlers.md
 │   │   ├── rich-domain-entities.md
 │   │   ├── result-pattern-errors.md
-│   │   └── event-driven-reactors.md
+│   │   ├── event-driven-reactors.md
+│   │   └── xunit-per-module-tests.md
 │   │
 │   ├── python/                    # Python / FastAPI decisions
 │   │   ├── fastapi-framework.md
@@ -48,7 +49,8 @@ carestechs-software-architecture/
 │   │   ├── async-all-the-way.md
 │   │   ├── sqlalchemy-async.md
 │   │   ├── celery-background-jobs.md
-│   │   └── rfc7807-errors.md
+│   │   ├── rfc7807-errors.md
+│   │   └── pytest-testing.md
 │   │
 │   ├── angular/                   # Angular decisions
 │   │   ├── standalone-components.md
@@ -122,7 +124,7 @@ carestechs-software-architecture/
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**69 ADRs** across 9 categories, **7 stack profiles**.
+**71 ADRs** across 9 categories, **7 stack profiles**.
 
 ## How to Use
 
@@ -170,8 +172,8 @@ After compiling, you still need to fill in:
 
 | Category | Count | What It Covers |
 |----------|-------|----------------|
-| dotnet | 13 | Modular monolith, Clean Architecture, CQRS, rich entities, Result pattern, events, DbContext, DTOs, async |
-| python | 8 | FastAPI, modular packages, Pydantic, SQLAlchemy, Celery, Problem Details errors |
+| dotnet | 14 | Modular monolith, Clean Architecture, CQRS, rich entities, Result pattern, events, DbContext, DTOs, async, xUnit testing |
+| python | 9 | FastAPI, modular packages, Pydantic, SQLAlchemy, Celery, Problem Details errors, pytest testing |
 | angular | 4 | Standalone components, templates, Signals, Tailwind |
 | react | 3 | Functional components, TanStack Query, Tailwind + shadcn |
 | typescript | 6 | Strict TS, named exports, functional composition, boundary types, core/adapter, Vitest |
@@ -219,6 +221,16 @@ ADRs can declare dependencies and conflicts in their metadata:
 Run `python scripts/validate_adrs.py` to check the catalog: frontmatter format, referenced files, conflict symmetry, dependency cycles, and profile consistency. CI runs the same script on every push and pull request.
 
 Example: `adrs/dotnet/dbcontext-per-module.md` requires `adrs/dotnet/modular-monolith.md` — you can't have per-module DbContexts without module boundaries.
+
+## Versioning
+
+Catalog releases are tagged `vMAJOR.MINOR.PATCH`:
+
+- **MAJOR** — metadata-format or semantic changes that break consumers (compile prompts, validators, tooling)
+- **MINOR** — new ADRs, new constraints, or profile changes (agents may start doing something new)
+- **PATCH** — clarifications and corrections that do not change what an agent should do
+
+When compiling ADRs into project documentation, record the tag in the output (e.g., `Compiled from carestechs-software-architecture@v1.0.0`). That makes drift between a project's rules and the current catalog visible and diffable. `v1.0.0` is the first fully validated catalog (symmetric conflict graph, YAML frontmatter, CI).
 
 ## Relationship to Companion Repos
 

@@ -26,3 +26,25 @@ All datetime columns use `timestamptz` (TIMESTAMP WITH TIME ZONE) in PostgreSQL 
 - EF Core column type should be explicitly configured as `timestamptz` if not inferred
 - Npgsql caveat: it maps `timestamptz` to UTC values and throws when writing a `DateTimeOffset` with a non-zero offset — always write UTC values (`DateTimeOffset.UtcNow` or `.ToUniversalTime()`)
 - Python stacks: use timezone-aware `datetime` objects in UTC (`datetime.now(timezone.utc)`); NEVER store naive datetimes
+
+## Examples
+
+**Violation — local time into a timezone-less column:**
+```csharp
+public DateTime CreatedAt { get; set; } = DateTime.Now; // local, ambiguous
+```
+
+**Compliant:**
+```csharp
+public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
+```
+
+**Violation — migration column without timezone:**
+```sql
+created_at timestamp not null
+```
+
+**Compliant:**
+```sql
+created_at timestamptz not null
+```

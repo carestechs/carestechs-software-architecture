@@ -24,3 +24,22 @@ All successful (2xx) API responses use a standard `{ data, meta }` envelope stru
 - Never return a raw array or unwrapped object at the top level of a successful response
 - Create generic response wrapper classes: `ApiResponse<T>` for single items, `ApiListResponse<T>` for lists
 - Controllers must always wrap return values in the envelope
+
+## Examples
+
+**Violation — raw array at the top level of a 2xx response:**
+```json
+[
+  { "id": "0198c9a1-...", "name": "Widget" }
+]
+```
+
+**Compliant:**
+```json
+{
+  "data": [
+    { "id": "0198c9a1-...", "name": "Widget" }
+  ],
+  "meta": { "totalCount": 42, "page": 1, "pageSize": 20 }
+}
+```

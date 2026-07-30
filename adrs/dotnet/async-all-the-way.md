@@ -25,3 +25,33 @@ All I/O-bound operations use async/await consistently from the HTTP entry point 
 - NEVER call `.Result`, `.Wait()`, or `.GetAwaiter().GetResult()` on a Task. These block the calling thread and can cause deadlocks.
 - NEVER use `async void`.
 - Accept and forward `CancellationToken` parameters through the call chain; bind them from the HTTP request in controllers and endpoint delegates.
+
+## Examples
+
+**Violation — blocking on async (deadlock risk):**
+```csharp
+public IActionResult GetProduct(Guid id)
+{
+    var product = _catalogService.GetProductByIdAsync(id).Result;
+    return Ok(product);
+}
+```
+
+**Compliant:**
+```csharp
+public async Task<ActionResult<ProductDto>> GetProduct(Guid id, CancellationToken ct)
+{
+    var product = await _catalogService.GetProductByIdAsync(id, ct);
+    return Ok(product);
+}
+```
+
+**Violation — synchronous EF Core query on an async path:**
+```csharp
+var items = _db.Products.Where(p => p.IsActive).ToList();
+```
+
+**Compliant:**
+```csharp
+var items = await _db.Products.Where(p => p.IsActive).ToListAsync(ct);
+```

@@ -25,3 +25,24 @@ The API never exposes SQLAlchemy models directly. All request and response paylo
 - Request schemas and response schemas MUST be separate classes (e.g., `CreateProductRequest`, `ProductResponse`). NEVER reuse the same schema for input and output.
 - Schemas MUST use `model_config = ConfigDict(from_attributes=True)` when they need to be constructed from ORM model instances.
 - Mapping from ORM models to Pydantic schemas MUST happen in the service layer, not in route handlers.
+
+## Examples
+
+**Violation — SQLAlchemy model returned straight from the endpoint:**
+```python
+@router.get("/users/{user_id}")
+async def get_user(user_id: UUID, session: AsyncSession = Depends(get_session)):
+    return await session.get(User, user_id)  # ORM model (and schema) leaks out
+```
+
+**Compliant:**
+```python
+class UserRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: UUID
+    email: str
+
+@router.get("/users/{user_id}", response_model=UserRead)
+async def get_user(user_id: UUID, session: AsyncSession = Depends(get_session)):
+    return await user_service.get_user(session, user_id)
+```

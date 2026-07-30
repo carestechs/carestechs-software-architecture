@@ -29,3 +29,16 @@ SQLAlchemy 2.0 with async engine and sessions is the ORM. Alembic handles all da
 - Alembic's `env.py` MUST support the async engine (run migrations via `connection.run_sync(...)`, or configure a separate synchronous URL for migrations only).
 - The database engine MUST use `create_async_engine` with the `asyncpg` driver (connection string: `postgresql+asyncpg://...`).
 - Models MUST live in each module's `models.py` file. The shared `Base` MUST be importable by all modules.
+
+## Examples
+
+**Violation — legacy 1.x query API and sync execution:**
+```python
+users = session.query(User).filter_by(active=True).all()
+```
+
+**Compliant:**
+```python
+result = await session.execute(select(User).where(User.active.is_(True)))
+users = result.scalars().all()
+```

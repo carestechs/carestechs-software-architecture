@@ -34,3 +34,17 @@ Multi-turn conversations are persisted in the AI module's database tables (`conv
 - NEVER send unbounded conversation history to the LLM. Enforce this architecturally: every LLM call assembles its message list through a single context-builder function that applies the token budget — callers MUST NOT hand-assemble message lists.
 - If summarization is used, the summary MUST be persisted as a flagged `system`-role message replacing the pruned span, so the stored history remains the single source of truth (prune-only is the acceptable default).
 - Conversation and message models MUST live in the AI module's `models.py`. They MUST NOT appear in other modules.
+
+## Examples
+
+**Violation — hand-assembled, unbounded message list:**
+```python
+messages = [{"role": m.role, "content": m.content} for m in conversation.messages]
+response = await llm.chat(messages)  # grows without limit
+```
+
+**Compliant:**
+```python
+messages = build_context(conversation, token_budget=settings.llm_context_budget)
+response = await llm.chat(messages)  # the single context-builder enforces the budget
+```

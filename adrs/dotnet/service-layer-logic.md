@@ -26,3 +26,28 @@ All business logic lives in service classes. Controllers are thin: they validate
 - Services MUST be injected via their interface (e.g., `ICatalogService`), never as concrete classes.
 - Service interfaces and implementations MUST live in the module's `Services/` folder.
 - NEVER place business logic in repository classes — repositories (if used) are thin data-access wrappers only. In most cases, the DbContext itself is the repository.
+
+## Examples
+
+**Violation — business logic in the controller:**
+```csharp
+[HttpPost]
+public async Task<IActionResult> Create(CreateProductRequest request)
+{
+    if (await _db.Products.AnyAsync(p => p.Sku == request.Sku))
+        return Conflict();
+    _db.Products.Add(new Product { Sku = request.Sku, Name = request.Name });
+    await _db.SaveChangesAsync();
+    return Ok();
+}
+```
+
+**Compliant:**
+```csharp
+[HttpPost]
+public async Task<ActionResult<ProductDto>> Create(CreateProductRequest request, CancellationToken ct)
+{
+    var dto = await _catalogService.CreateProductAsync(request, ct); // rules live in the service
+    return CreatedAtAction(nameof(Get), new { id = dto.Id }, dto);
+}
+```

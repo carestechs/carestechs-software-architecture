@@ -24,3 +24,26 @@ All components, directives, and pipes must be standalone. NgModules are not used
 - Route configuration must use `loadComponent` for lazy loading individual components
 - Never generate or reference an `NgModule` class
 - Never use `loadChildren` pointing to a module — use `loadComponent` or route files with `default export`
+
+## Examples
+
+**Violation — NgModule wrapping a component:**
+```ts
+@NgModule({
+  declarations: [CatalogListComponent],
+  imports: [CommonModule],
+})
+export class CatalogModule {}
+```
+
+**Compliant:**
+```ts
+@Component({
+  selector: "app-catalog-list",
+  imports: [CurrencyPipe],
+  templateUrl: "./catalog-list.component.html",
+})
+export class CatalogListComponent {}
+// route: { path: "catalog", loadComponent: () =>
+//   import("./catalog-list.component").then(m => m.CatalogListComponent) }
+```

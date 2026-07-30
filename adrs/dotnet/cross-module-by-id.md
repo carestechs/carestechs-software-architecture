@@ -26,3 +26,26 @@ Modules reference each other's entities exclusively by storing the foreign entit
 - NEVER write cross-module joins (LINQ `join` or raw SQL joins across module schemas).
 - If you need data from another module, inject and call a contract interface exposed by that module (e.g., `IUserService.GetByIdAsync(Guid id)`), or consume events it publishes.
 - The contract interface MUST be defined in the shared contracts project (e.g., `MyApp.Contracts` or `Common.Core`), not in the module itself.
+
+## Examples
+
+**Violation — navigation property across a module boundary:**
+```csharp
+public class Order
+{
+    public Guid Id { get; set; }
+    public User Owner { get; set; } // entity owned by the Identity module
+}
+var orders = await _db.Orders.Include(o => o.Owner).ToListAsync(ct);
+```
+
+**Compliant:**
+```csharp
+public class Order
+{
+    public Guid Id { get; set; }
+    public Guid OwnerId { get; set; } // plain ID reference
+}
+var order = await _db.Orders.FirstAsync(o => o.Id == id, ct);
+var owner = await _identityService.GetByIdAsync(order.OwnerId, ct); // contract interface
+```

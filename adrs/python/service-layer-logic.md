@@ -24,3 +24,24 @@ All business logic lives in service classes or functions within each module's `s
 - Service functions that perform I/O MUST be `async def`.
 - NEVER place business logic in route handlers — route handlers are thin wrappers only.
 - NEVER perform raw database queries in route handlers — all data access goes through services.
+
+## Examples
+
+**Violation — business rules and persistence in the route handler:**
+```python
+@router.post("/orders")
+async def create_order(payload: OrderCreate, session: AsyncSession = Depends(get_session)):
+    if payload.quantity <= 0:
+        raise HTTPException(status_code=400, detail="invalid quantity")
+    order = Order(**payload.model_dump())
+    session.add(order)
+    await session.commit()
+    return order
+```
+
+**Compliant:**
+```python
+@router.post("/orders", response_model=OrderRead, status_code=201)
+async def create_order(payload: OrderCreate, session: AsyncSession = Depends(get_session)):
+    return await order_service.create_order(session, payload)  # rules live in the service
+```

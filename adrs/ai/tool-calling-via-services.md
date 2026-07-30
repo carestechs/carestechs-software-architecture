@@ -31,3 +31,23 @@ AI tools (functions the LLM can invoke) are thin adapters in the AI module that 
 - NEVER give a tool unrestricted database query capability (e.g., raw SQL execution or open-ended LINQ).
 - NEVER allow tools to perform destructive operations (deletes, hard mutations) without an explicit confirmation mechanism (e.g., human approval or a two-step confirm parameter).
 - Tool classes MUST receive their dependencies (service interfaces) via constructor injection.
+
+## Examples
+
+**Violation — business logic and direct data access inside a tool:**
+```csharp
+[Description("Searches products")]
+public async Task<string> SearchProducts(string term)
+{
+    var results = await _db.Products // another module's data, queried directly
+        .Where(p => p.Name.Contains(term)).ToListAsync();
+    return JsonSerializer.Serialize(results);
+}
+```
+
+**Compliant:**
+```csharp
+[Description("Searches the product catalog by name or SKU")]
+public async Task<IReadOnlyList<ProductDto>> SearchProducts(string term, CancellationToken ct)
+    => await _catalogService.SearchProductsAsync(term, ct); // same service the REST API uses
+```
