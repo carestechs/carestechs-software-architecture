@@ -238,6 +238,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/database/uuid-primary-keys.md` | All PKs are UUIDs. Generated server-side with `Guid.NewGuid()`. | Auto-increment integers (simpler but less secure) |
 | `adrs/database/lowercase-naming.md` | Lowercase table/column names via `OnModelCreating` loop. | `snake-case-naming` with naming convention package |
 | `adrs/database/timestamptz-always.md` | All datetimes are `timestamptz`. C# uses `DateTimeOffset`. | `timestamp` without timezone (loses context) |
+| `adrs/api/jwt-bearer-auth.md` | JWT Bearer tokens. Short-lived access + rotated refresh. | Cognito / API Gateway JWT authorizer (managed alternative) |
 | `adrs/deployment/queue-based-decoupling.md` | Cross-module async work via SQS with `IQueueProvider` abstraction. | Direct HTTP calls between Lambdas (tighter coupling) |
 | `adrs/deployment/aws-batch-workers.md` | Compute-heavy jobs run on AWS Batch (Fargate). Dual-mode Program.cs: BackgroundService polling in dev, single-shot JOB_PAYLOAD in prod. | Step Functions for orchestration, or Lambda with higher memory/timeout |
 | `adrs/angular/standalone-components.md` | All components standalone. No NgModules. | — |
