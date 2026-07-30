@@ -1,9 +1,13 @@
-# Service Layer Owns All Business Logic
+---
+category: python
+stack: python
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** python
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
+# Service Layer Owns All Business Logic
 
 ## Decision
 All business logic lives in service classes or functions within each module's `service.py`. Route handlers are thin: they validate input (via Pydantic), call a service function, and return the result. No business logic is permitted in route handlers or direct database queries within routes.
@@ -16,7 +20,7 @@ All business logic lives in service classes or functions within each module's `s
 ## Constraints (non-negotiable for AI)
 - Route handlers MUST only: extract/validate the request (Pydantic handles this), call one or more service functions, and return an HTTP response.
 - All business rules, validations beyond input format, orchestration, and data transformation MUST live in service functions or classes.
-- Services MUST be injected into route handlers via FastAPI's `Depends()` mechanism.
+- Class-based services (or services carrying their own dependencies) MUST be injected into route handlers via FastAPI's `Depends()`; plain service functions MAY be imported and called directly, receiving the session (which itself always arrives via `Depends()`) as an argument.
 - Service functions that perform I/O MUST be `async def`.
 - NEVER place business logic in route handlers — route handlers are thin wrappers only.
 - NEVER perform raw database queries in route handlers — all data access goes through services.

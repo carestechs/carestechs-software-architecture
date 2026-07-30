@@ -1,9 +1,14 @@
-# Async All the Way
+---
+category: python
+stack: python
+status: Active
+requires:
+  - adrs/python/fastapi-framework.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** python
-**Status:** Active
-**Requires:** `adrs/python/fastapi-framework.md`
-**Conflicts with:** —
+# Async All the Way
 
 ## Decision
 All I/O-bound operations use `async`/`await` consistently from route handlers down through services to database calls. Route handlers are `async def`. Service functions that perform I/O are `async def`. All SQLAlchemy queries use the async session. The application runs on an ASGI server (Uvicorn).

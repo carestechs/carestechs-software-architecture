@@ -1,9 +1,17 @@
-# Tool Calling Delegates to Service Layer
+---
+category: ai
+stack: python
+status: Active
+requires:
+  - adrs/python/modular-packages.md
+  - adrs/python/service-layer-logic.md
+  - adrs/ai/llm-abstraction-python.md
+conflicts_with:
+  - adrs/ai/tool-calling-via-services.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Status:** Active
-**Requires:** `adrs/python/modular-packages.md`, `adrs/python/service-layer-logic.md`, `adrs/ai/llm-abstraction-python.md`
-**Conflicts with:** `adrs/ai/tool-calling-via-services.md`
+# Tool Calling Delegates to Service Layer
 
 ## Decision
 AI tools (functions the LLM can call) are thin adapters that delegate to existing service functions. Tools live in the AI module's `tools/` sub-package. Each tool parses LLM-provided parameters, calls a service function from the appropriate module via its contract interface, and returns the result. No business logic lives in tool definitions.
@@ -21,4 +29,5 @@ AI tools (functions the LLM can call) are thin adapters that delegate to existin
 - Every tool MUST have a clear `name`, `description`, and parameter schema. Descriptions MUST be written for LLM comprehension.
 - Tool functions MUST be `async def` when they call async services.
 - Tools MUST return Pydantic-serializable results. NEVER return raw ORM model instances from tools.
-- NEVER allow tools to perform destructive operations (DELETE, hard mutations) without explicit confirmation mechanisms.
+- NEVER allow tools to perform destructive operations (DELETE, hard mutations) without an explicit confirmation mechanism (e.g., human approval or a two-step confirm parameter).
+- NEVER give a tool unrestricted database query capability (e.g., raw SQL execution or open-ended query builders).

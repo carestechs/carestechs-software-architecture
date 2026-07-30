@@ -1,7 +1,13 @@
-# Named Exports Only
+---
+category: typescript
+stack: typescript
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** typescript
-**Status:** Active
+# Named Exports Only
 
 ## Decision
 

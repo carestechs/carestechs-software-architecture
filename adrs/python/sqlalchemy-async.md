@@ -1,9 +1,14 @@
-# SQLAlchemy 2.0 Async with Alembic
+---
+category: python
+stack: python
+status: Active
+requires:
+  - adrs/python/async-all-the-way.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** python
-**Status:** Active
-**Requires:** `adrs/python/async-all-the-way.md`
-**Conflicts with:** —
+# SQLAlchemy 2.0 Async with Alembic
 
 ## Decision
 SQLAlchemy 2.0 with async engine and sessions is the ORM. Alembic handles all database migrations. Each module defines its models in `models.py`, and all models inherit from a shared declarative base. The async session is provided to services via FastAPI's dependency injection.
@@ -18,8 +23,9 @@ SQLAlchemy 2.0 with async engine and sessions is the ORM. Alembic handles all da
 - All SQLAlchemy models MUST use the 2.0 declarative style with `mapped_column()` and type annotations.
 - All models MUST inherit from a shared `Base` class (declarative base) defined in a shared location.
 - Database sessions MUST be `AsyncSession` instances created from `async_sessionmaker`.
-- Sessions MUST be injected into services via FastAPI `Depends()`, using a dependency that yields a session and handles commit/rollback.
+- In HTTP request scope, sessions MUST be injected into services via FastAPI `Depends()`, using a dependency that yields a session and handles commit/rollback. Outside HTTP scope (Celery tasks, CLI scripts), obtain sessions directly from the shared `async_sessionmaker` factory.
 - All database operations MUST use `await` with async session methods.
 - Migrations MUST be managed by Alembic. NEVER modify database schema outside of Alembic migrations.
+- Alembic's `env.py` MUST support the async engine (run migrations via `connection.run_sync(...)`, or configure a separate synchronous URL for migrations only).
 - The database engine MUST use `create_async_engine` with the `asyncpg` driver (connection string: `postgresql+asyncpg://...`).
 - Models MUST live in each module's `models.py` file. The shared `Base` MUST be importable by all modules.

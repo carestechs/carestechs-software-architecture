@@ -1,9 +1,17 @@
-# Microsoft.Extensions.AI as Sole LLM Abstraction
+---
+category: ai
+stack: dotnet
+status: Active
+requires:
+  - adrs/dotnet/modular-monolith.md
+  - adrs/dotnet/async-all-the-way.md
+conflicts_with:
+  - adrs/ai/llm-abstraction-python.md
+  - adrs/ai/claude-agent-sdk.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Status:** Active
-**Requires:** `adrs/dotnet/modular-monolith.md`, `adrs/dotnet/async-all-the-way.md`
-**Conflicts with:** —
+# Microsoft.Extensions.AI as Sole LLM Abstraction
 
 ## Decision
 All LLM and embedding calls go through `IChatClient` and `IEmbeddingGenerator<string, Embedding<float>>` from Microsoft.Extensions.AI (M.E.AI). Provider-specific SDKs (OpenAI, Azure OpenAI, Anthropic, Ollama, etc.) are only referenced in the composition root. Cross-cutting concerns use the M.E.AI middleware pipeline.
@@ -17,7 +25,7 @@ All LLM and embedding calls go through `IChatClient` and `IEmbeddingGenerator<st
 ## Constraints (non-negotiable for AI)
 - All LLM interactions MUST go through `IChatClient`. NEVER call provider SDKs directly from service code.
 - All embedding generation MUST go through `IEmbeddingGenerator<string, Embedding<float>>`. NEVER call provider embedding APIs directly.
-- Provider SDK packages (e.g., `Microsoft.Extensions.AI.OpenAI`, `Microsoft.Extensions.AI.Ollama`) MUST only be referenced in the API host project, NEVER in the AI module.
+- Provider SDK packages (e.g., `Microsoft.Extensions.AI.OpenAI`; for Anthropic the official `Anthropic` SDK's `IChatClient` integration; for Ollama the `OllamaSharp` package's `IChatClient` implementation — the preview `Microsoft.Extensions.AI.Ollama` package is deprecated) MUST only be referenced in the API host project, NEVER in the AI module.
 - Cross-cutting concerns (logging, caching, telemetry, rate limiting) MUST be registered as M.E.AI middleware via `ChatClientBuilder` or `EmbeddingGeneratorBuilder`.
 - Model names, API keys, and endpoint URLs MUST come from configuration (`IConfiguration` / `IOptions<T>`). NEVER hardcode provider details.
 - The AI module MUST depend only on the `Microsoft.Extensions.AI.Abstractions` package, not on any provider-specific package.

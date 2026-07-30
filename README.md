@@ -33,7 +33,12 @@ carestechs-software-architecture/
 │   │   ├── service-layer-logic.md
 │   │   ├── dto-at-boundary.md
 │   │   ├── async-all-the-way.md
-│   │   └── rfc7807-errors.md
+│   │   ├── rfc7807-errors.md
+│   │   ├── clean-architecture-layers.md
+│   │   ├── cqrs-handlers.md
+│   │   ├── rich-domain-entities.md
+│   │   ├── result-pattern-errors.md
+│   │   └── event-driven-reactors.md
 │   │
 │   ├── python/                    # Python / FastAPI decisions
 │   │   ├── fastapi-framework.md
@@ -42,7 +47,8 @@ carestechs-software-architecture/
 │   │   ├── pydantic-at-boundary.md
 │   │   ├── async-all-the-way.md
 │   │   ├── sqlalchemy-async.md
-│   │   └── celery-background-jobs.md
+│   │   ├── celery-background-jobs.md
+│   │   └── rfc7807-errors.md
 │   │
 │   ├── angular/                   # Angular decisions
 │   │   ├── standalone-components.md
@@ -55,9 +61,18 @@ carestechs-software-architecture/
 │   │   ├── tanstack-query.md
 │   │   └── tailwind-shadcn.md
 │   │
+│   ├── typescript/                # TypeScript / Node.js decisions
+│   │   ├── strict-typescript.md
+│   │   ├── named-exports.md
+│   │   ├── functional-composition.md
+│   │   ├── types-at-boundary.md
+│   │   ├── core-adapter-pattern.md
+│   │   └── vitest-colocated.md
+│   │
 │   ├── database/                  # Database design decisions
 │   │   ├── uuid-primary-keys.md
 │   │   ├── snake-case-naming.md
+│   │   ├── lowercase-naming.md
 │   │   ├── soft-deletes.md
 │   │   └── timestamptz-always.md
 │   │
@@ -76,23 +91,38 @@ carestechs-software-architecture/
 │   │   ├── rag-pgvector.md              # .NET variant
 │   │   ├── rag-pgvector-python.md       # Python variant
 │   │   ├── conversation-history.md      # .NET variant
-│   │   └── conversation-history-python.md       # Python variant
+│   │   ├── conversation-history-python.md       # Python variant
+│   │   └── claude-agent-sdk.md          # TypeScript (direct SDK, no abstraction)
 │   │
 │   └── deployment/                # Containerization, config, and infrastructure
 │       ├── docker-multi-stage-builds.md
 │       ├── env-connection-urls.md
 │       ├── container-per-process.md
 │       ├── local-dev-compose.md
-│       └── nginx-spa-proxy.md
+│       ├── nginx-spa-proxy.md
+│       ├── aws-lambda-serverless.md
+│       ├── aws-sam-infrastructure.md
+│       ├── aws-secrets-parameters.md
+│       ├── flyway-migrations.md
+│       ├── queue-based-decoupling.md
+│       ├── tauri-desktop-shell.md
+│       ├── aws-batch-workers.md
+│       ├── maintenance-cli-scheduler.md
+│       ├── npm-cli-package.md
+│       ├── zod-config-validation.md
+│       └── github-action-composite.md
 │
 └── profiles/                  # Pre-built ADR sets (stack + deployment mode)
     ├── dotnet-angular-modular-monolith-docker-compose.md
     ├── dotnet-angular-ai-agent-docker-compose.md
     ├── python-react-modular-monolith-docker-compose.md
-    └── python-react-ai-agent-docker-compose.md
+    ├── python-react-ai-agent-docker-compose.md
+    ├── dotnet-angular-clean-architecture-aws-lambda.md
+    ├── typescript-cli-tool-npm.md
+    └── typescript-ai-agent-cli-npm.md
 ```
 
-**47 ADRs** across 8 categories, **4 stack profiles**.
+**69 ADRs** across 9 categories, **7 stack profiles**.
 
 ## How to Use
 
@@ -106,6 +136,9 @@ Profiles are curated sets of ADRs organized into Required, Recommended, and Opti
 | **python-react-ai-agent-docker-compose** | Python + React + PostgreSQL + AI | Docker Compose |
 | **dotnet-angular-modular-monolith-docker-compose** | .NET + Angular + PostgreSQL | Docker Compose |
 | **dotnet-angular-ai-agent-docker-compose** | .NET + Angular + PostgreSQL + AI | Docker Compose |
+| **dotnet-angular-clean-architecture-aws-lambda** | .NET + Angular + PostgreSQL | AWS Lambda |
+| **typescript-cli-tool-npm** | TypeScript CLI / dev tool | npm |
+| **typescript-ai-agent-cli-npm** | TypeScript CLI + Claude Agent SDK | npm |
 
 Or select individual ADRs from any category to build a custom set.
 
@@ -137,26 +170,31 @@ After compiling, you still need to fill in:
 
 | Category | Count | What It Covers |
 |----------|-------|----------------|
-| dotnet | 8 | Modular monolith, DbContext, services, DTOs, async, error handling |
-| python | 7 | FastAPI, modular packages, Pydantic, SQLAlchemy, Celery |
+| dotnet | 13 | Modular monolith, Clean Architecture, CQRS, rich entities, Result pattern, events, DbContext, DTOs, async |
+| python | 8 | FastAPI, modular packages, Pydantic, SQLAlchemy, Celery, Problem Details errors |
 | angular | 4 | Standalone components, templates, Signals, Tailwind |
 | react | 3 | Functional components, TanStack Query, Tailwind + shadcn |
-| database | 4 | UUID PKs, snake_case naming, soft deletes, timestamptz |
+| typescript | 6 | Strict TS, named exports, functional composition, boundary types, core/adapter, Vitest |
+| database | 5 | UUID PKs, snake_case naming, lowercase naming, soft deletes, timestamptz |
 | api | 3 | REST envelope, JWT auth, offset pagination |
-| ai | 10 | AI agent modules, LLM abstraction, tool calling, RAG, conversation history |
-| deployment | 5 | Docker multi-stage builds, env-based config, container-per-process, dev/prod Compose, nginx SPA proxy |
+| ai | 11 | AI agent modules, LLM abstraction, tool calling, RAG, conversation history, Claude Agent SDK |
+| deployment | 16 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions, Zod config, maintenance scheduler |
 
 ## ADR Format
 
 Every ADR follows this standard format (see `ADR-FORMAT.md` for the full template):
 
 ```markdown
-# [Decision Title]
+---
+category: dotnet | python | typescript | angular | react | database | api | ai | deployment
+stack: dotnet | python | typescript | angular | react | any
+status: Active
+requires: []          # ADR dependencies; " | " inside an item separates alternatives
+conflicts_with: []    # mutually exclusive ADRs — always declared symmetrically
+last_reviewed: YYYY-MM-DD
+---
 
-**Category:** dotnet | python | angular | react | database | api | ai | deployment
-**Status:** Active
-**Requires:** [ADR dependencies — file paths, or omit if none]
-**Conflicts with:** [Mutually exclusive ADRs — file paths, or omit if none]
+# [Decision Title]
 
 ## Decision
 [What was decided — 1-2 sentences]
@@ -174,8 +212,11 @@ Every ADR follows this standard format (see `ADR-FORMAT.md` for the full templat
 
 ADRs can declare dependencies and conflicts in their metadata:
 
-- **Requires:** Lists ADR files that must also be selected. A required ADR being missing indicates an incomplete set.
-- **Conflicts with:** Lists ADR files that are mutually exclusive. Conflicting ADRs should not both be selected.
+- **Requires:** Lists ADR files that must also be selected. A required ADR being missing indicates an incomplete set. An entry may list alternatives separated by ` | ` — at least one of them must be selected (e.g., `adrs/dotnet/modular-monolith.md` | `adrs/dotnet/clean-architecture-layers.md`).
+- **Conflicts with:** Lists ADR files that are mutually exclusive. Conflicting ADRs should not both be selected. Conflicts are declared symmetrically: if A lists B, B lists A.
+- **Stack:** Which technology stack the ADR's constraints assume (`any` = cross-stack). Same-slot variants for different stacks conflict with each other; filter by Stack to find the variant that applies to your project.
+
+Run `python scripts/validate_adrs.py` to check the catalog: frontmatter format, referenced files, conflict symmetry, dependency cycles, and profile consistency. CI runs the same script on every push and pull request.
 
 Example: `adrs/dotnet/dbcontext-per-module.md` requires `adrs/dotnet/modular-monolith.md` — you can't have per-module DbContexts without module boundaries.
 

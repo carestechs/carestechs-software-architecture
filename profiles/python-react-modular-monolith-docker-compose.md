@@ -127,6 +127,7 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 
 | ADR | Summary | Alternative |
 |-----|---------|-------------|
+| `adrs/python/rfc7807-errors.md` | RFC 9457 Problem Details for all errors. Global exception handlers override FastAPI's default error shape. | Custom error envelope (not recommended) |
 | `adrs/python/celery-background-jobs.md` | Celery + Redis for background task processing. Tasks delegate to services. | ARQ or Dramatiq (smaller ecosystem) |
 | `adrs/database/uuid-primary-keys.md` | All PKs are UUIDs. No auto-increment. | Auto-increment integers (simpler but less secure for external APIs) |
 | `adrs/database/snake-case-naming.md` | snake_case tables/columns. Native to both Python and PostgreSQL. | — (already the natural convention for Python + PostgreSQL) |
@@ -159,7 +160,7 @@ When using this stack, these patterns emerge from the combination of ADRs:
 - **Module isolation:** Each module is a Python package with its own router, service, models, and schemas. Cross-module communication is by UUID + shared contract protocol only.
 - **Validation chain:** Pydantic validates at the API boundary (route handlers). SQLAlchemy enforces at the database boundary (model constraints). Services enforce business rules in between.
 - **Background jobs:** Celery tasks are thin wrappers that call the same service functions used by route handlers, ensuring consistent behavior whether triggered by HTTP or by a background job.
-- **Error handling:** FastAPI exception handlers return RFC 7807-style Problem Details responses. Pydantic validation errors are automatically formatted as 422 responses with field-level details.
+- **Error handling:** FastAPI exception handlers return RFC 9457 Problem Details responses; validation errors are reformatted from FastAPI's default shape into Problem Details with field-level details (`adrs/python/rfc7807-errors.md`).
 - **Image reuse across process types:** The API server and Celery worker containers use the same Docker image with different `command` overrides. Only the frontend uses a separate image (nginx-based).
 - **Environment parity via connection URLs:** The same application code connects to `postgresql://localhost:5432` in development and `postgresql://infra-postgres:5432` in production. The infrastructure topology is invisible to the application.
 - **No secrets in images:** Environment variables are injected at runtime via `.env` files or orchestrator configuration. Docker images are environment-agnostic.

@@ -1,9 +1,15 @@
-# Modular Monolith Architecture
+---
+category: dotnet
+stack: dotnet
+status: Active
+requires: []
+conflicts_with:
+  - adrs/dotnet/clean-architecture-layers.md
+  - adrs/python/modular-packages.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** dotnet
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
+# Modular Monolith Architecture
 
 ## Decision
 The system is built as a modular monolith: a single deployable unit composed of feature modules with clear boundaries, each module owning its own folder structure (Controllers, Services, Entities, DTOs). Modules communicate through shared interfaces registered in DI, never through direct project-to-project entity references.
@@ -17,7 +23,7 @@ The system is built as a modular monolith: a single deployable unit composed of 
 ## Constraints (non-negotiable for AI)
 - Every feature module MUST be its own .csproj with the naming convention `MyApp.Modules.<ModuleName>`.
 - A module MUST contain its own Controllers, Services, Entities, and DTOs folders.
-- Modules MUST NOT reference other module projects directly. Cross-module communication goes through interfaces defined in a shared contracts project (`MyApp.Shared` or `MyApp.Contracts`).
+- Modules MUST NOT reference other module projects directly. Cross-module communication goes through interfaces defined in a shared contracts project (`MyApp.Contracts`).
 - The API host project (`MyApp.Api`) is the only project that references module projects, and it does so solely for DI registration.
 - No circular dependencies between modules. If two modules need each other, extract the shared concept into the contracts project.
 - Each module MUST expose an `IServiceCollection` extension method (e.g., `AddCatalogModule()`) for self-registration.

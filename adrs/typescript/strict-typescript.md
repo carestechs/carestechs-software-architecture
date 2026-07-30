@@ -1,7 +1,13 @@
-# TypeScript Strict Mode with No Escape Hatches
+---
+category: typescript
+stack: typescript
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** typescript
-**Status:** Active
+# TypeScript Strict Mode with No Escape Hatches
 
 ## Decision
 

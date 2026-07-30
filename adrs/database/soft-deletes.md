@@ -1,9 +1,13 @@
-# Soft Deletes via deleted_at Column
+---
+category: database
+stack: any
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** database
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
+# Soft Deletes via deleted_at Column
 
 ## Decision
 Entities support soft deletion through a nullable `deleted_at` (timestamptz) column. Application code never performs hard deletes.
@@ -15,8 +19,9 @@ Entities support soft deletion through a nullable `deleted_at` (timestamptz) col
 
 ## Constraints (non-negotiable for AI)
 - Add a nullable `DateTimeOffset? DeletedAt` property to all soft-deletable entities
-- Maps to `deleted_at` column of type `timestamptz` in PostgreSQL
+- Maps to a `deleted_at` column (`deletedat` under the `lowercase-naming` convention) of type `timestamptz` in PostgreSQL
 - Configure EF Core global query filters: `.HasQueryFilter(e => e.DeletedAt == null)`
 - To soft-delete: set `DeletedAt = DateTimeOffset.UtcNow`, never call `Remove()` or `DELETE`
 - Hard deletes (`DELETE FROM`) are only permitted in background data compaction/cleanup jobs, never from application code
 - To query including soft-deleted records, use `.IgnoreQueryFilters()` explicitly
+- Python/SQLAlchemy stacks: the equivalent is a nullable timezone-aware `deleted_at` `mapped_column`, with soft-deleted rows filtered out by default in the service layer's query helpers

@@ -1,9 +1,13 @@
-# Always Use timestamptz for Datetime Columns
+---
+category: database
+stack: any
+status: Active
+requires: []
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** database
-**Status:** Active
-**Requires:** —
-**Conflicts with:** —
+# Always Use timestamptz for Datetime Columns
 
 ## Decision
 All datetime columns use `timestamptz` (TIMESTAMP WITH TIME ZONE) in PostgreSQL and `DateTimeOffset` in C#. All values are stored in UTC.
@@ -20,3 +24,5 @@ All datetime columns use `timestamptz` (TIMESTAMP WITH TIME ZONE) in PostgreSQL 
 - Never call `DateTime.Now` — always use `DateTimeOffset.UtcNow`
 - Timezone conversion to local display time is a frontend-only concern
 - EF Core column type should be explicitly configured as `timestamptz` if not inferred
+- Npgsql caveat: it maps `timestamptz` to UTC values and throws when writing a `DateTimeOffset` with a non-zero offset — always write UTC values (`DateTimeOffset.UtcNow` or `.ToUniversalTime()`)
+- Python stacks: use timezone-aware `datetime` objects in UTC (`datetime.now(timezone.utc)`); NEVER store naive datetimes

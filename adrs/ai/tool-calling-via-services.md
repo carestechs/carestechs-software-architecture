@@ -1,9 +1,17 @@
-# AI Tool Calling via Existing Service Interfaces
+---
+category: ai
+stack: dotnet
+status: Active
+requires:
+  - adrs/dotnet/modular-monolith.md
+  - adrs/dotnet/service-layer-logic.md
+  - adrs/ai/meai-abstraction.md
+conflicts_with:
+  - adrs/ai/tool-calling-via-services-python.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Status:** Active
-**Requires:** `adrs/dotnet/modular-monolith.md`, `adrs/dotnet/service-layer-logic.md`, `adrs/ai/meai-abstraction.md`
-**Conflicts with:** —
+# AI Tool Calling via Existing Service Interfaces
 
 ## Decision
 AI tools (functions the LLM can invoke) are thin adapters in the AI module that delegate to existing module service interfaces. Tools contain no business logic — they parse parameters, call a service method, and return the result. Tool definitions are created with `AIFunctionFactory.Create()` or `AIFunction` from M.E.AI.
@@ -21,4 +29,5 @@ AI tools (functions the LLM can invoke) are thin adapters in the AI module that 
 - Every tool method MUST have a `[Description]` attribute that clearly describes the tool's purpose for LLM consumption.
 - Tool results MUST be serializable: DTOs or primitive types only. NEVER return EF entities or complex internal objects.
 - NEVER give a tool unrestricted database query capability (e.g., raw SQL execution or open-ended LINQ).
+- NEVER allow tools to perform destructive operations (deletes, hard mutations) without an explicit confirmation mechanism (e.g., human approval or a two-step confirm parameter).
 - Tool classes MUST receive their dependencies (service interfaces) via constructor injection.

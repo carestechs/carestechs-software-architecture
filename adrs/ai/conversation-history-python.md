@@ -1,9 +1,19 @@
-# Conversation History with Token-Aware Pruning (Python)
+---
+category: ai
+stack: python
+status: Active
+requires:
+  - adrs/ai/llm-abstraction-python.md
+  - adrs/ai/ai-module-python.md
+  - adrs/python/sqlalchemy-async.md
+  - adrs/database/uuid-primary-keys.md
+  - adrs/database/timestamptz-always.md
+conflicts_with:
+  - adrs/ai/conversation-history.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Status:** Active
-**Requires:** `adrs/ai/llm-abstraction-python.md`, `adrs/ai/ai-module-python.md`, `adrs/python/sqlalchemy-async.md`, `adrs/database/uuid-primary-keys.md`, `adrs/database/timestamptz-always.md`
-**Conflicts with:** `adrs/ai/conversation-history.md`
+# Conversation History with Token-Aware Pruning (Python)
 
 ## Decision
 Multi-turn conversations are persisted in the AI module's database tables (`conversations` and `messages`) with token-aware context windowing. Before each LLM call, the conversation history is pruned or summarized to fit within the model's context window. The system prompt and most recent user message are always preserved.
@@ -15,11 +25,12 @@ Multi-turn conversations are persisted in the AI module's database tables (`conv
 - Conversations and messages are SQLAlchemy models owned by the AI module, consistent with modular boundaries.
 
 ## Constraints (non-negotiable for AI)
-- Conversations MUST be stored in a `conversations` table with at minimum: `id` (UUID), `title` (String, nullable), `created_at` (DateTime with timezone), `updated_at` (DateTime with timezone).
+- Conversations MUST be stored in a `conversations` table with at minimum: `id` (UUID), `user_id` (UUID, plain column — no relationship), `title` (String, nullable), `created_at` (DateTime with timezone), `updated_at` (DateTime with timezone).
 - Messages MUST be stored in a `messages` table with at minimum: `id` (UUID), `conversation_id` (UUID FK), `role` (String: system/user/assistant/tool), `content` (Text), `token_count` (Integer, nullable), `created_at` (DateTime with timezone).
 - Before every LLM call, the conversation history MUST be pruned to fit within a configurable token budget.
 - The system prompt and the most recent user message MUST always be preserved during pruning — never drop these.
-- Token counts MUST be tracked per message. Use the provider's tokenizer or a reasonable approximation.
+- Token counts MUST be tracked per message. Use the provider's tokenizer when available; otherwise a single deterministic approximation (e.g., `len(text) // 4`) applied consistently — never ad-hoc estimates per call site.
 - User references in conversations MUST be plain UUIDs — no SQLAlchemy relationships to user models in other modules.
-- NEVER send unbounded conversation history to the LLM. This MUST be architecturally enforced, not left to caller discipline.
+- NEVER send unbounded conversation history to the LLM. Enforce this architecturally: every LLM call assembles its message list through a single context-builder function that applies the token budget — callers MUST NOT hand-assemble message lists.
+- If summarization is used, the summary MUST be persisted as a flagged `system`-role message replacing the pruned span, so the stored history remains the single source of truth (prune-only is the acceptable default).
 - Conversation and message models MUST live in the AI module's `models.py`. They MUST NOT appear in other modules.

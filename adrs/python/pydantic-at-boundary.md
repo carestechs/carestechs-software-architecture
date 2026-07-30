@@ -1,9 +1,14 @@
-# Pydantic Schemas at API Boundary
+---
+category: python
+stack: python
+status: Active
+requires:
+  - adrs/python/service-layer-logic.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** python
-**Status:** Active
-**Requires:** `adrs/python/service-layer-logic.md`
-**Conflicts with:** —
+# Pydantic Schemas at API Boundary
 
 ## Decision
 The API never exposes SQLAlchemy models directly. All request and response payloads use dedicated Pydantic schemas. Mapping between SQLAlchemy models and Pydantic schemas happens in the service layer. Schemas are defined in each module's `schemas.py` file.

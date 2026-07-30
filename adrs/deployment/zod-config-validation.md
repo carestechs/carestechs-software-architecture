@@ -1,8 +1,14 @@
-# Zod for Runtime Validation at System Boundaries
+---
+category: deployment
+stack: typescript
+status: Active
+requires:
+  - adrs/typescript/strict-typescript.md
+conflicts_with: []
+last_reviewed: 2026-07-29
+---
 
-**Category:** deployment
-**Status:** Active
-**Requires:** `adrs/typescript/strict-typescript.md`
+# Zod for Runtime Validation at System Boundaries
 
 ## Decision
 
@@ -19,6 +25,6 @@ Use Zod for runtime validation of all external input that crosses system boundar
 - All config file parsing MUST validate through a Zod schema before use.
 - All environment variable reading MUST validate through a Zod schema at startup.
 - All AI/LLM responses that are expected to have structure MUST be validated through a Zod schema before being treated as typed data.
-- TypeScript types for validated data SHOULD be derived from Zod schemas using `z.infer<>` — NEVER define the type separately and hope it matches.
-- Validation errors MUST produce clear, user-facing messages that identify the field and the problem.
+- TypeScript types for validated data MUST be derived from Zod schemas using `z.infer<>` — NEVER define the type separately and hope it matches.
+- Validation errors MUST report the failing key path and the expected vs. received type or value (Zod's formatted issue list, not a raw stack trace).
 - NEVER validate inside core business logic — validation happens once, at the ingestion boundary. Internal function-to-function calls trust the types.

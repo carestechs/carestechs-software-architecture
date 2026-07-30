@@ -1,9 +1,15 @@
-# Tailwind CSS with shadcn/ui Components
+---
+category: react
+stack: react
+status: Active
+requires:
+  - adrs/react/functional-components.md
+conflicts_with:
+  - adrs/angular/tailwind-no-css.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** react
-**Status:** Active
-**Requires:** `adrs/react/functional-components.md`
-**Conflicts with:** `adrs/angular/tailwind-no-css.md`
+# Tailwind CSS with shadcn/ui Components
 
 ## Decision
 All styling uses Tailwind CSS utility classes. Pre-built UI components come from shadcn/ui, which provides copy-paste Radix-based primitives styled with Tailwind. No CSS modules, styled-components, or other CSS-in-JS solutions are used. Component-level CSS files are not created.
@@ -21,4 +27,4 @@ All styling uses Tailwind CSS utility classes. Pre-built UI components come from
 - UI primitives (buttons, inputs, dialogs, dropdowns, etc.) MUST come from shadcn/ui. NEVER build custom versions of components that shadcn/ui already provides.
 - shadcn/ui components MUST live in `src/components/ui/` following the standard shadcn convention.
 - Use the `cn()` utility (from `lib/utils.ts`) to merge Tailwind classes conditionally. NEVER use string concatenation for conditional classes.
-- Design tokens (colors, spacing, typography) MUST be defined in `tailwind.config.ts`. NEVER use arbitrary values when a design token exists.
+- Design tokens (colors, spacing, typography) MUST be defined as CSS variables under `@theme` in the global stylesheet (Tailwind v4 — current shadcn/ui setups have no Tailwind config file; `tailwind.config.ts` applies only to legacy Tailwind v3 projects). NEVER use arbitrary values when a design token exists.

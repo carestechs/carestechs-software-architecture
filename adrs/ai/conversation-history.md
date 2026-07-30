@@ -1,9 +1,18 @@
-# Conversation History with Token-Aware Context Management
+---
+category: ai
+stack: dotnet
+status: Active
+requires:
+  - adrs/ai/meai-abstraction.md
+  - adrs/ai/ai-agent-module.md
+  - adrs/database/uuid-primary-keys.md
+  - adrs/database/timestamptz-always.md
+conflicts_with:
+  - adrs/ai/conversation-history-python.md
+last_reviewed: 2026-07-29
+---
 
-**Category:** ai
-**Status:** Active
-**Requires:** `adrs/ai/meai-abstraction.md`, `adrs/ai/ai-agent-module.md`, `adrs/database/uuid-primary-keys.md`, `adrs/database/timestamptz-always.md`
-**Conflicts with:** —
+# Conversation History with Token-Aware Context Management
 
 ## Decision
 Multi-turn conversations are persisted in `conversations` and `messages` tables owned by the AI module's `AIDbContext`. A token-aware context windowing strategy prunes or summarizes conversation history before sending it to the LLM. The system never sends unbounded message history to the model.
@@ -20,6 +29,8 @@ Multi-turn conversations are persisted in `conversations` and `messages` tables 
 - The system MUST track cumulative token counts and prune history when approaching the model's context limit.
 - Context window limits MUST be configurable per model.
 - When pruning, the system MUST always preserve the system prompt and the most recent user message.
+- If summarization is used, the summary MUST be persisted as a flagged `system`-role message replacing the pruned span, so the stored history remains the single source of truth (prune-only is the acceptable default).
+- Every LLM call MUST assemble its message list through a single context-builder component that applies the windowing policy — callers MUST NOT hand-assemble message lists.
 - `user_id` MUST be a plain Guid with no navigation property to any User entity in another module.
 - Both tables MUST be mapped in `AIDbContext` and MUST NOT appear in any other module's DbContext.
 - NEVER send unbounded conversation history to the LLM. Every call MUST respect the configured context window.
