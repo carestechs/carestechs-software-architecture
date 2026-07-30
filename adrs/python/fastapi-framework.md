@@ -1,9 +1,11 @@
 # FastAPI as Web Framework
 
 **Category:** python
+**Stack:** python
 **Status:** Active
 **Requires:** —
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 FastAPI is the web framework for all HTTP endpoints. It provides async-native request handling, automatic OpenAPI documentation, dependency injection, and Pydantic-based request/response validation out of the box.

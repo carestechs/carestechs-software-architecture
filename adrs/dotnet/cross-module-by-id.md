@@ -1,9 +1,11 @@
 # Cross-Module References By ID Only
 
 **Category:** dotnet
+**Stack:** dotnet
 **Status:** Active
 **Requires:** `adrs/dotnet/modular-monolith.md` | `adrs/dotnet/clean-architecture-layers.md`
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 Modules reference each other's entities exclusively by storing the foreign entity's ID as a plain `Guid` property. No EF Core navigation properties span module boundaries. When a module needs data from another module, it calls a contract interface exposed by that module — never a cross-module `Include()` or join. This rule applies to any modular architecture: modular monolith (service interfaces in the shared contracts project) and Clean Architecture modules (contracts in `Common.Core`) alike.

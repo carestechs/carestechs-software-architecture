@@ -1,9 +1,11 @@
 # Functional Components with Hooks Only
 
 **Category:** react
+**Stack:** react
 **Status:** Active
 **Requires:** —
 **Conflicts with:** `adrs/angular/standalone-components.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All components are functional components using hooks for state, effects, and context. Class components are never used. Components are organized by feature in a `features/` directory, with shared reusable components in `shared/`.

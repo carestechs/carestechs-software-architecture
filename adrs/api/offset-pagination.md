@@ -1,9 +1,11 @@
 # Offset-Based Pagination
 
 **Category:** api
+**Stack:** any
 **Status:** Active
 **Requires:** `adrs/api/rest-envelope.md`
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All list endpoints use offset-based pagination with `page` and `pageSize` query parameters. Sorting is supported via `sortBy` and `sortDir` parameters.

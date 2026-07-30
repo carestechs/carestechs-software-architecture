@@ -1,9 +1,11 @@
 # Signals for Reactive State Management
 
 **Category:** angular
+**Stack:** angular
 **Status:** Active
 **Requires:** —
 **Conflicts with:** `adrs/react/tanstack-query.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All reactive component state uses Angular Signals. RxJS is reserved for HTTP calls and complex async streams only.

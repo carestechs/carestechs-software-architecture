@@ -1,9 +1,11 @@
 # Modular Monolith Architecture
 
 **Category:** dotnet
+**Stack:** dotnet
 **Status:** Active
 **Requires:** —
 **Conflicts with:** `adrs/dotnet/clean-architecture-layers.md`, `adrs/python/modular-packages.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 The system is built as a modular monolith: a single deployable unit composed of feature modules with clear boundaries, each module owning its own folder structure (Controllers, Services, Entities, DTOs). Modules communicate through shared interfaces registered in DI, never through direct project-to-project entity references.

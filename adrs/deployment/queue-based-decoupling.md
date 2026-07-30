@@ -1,9 +1,11 @@
 # Queue-Based Module Decoupling
 
 **Category:** deployment
+**Stack:** dotnet
 **Status:** Active
 **Requires:** `adrs/dotnet/event-driven-reactors.md`
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 

@@ -1,9 +1,11 @@
 # RAG Pipeline with pgvector (Python)
 
 **Category:** ai
+**Stack:** python
 **Status:** Active
 **Requires:** `adrs/ai/llm-abstraction-python.md`, `adrs/ai/ai-module-python.md`, `adrs/python/sqlalchemy-async.md`, `adrs/database/uuid-primary-keys.md`, `adrs/database/timestamptz-always.md`
 **Conflicts with:** `adrs/ai/rag-pgvector.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 Retrieval-augmented generation (RAG) uses the provider-agnostic embedding abstraction for embedding generation and PostgreSQL with the pgvector extension for vector storage and similarity search. The pipeline follows: chunk documents, generate embeddings, store in a vector table via SQLAlchemy, and at query time embed the user query, perform similarity search, and inject retrieved context into the LLM prompt.

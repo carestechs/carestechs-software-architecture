@@ -1,9 +1,11 @@
 # Interfaces for Contracts, Types for Data
 
 **Category:** typescript
+**Stack:** typescript
 **Status:** Active
 **Requires:** `adrs/typescript/strict-typescript.md`
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 

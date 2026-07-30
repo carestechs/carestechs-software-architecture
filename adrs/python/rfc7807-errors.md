@@ -1,9 +1,11 @@
 # Problem Details (RFC 9457) for API Errors (Python)
 
 **Category:** python
+**Stack:** python
 **Status:** Active
 **Requires:** `adrs/python/fastapi-framework.md`
 **Conflicts with:** `adrs/dotnet/rfc7807-errors.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All API errors use the Problem Details format (RFC 9457, which obsoletes RFC 7807) with the `application/problem+json` content type. Global FastAPI exception handlers convert typed application exceptions into Problem Details responses. FastAPI's default error shape (`{"detail": ...}`) is overridden so that validation errors are also returned as Problem Details with field-level details.

@@ -1,9 +1,11 @@
 # REST API Response Envelope
 
 **Category:** api
+**Stack:** any
 **Status:** Active
 **Requires:** —
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All successful (2xx) API responses use a standard `{ data, meta }` envelope structure. This provides a consistent contract for frontend consumers.

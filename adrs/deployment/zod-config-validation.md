@@ -1,9 +1,11 @@
 # Zod for Runtime Validation at System Boundaries
 
 **Category:** deployment
+**Stack:** typescript
 **Status:** Active
 **Requires:** `adrs/typescript/strict-typescript.md`
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 

@@ -1,9 +1,11 @@
 # Conversation History with Token-Aware Pruning (Python)
 
 **Category:** ai
+**Stack:** python
 **Status:** Active
 **Requires:** `adrs/ai/llm-abstraction-python.md`, `adrs/ai/ai-module-python.md`, `adrs/python/sqlalchemy-async.md`, `adrs/database/uuid-primary-keys.md`, `adrs/database/timestamptz-always.md`
 **Conflicts with:** `adrs/ai/conversation-history.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 Multi-turn conversations are persisted in the AI module's database tables (`conversations` and `messages`) with token-aware context windowing. Before each LLM call, the conversation history is pruned or summarized to fit within the model's context window. The system prompt and most recent user message are always preserved.

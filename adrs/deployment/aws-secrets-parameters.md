@@ -1,9 +1,11 @@
 # AWS Secrets Manager and SSM Parameters for Configuration
 
 **Category:** deployment
+**Stack:** dotnet
 **Status:** Active
 **Requires:** `adrs/deployment/aws-lambda-serverless.md`
 **Conflicts with:** `adrs/deployment/env-connection-urls.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 

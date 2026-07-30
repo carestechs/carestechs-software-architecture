@@ -1,9 +1,11 @@
 # Tailwind CSS with shadcn/ui Components
 
 **Category:** react
+**Stack:** react
 **Status:** Active
 **Requires:** `adrs/react/functional-components.md`
 **Conflicts with:** `adrs/angular/tailwind-no-css.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All styling uses Tailwind CSS utility classes. Pre-built UI components come from shadcn/ui, which provides copy-paste Radix-based primitives styled with Tailwind. No CSS modules, styled-components, or other CSS-in-JS solutions are used. Component-level CSS files are not created.

@@ -1,9 +1,11 @@
 # Separate Dev and Prod Docker Compose
 
 **Category:** deployment
+**Stack:** any
 **Status:** Active
 **Requires:** `adrs/deployment/docker-multi-stage-builds.md`, `adrs/deployment/env-connection-urls.md`
 **Conflicts with:** `adrs/deployment/aws-lambda-serverless.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 The project maintains two Docker Compose files with distinct responsibilities. `docker-compose.yml` provides local development infrastructure only (database, Redis, and other backing services) — developers run the application processes directly on their host for fast iteration. `docker-compose.prod.yml` defines the application services (API, worker, frontend) and connects them to an external shared infrastructure network where databases and caches are already running. Production never bundles its own database or cache containers.

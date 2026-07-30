@@ -1,9 +1,11 @@
 # Provider-Agnostic LLM Abstraction Layer
 
 **Category:** ai
+**Stack:** python
 **Status:** Active
 **Requires:** `adrs/python/async-all-the-way.md`, `adrs/python/service-layer-logic.md`
 **Conflicts with:** `adrs/ai/meai-abstraction.md`, `adrs/ai/claude-agent-sdk.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All LLM and embedding calls go through a provider-agnostic abstraction layer. Service code depends on abstract interfaces (protocols or ABC classes) for chat completion and embedding generation. Provider-specific SDKs (Anthropic, OpenAI, etc.) are only imported in the composition root or adapter modules. The default abstraction is a thin custom adapter (a Protocol plus one adapter module per provider); adopt LangChain as the abstraction only when its ecosystem (chains, loaders, integrations) is concretely needed. Either way, service code never imports provider SDKs directly.

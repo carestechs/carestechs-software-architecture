@@ -1,9 +1,11 @@
 # Microsoft.Extensions.AI as Sole LLM Abstraction
 
 **Category:** ai
+**Stack:** dotnet
 **Status:** Active
 **Requires:** `adrs/dotnet/modular-monolith.md`, `adrs/dotnet/async-all-the-way.md`
 **Conflicts with:** `adrs/ai/llm-abstraction-python.md`, `adrs/ai/claude-agent-sdk.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All LLM and embedding calls go through `IChatClient` and `IEmbeddingGenerator<string, Embedding<float>>` from Microsoft.Extensions.AI (M.E.AI). Provider-specific SDKs (OpenAI, Azure OpenAI, Anthropic, Ollama, etc.) are only referenced in the composition root. Cross-cutting concerns use the M.E.AI middleware pipeline.

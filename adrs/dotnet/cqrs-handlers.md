@@ -1,9 +1,11 @@
 # CQRS with Command and Query Handlers
 
 **Category:** dotnet
+**Stack:** dotnet
 **Status:** Active
 **Requires:** `adrs/dotnet/clean-architecture-layers.md`
 **Conflicts with:** `adrs/dotnet/service-layer-logic.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 

@@ -1,9 +1,11 @@
 # Tool Calling Delegates to Service Layer
 
 **Category:** ai
+**Stack:** python
 **Status:** Active
 **Requires:** `adrs/python/modular-packages.md`, `adrs/python/service-layer-logic.md`, `adrs/ai/llm-abstraction-python.md`
 **Conflicts with:** `adrs/ai/tool-calling-via-services.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 AI tools (functions the LLM can call) are thin adapters that delegate to existing service functions. Tools live in the AI module's `tools/` sub-package. Each tool parses LLM-provided parameters, calls a service function from the appropriate module via its contract interface, and returns the result. No business logic lives in tool definitions.

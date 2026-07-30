@@ -1,9 +1,11 @@
 # Clean Architecture with Domain/Application/Data/Api Layers
 
 **Category:** dotnet
+**Stack:** dotnet
 **Status:** Active
 **Requires:** —
 **Conflicts with:** `adrs/dotnet/modular-monolith.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 

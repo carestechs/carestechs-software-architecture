@@ -1,9 +1,11 @@
 # Event-Driven Side Effects via Reactors
 
 **Category:** dotnet
+**Stack:** dotnet
 **Status:** Active
 **Requires:** `adrs/dotnet/cqrs-handlers.md`
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 

@@ -1,9 +1,11 @@
 # Modular Monolith via Python Packages
 
 **Category:** python
+**Stack:** python
 **Status:** Active
 **Requires:** `adrs/python/fastapi-framework.md`
 **Conflicts with:** `adrs/dotnet/modular-monolith.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 The system is built as a modular monolith: a single deployable unit composed of feature modules, each implemented as a Python package with clear boundaries. Each module owns its own routers, services, models, schemas, and clearly attributed Alembic migrations. Modules communicate through explicit interfaces, never through direct model imports across boundaries.

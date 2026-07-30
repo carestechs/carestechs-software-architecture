@@ -1,9 +1,11 @@
 # Separate HTML Template File
 
 **Category:** angular
+**Stack:** angular
 **Status:** Active
 **Requires:** `adrs/angular/standalone-components.md`
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 

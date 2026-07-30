@@ -1,9 +1,11 @@
 # npm Package Distribution with CLI Binary
 
 **Category:** deployment
+**Stack:** typescript
 **Status:** Active
 **Requires:** `adrs/typescript/strict-typescript.md`
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 

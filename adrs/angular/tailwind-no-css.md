@@ -1,9 +1,11 @@
 # Tailwind CSS Only — No Component Stylesheets
 
 **Category:** angular
+**Stack:** angular
 **Status:** Active
 **Requires:** —
 **Conflicts with:** `adrs/react/tailwind-shadcn.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All styling uses Tailwind CSS utility classes applied directly in templates. Component-level CSS/SCSS files are not used.

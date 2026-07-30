@@ -1,9 +1,11 @@
 # GitHub Action as Composite Action (Node.js)
 
 **Category:** deployment
+**Stack:** typescript
 **Status:** Active
 **Requires:** `adrs/deployment/npm-cli-package.md`
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 

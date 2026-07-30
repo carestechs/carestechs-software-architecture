@@ -1,9 +1,11 @@
 # UUID Primary Keys
 
 **Category:** database
+**Stack:** any
 **Status:** Active
 **Requires:** —
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All primary keys are UUIDs, generated server-side or by the database. Auto-increment integers are never used for primary keys.

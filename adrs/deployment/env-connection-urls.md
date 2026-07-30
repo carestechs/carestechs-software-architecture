@@ -1,9 +1,11 @@
 # Environment-Based Configuration with Connection URLs
 
 **Category:** deployment
+**Stack:** any
 **Status:** Active
 **Requires:** —
 **Conflicts with:** `adrs/deployment/aws-secrets-parameters.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All runtime configuration is provided through environment variables. External services (databases, message brokers, caches, search APIs) are referenced exclusively by connection URLs or API keys passed as environment variables. The application never bundles or assumes co-located infrastructure — it connects to whatever the environment provides. A typed settings class validates and centralizes all configuration at startup.

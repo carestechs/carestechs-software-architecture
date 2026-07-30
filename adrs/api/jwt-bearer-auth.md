@@ -1,9 +1,11 @@
 # JWT Bearer Token Authentication
 
 **Category:** api
+**Stack:** any
 **Status:** Active
 **Requires:** —
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 Authentication uses JWT Bearer tokens sent via the Authorization header. Access tokens are short-lived; refresh tokens are long-lived and rotated on use.

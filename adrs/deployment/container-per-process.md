@@ -1,9 +1,11 @@
 # One Process Type per Container
 
 **Category:** deployment
+**Stack:** any
 **Status:** Active
 **Requires:** `adrs/deployment/docker-multi-stage-builds.md`
 **Conflicts with:** `adrs/deployment/aws-lambda-serverless.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 Each process type runs in its own container: the API server, background workers, and the frontend are separate services defined in Docker Compose (or equivalent orchestrator). Containers that share the same runtime (e.g., API and worker) reuse the same Docker image but override the command. Each container defines its own health check appropriate to its process type.

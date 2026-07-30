@@ -1,9 +1,11 @@
 # Thin API Host
 
 **Category:** dotnet
+**Stack:** dotnet
 **Status:** Active
 **Requires:** `adrs/dotnet/modular-monolith.md`
 **Conflicts with:** —
+**Last reviewed:** 2026-07-29
 
 ## Decision
 The API host project (e.g., `MyApp.Api`) contains only `Program.cs` with DI registration and the middleware pipeline. It has no controllers, no services, and no business logic. Each module registers itself via an `IServiceCollection` extension method called from `Program.cs`.

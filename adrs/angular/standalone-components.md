@@ -1,9 +1,11 @@
 # Standalone Components Only
 
 **Category:** angular
+**Stack:** angular
 **Status:** Active
 **Requires:** —
 **Conflicts with:** `adrs/react/functional-components.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 All components, directives, and pipes must be standalone. NgModules are not used anywhere in the application.

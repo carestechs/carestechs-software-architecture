@@ -1,9 +1,11 @@
 # AWS Lambda Serverless Deployment
 
 **Category:** deployment
+**Stack:** dotnet
 **Status:** Active
 **Requires:** —
 **Conflicts with:** `adrs/deployment/docker-multi-stage-builds.md`, `adrs/deployment/container-per-process.md`, `adrs/deployment/local-dev-compose.md`
+**Last reviewed:** 2026-07-29
 
 ## Decision
 
