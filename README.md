@@ -38,7 +38,8 @@ carestechs-software-architecture/
 │   │   ├── cqrs-handlers.md
 │   │   ├── rich-domain-entities.md
 │   │   ├── result-pattern-errors.md
-│   │   └── event-driven-reactors.md
+│   │   ├── event-driven-reactors.md
+│   │   └── xunit-per-module-tests.md
 │   │
 │   ├── python/                    # Python / FastAPI decisions
 │   │   ├── fastapi-framework.md
@@ -48,7 +49,8 @@ carestechs-software-architecture/
 │   │   ├── async-all-the-way.md
 │   │   ├── sqlalchemy-async.md
 │   │   ├── celery-background-jobs.md
-│   │   └── rfc7807-errors.md
+│   │   ├── rfc7807-errors.md
+│   │   └── pytest-testing.md
 │   │
 │   ├── angular/                   # Angular decisions
 │   │   ├── standalone-components.md
@@ -122,7 +124,7 @@ carestechs-software-architecture/
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**69 ADRs** across 9 categories, **7 stack profiles**.
+**71 ADRs** across 9 categories, **7 stack profiles**.
 
 ## How to Use
 
@@ -170,8 +172,8 @@ After compiling, you still need to fill in:
 
 | Category | Count | What It Covers |
 |----------|-------|----------------|
-| dotnet | 13 | Modular monolith, Clean Architecture, CQRS, rich entities, Result pattern, events, DbContext, DTOs, async |
-| python | 8 | FastAPI, modular packages, Pydantic, SQLAlchemy, Celery, Problem Details errors |
+| dotnet | 14 | Modular monolith, Clean Architecture, CQRS, rich entities, Result pattern, events, DbContext, DTOs, async, xUnit testing |
+| python | 9 | FastAPI, modular packages, Pydantic, SQLAlchemy, Celery, Problem Details errors, pytest testing |
 | angular | 4 | Standalone components, templates, Signals, Tailwind |
 | react | 3 | Functional components, TanStack Query, Tailwind + shadcn |
 | typescript | 6 | Strict TS, named exports, functional composition, boundary types, core/adapter, Vitest |
