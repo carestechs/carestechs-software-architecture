@@ -220,6 +220,16 @@ Run `python scripts/validate_adrs.py` to check the catalog: frontmatter format, 
 
 Example: `adrs/dotnet/dbcontext-per-module.md` requires `adrs/dotnet/modular-monolith.md` — you can't have per-module DbContexts without module boundaries.
 
+## Versioning
+
+Catalog releases are tagged `vMAJOR.MINOR.PATCH`:
+
+- **MAJOR** — metadata-format or semantic changes that break consumers (compile prompts, validators, tooling)
+- **MINOR** — new ADRs, new constraints, or profile changes (agents may start doing something new)
+- **PATCH** — clarifications and corrections that do not change what an agent should do
+
+When compiling ADRs into project documentation, record the tag in the output (e.g., `Compiled from carestechs-software-architecture@v1.0.0`). That makes drift between a project's rules and the current catalog visible and diffable. `v1.0.0` is the first fully validated catalog (symmetric conflict graph, YAML frontmatter, CI).
+
 ## Relationship to Companion Repos
 
 This repo is part of the **carestechs** ecosystem of reusable project scaffolding:

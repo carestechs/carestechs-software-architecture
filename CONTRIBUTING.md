@@ -59,6 +59,7 @@ Before submitting:
 - [ ] `requires` and `conflicts_with` list actual repo-relative ADR paths, one requirement per list item (in `requires`, separate alternatives with ` | ` inside a single item when any one of them satisfies the dependency)
 - [ ] Conflicts are **symmetric**: if this ADR lists another in `conflicts_with`, edit that ADR to list this one back (language-specific variants must conflict with each other in both directions)
 - [ ] `python scripts/validate_adrs.py` passes with no new errors
+- [ ] Constraints that agents commonly get wrong have a violation → compliant pair in an `## Examples` section (see ADR-FORMAT.md)
 
 ## How to Create a New Profile
 
@@ -127,3 +128,4 @@ Never delete an ADR. When a decision changes:
 3. Verify the ADR doesn't duplicate an existing ADR's scope
 4. If creating a language variant, ensure both variants declare `conflicts_with` against each other (the validator enforces symmetry)
 5. Run a test compilation using `compile-adrs.md` to verify the ADR integrates correctly
+6. After merging, tag a release when the change warrants it (see the Versioning section of README.md): new ADRs or constraints bump MINOR, clarifications bump PATCH, format/semantic breaks bump MAJOR

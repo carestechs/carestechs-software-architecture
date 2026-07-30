@@ -46,6 +46,26 @@ last_reviewed: YYYY-MM-DD
 
 Paths are repo-relative (`adrs/<category>/<file>.md`), plain — no backticks or quotes. The frontmatter is a strict subset of YAML enforced by `scripts/validate_adrs.py`.
 
+## Examples Section (optional)
+
+For constraints that agents commonly violate, add an `## Examples` section after the Constraints with **violation → compliant** pairs:
+
+```markdown
+## Examples
+
+**Violation — blocking on async:**
+```csharp
+var product = _service.GetProductByIdAsync(id).Result;
+```
+
+**Compliant:**
+```csharp
+var product = await _service.GetProductByIdAsync(id, ct);
+```
+```
+
+Rules of thumb: one pair per commonly violated constraint (not per constraint), keep each snippet under ~10 lines, and make the violation the realistic mistake — not a strawman. Examples are normative illustrations of existing constraints; they never introduce new rules.
+
 ## Lifecycle
 
 ADRs are never deleted — their history is part of the record:
