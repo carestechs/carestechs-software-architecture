@@ -25,3 +25,4 @@ Each tenant (organization + workspace) gets its own physical PostgreSQL database
 - Tenant provisioning MUST apply the complete migration history to the new database — a new tenant's schema is identical to the oldest tenant's.
 - Document-store partition keys MUST embed the tenant identifiers (e.g., `{org}#{workspace}#...`) so tenant scoping is part of the key, not a filter.
 - Pass tenant identifiers as explicit parameters through the call chain. NEVER resolve them from ambient/static state below the entry point.
+- The tenant directory itself (organizations, workspaces, provisioning state) is the ONE deliberately global dataset: it lives in a global store owned by the tenancy module and is the only data addressable before tenant scope is established. Nothing else may be global by convenience.
