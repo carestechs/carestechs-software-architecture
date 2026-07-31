@@ -35,7 +35,9 @@ dotnet ef database update --project src/MyApp.Modules.Orders --startup-project s
 dotnet run --project src/MyApp.Api
 
 # tests (uses TEST_DATABASE_URL, defaults to localhost app_test — create it first:
-#   docker compose exec postgres createdb -U postgres app_test)
+#   docker compose exec postgres createdb -U postgres app_test
+# the orders test project derives its own database from it, app_test_orders,
+# and creates it automatically — parallel test assemblies never share a database)
 dotnet test
 
 # frontend (separate terminal; proxies /api to :5000)
