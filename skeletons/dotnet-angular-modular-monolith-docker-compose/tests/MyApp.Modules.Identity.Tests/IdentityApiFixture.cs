@@ -38,11 +38,11 @@ public sealed class IdentityApiFixture : WebApplicationFactory<Program>, IAsyncL
         using var scope = Services.CreateScope();
         // The role-ladder test exercises a real catalog write after the auth
         // rungs, so the catalog schema comes up alongside identity.
-        var identity = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-        await identity.Database.EnsureDeletedAsync();
-        await identity.Database.MigrateAsync();
-        await catalog.Database.MigrateAsync();
+        var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+        var catalogDb = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        await identityDb.Database.EnsureDeletedAsync();
+        await identityDb.Database.MigrateAsync();
+        await catalogDb.Database.MigrateAsync();
 
         var identity = scope.ServiceProvider.GetRequiredService<IIdentityService>();
         await identity.CreateUserAsync("admin@example.com", "Admin123!", "admin", TestContext.Current.CancellationToken);
