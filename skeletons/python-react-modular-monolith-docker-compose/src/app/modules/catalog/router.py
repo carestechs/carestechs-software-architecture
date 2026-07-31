@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.auth import require_role
 from app.core.dependencies import get_session
 from app.core.envelope import Envelope, Meta
 from app.modules.catalog import service
@@ -20,7 +21,13 @@ async def list_products(session: AsyncSession = Depends(get_session)) -> Envelop
     )
 
 
-@router.post("", response_model=Envelope[ProductRead], status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=Envelope[ProductRead],
+    status_code=status.HTTP_201_CREATED,
+    # endpoint-layer role gate (adrs/api/role-based-authorization.md); reads stay public
+    dependencies=[Depends(require_role("admin"))],
+)
 async def create_product(
     payload: ProductCreate, session: AsyncSession = Depends(get_session)
 ) -> Envelope[ProductRead]:

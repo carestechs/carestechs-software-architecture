@@ -6,6 +6,9 @@ TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL", "postgresql+asyncpg://postgres:postgres@localhost:5432/app_test"
 )
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
+# Secure cookies are not sent over http by the test client; debug mode keeps the
+# refresh cookie testable (production always runs behind TLS)
+os.environ["DEBUG"] = "1"
 
 from collections.abc import AsyncIterator
 
@@ -40,6 +43,24 @@ async def db_session() -> AsyncIterator[AsyncSession]:
             yield session
         await transaction.rollback()
     await engine.dispose()
+
+
+@pytest.fixture
+async def users(db_session: AsyncSession) -> dict:
+    """Seed one admin and two agents inside the rolled-back test transaction."""
+    from app.modules.identity import service as identity_service
+
+    return {
+        "admin": await identity_service.create_user(
+            db_session, "admin@example.com", "Admin123!", "admin"
+        ),
+        "agent": await identity_service.create_user(
+            db_session, "agent@example.com", "Agent123!", "agent"
+        ),
+        "agent2": await identity_service.create_user(
+            db_session, "agent2@example.com", "Agent123!", "agent"
+        ),
+    }
 
 
 @pytest.fixture
