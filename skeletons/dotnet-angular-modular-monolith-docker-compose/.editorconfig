@@ -1,0 +1,10 @@
+# Enforcement for carestechs ADR constraints (enforcement/dotnet/.editorconfig)
+[*.cs]
+# adrs/dotnet/async-all-the-way.md - unawaited Task (fire-and-forget) is an error
+dotnet_diagnostic.CS4014.severity = error
+# adrs/dotnet/async-all-the-way.md - sync-over-async inside async methods
+dotnet_diagnostic.CA1849.severity = error
+# adrs/dotnet/async-all-the-way.md - forward CancellationToken through the call chain
+dotnet_diagnostic.CA2016.severity = warning
+# enforcement/dotnet/BannedSymbols.txt violations are errors
+dotnet_diagnostic.RS0030.severity = error

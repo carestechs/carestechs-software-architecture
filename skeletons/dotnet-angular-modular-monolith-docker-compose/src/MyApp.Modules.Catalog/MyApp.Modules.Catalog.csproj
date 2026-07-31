@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="EFCore.NamingConventions" Version="10.0.*" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyApp.Contracts\MyApp.Contracts.csproj" />
+  </ItemGroup>
+</Project>
