@@ -12,7 +12,7 @@ public class CatalogApiTests(CatalogApiFixture fixture) : IClassFixture<CatalogA
     [Fact]
     public async Task CreateAndList_ReturnsEnvelopeWithCamelCaseJson()
     {
-        var client = fixture.CreateClient();
+        var client = await AdminClient();
 
         var created = await client.PostAsJsonAsync(
             "/api/products", new { sku = "SKU-1", name = "Widget" }, TestContext.Current.CancellationToken);
@@ -30,7 +30,7 @@ public class CatalogApiTests(CatalogApiFixture fixture) : IClassFixture<CatalogA
     [Fact]
     public async Task DuplicateSku_IsAConflictProblem()
     {
-        var client = fixture.CreateClient();
+        var client = await AdminClient();
         var payload = new { sku = "SKU-DUP", name = "First" };
         await client.PostAsJsonAsync("/api/products", payload, TestContext.Current.CancellationToken);
 
@@ -45,7 +45,7 @@ public class CatalogApiTests(CatalogApiFixture fixture) : IClassFixture<CatalogA
     [Fact]
     public async Task MissingProduct_IsANotFoundProblem()
     {
-        var client = fixture.CreateClient();
+        var client = fixture.CreateClient(); // reads are public — no token
         var response = await client.GetAsync(
             $"/api/products/{Guid.NewGuid()}", TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
@@ -55,7 +55,7 @@ public class CatalogApiTests(CatalogApiFixture fixture) : IClassFixture<CatalogA
     [Fact]
     public async Task ValidationError_IsAProblemWithFieldDetails()
     {
-        var client = fixture.CreateClient();
+        var client = await AdminClient();
         var response = await client.PostAsJsonAsync(
             "/api/products", new { sku = "", name = "" }, TestContext.Current.CancellationToken);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
@@ -63,6 +63,20 @@ public class CatalogApiTests(CatalogApiFixture fixture) : IClassFixture<CatalogA
         using var body = await ReadJson(response);
         var errors = body.RootElement.GetProperty("errors");
         Assert.Equal(2, errors.EnumerateObject().Count());
+    }
+
+    private async Task<HttpClient> AdminClient()
+    {
+        var client = fixture.CreateClient();
+        var login = await client.PostAsJsonAsync(
+            "/api/auth/login",
+            new { email = "admin@example.com", password = "Admin123!" },
+            TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.OK, login.StatusCode);
+        using var body = await ReadJson(login);
+        client.DefaultRequestHeaders.Authorization = new(
+            "Bearer", body.RootElement.GetProperty("data").GetProperty("accessToken").GetString());
+        return client;
     }
 
     private static async Task<JsonDocument> ReadJson(HttpResponseMessage response) =>

@@ -1,10 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.*" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.*" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MyApp.Contracts\MyApp.Contracts.csproj" />
     <ProjectReference Include="..\MyApp.Modules.Catalog\MyApp.Modules.Catalog.csproj" />
     <ProjectReference Include="..\MyApp.Modules.Orders\MyApp.Modules.Orders.csproj" />
+    <ProjectReference Include="..\MyApp.Modules.Identity\MyApp.Modules.Identity.csproj" />
   </ItemGroup>
 </Project>
