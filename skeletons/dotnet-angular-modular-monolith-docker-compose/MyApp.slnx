@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MyApp.Api/MyApp.Api.csproj" />
+    <Project Path="src/MyApp.Contracts/MyApp.Contracts.csproj" />
+    <Project Path="src/MyApp.Modules.Catalog/MyApp.Modules.Catalog.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MyApp.Modules.Catalog.Tests/MyApp.Modules.Catalog.Tests.csproj" />
+  </Folder>
+</Solution>

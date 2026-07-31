@@ -3,6 +3,13 @@
 **Status:** Active
 **Assumes:** .NET 10+, Angular 20+, PostgreSQL, EF Core, Tailwind CSS 4+, Docker 24+, Docker Compose v2+
 
+## Golden Skeleton
+
+A buildable reference instance of this profile lives at
+`skeletons/dotnet-angular-modular-monolith-docker-compose/`. CI builds and tests it — solution
+build with enforcement analyzers as errors, xUnit tests against a real PostgreSQL, Angular
+production build, and Docker images — on every push and pull request.
+
 ## Overview
 
 A curated set of ADRs for building a modular monolith backend with an Angular SPA frontend, deployed via Docker Compose. ADRs are categorized by how essential they are to the stack's coherence.

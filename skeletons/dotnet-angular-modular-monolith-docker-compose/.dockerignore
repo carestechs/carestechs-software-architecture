@@ -1,0 +1,9 @@
+bin
+obj
+client
+tests
+.git
+.env
+.angular
+node_modules
+dist

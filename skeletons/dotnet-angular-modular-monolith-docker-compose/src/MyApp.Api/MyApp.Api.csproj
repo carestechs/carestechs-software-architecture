@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.*" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyApp.Contracts\MyApp.Contracts.csproj" />
+    <ProjectReference Include="..\MyApp.Modules.Catalog\MyApp.Modules.Catalog.csproj" />
+  </ItemGroup>
+</Project>
