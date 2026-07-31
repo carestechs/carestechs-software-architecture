@@ -5,5 +5,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MyApp.Contracts\MyApp.Contracts.csproj" />
     <ProjectReference Include="..\MyApp.Modules.Catalog\MyApp.Modules.Catalog.csproj" />
+    <ProjectReference Include="..\MyApp.Modules.Orders\MyApp.Modules.Orders.csproj" />
   </ItemGroup>
 </Project>
