@@ -24,4 +24,5 @@ Within each database, every module owns a PostgreSQL schema named after it (`ide
 - NEVER write cross-schema queries or joins outside the owning module. Cross-module data access goes through the owning module's contract interface.
 - Foreign keys MUST NOT cross module schemas — cross-module references are ID-only (see the cross-module-by-id rule).
 - When the per-module role split is in place, application components MUST connect with their module's role, not a superuser.
+- In database-per-tenant deployments the role split multiplies (tenants x modules): adopt it only if role creation is automated inside the tenant provisioner. Otherwise schema separation + review is the enforcement level — do not half-adopt roles by hand.
 - Schema moves are migrations like any other: `CREATE SCHEMA IF NOT EXISTS foo; ALTER TABLE bar SET SCHEMA foo;` — never manual DDL.

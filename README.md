@@ -41,7 +41,8 @@ carestechs-software-architecture/
 │   │   ├── event-driven-reactors.md
 │   │   ├── xunit-per-module-tests.md
 │   │   ├── structured-logging.md
-│   │   └── module-facade.md
+│   │   ├── module-facade.md
+│   │   └── strategy-dispatch.md
 │   │
 │   ├── python/                    # Python / FastAPI decisions
 │   │   ├── fastapi-framework.md
@@ -91,7 +92,8 @@ carestechs-software-architecture/
 │   │   ├── role-based-authorization.md
 │   │   ├── offset-pagination.md
 │   │   ├── cognito-authentication.md
-│   │   └── external-provider-bridge.md
+│   │   ├── external-provider-bridge.md
+│   │   └── machine-to-machine-auth.md
 │   │
 │   ├── ai/                        # AI agent decisions
 │   │   ├── ai-agent-module.md           # .NET variant
@@ -118,6 +120,11 @@ carestechs-software-architecture/
 │       ├── flyway-migrations.md
 │       ├── dbup-migrations.md
 │       ├── iot-mqtt-push.md
+│       ├── s3-object-storage.md
+│       ├── idempotent-queue-consumers.md
+│       ├── correlation-propagation.md
+│       ├── fifo-ordered-processing.md
+│       ├── eventbridge-domain-events.md
 │       ├── queue-based-decoupling.md
 │       ├── tauri-desktop-shell.md
 │       ├── aws-batch-workers.md
@@ -138,7 +145,7 @@ carestechs-software-architecture/
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**84 ADRs** across 9 categories, **8 stack profiles**.
+**91 ADRs** across 9 categories, **8 stack profiles**.
 
 ## How to Use
 
