@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="EFCore.NamingConventions" Version="10.0.*" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Contracts only — a module never references another module
+         (adrs/dotnet/modular-monolith.md, adrs/dotnet/cross-module-by-id.md) -->
+    <ProjectReference Include="..\MyApp.Contracts\MyApp.Contracts.csproj" />
+  </ItemGroup>
+</Project>

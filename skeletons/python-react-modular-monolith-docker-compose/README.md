@@ -8,7 +8,8 @@ tests, and builds. If a catalog change breaks this skeleton, the change — not 
 
 | Area | ADRs exercised |
 |------|----------------|
-| FastAPI app, one `catalog` module, contracts package | `python/fastapi-framework`, `python/modular-packages`, `python/service-layer-logic` |
+| FastAPI app, `catalog` + `orders` modules, contracts package | `python/fastapi-framework`, `python/modular-packages`, `python/service-layer-logic` |
+| Cross-module by id: `orders` stores a plain UUID `product_id` (no FK/relationship) and resolves it through `contracts/catalog.py`; the provider is injected via `create_router()` at the composition root — the orders package never imports the catalog package | `dotnet/cross-module-by-id` (family rule), `python/modular-packages` |
 | Async end-to-end: AsyncSession, asyncpg, async Alembic env | `python/async-all-the-way`, `python/sqlalchemy-async` |
 | Pydantic DTOs with camelCase serialization | `python/pydantic-at-boundary` |
 | `{ data, meta }` envelope on 2xx, Problem Details on errors | `api/rest-envelope`, `python/rfc7807-errors` |
@@ -43,8 +44,8 @@ cd client && npm install && npm run dev
 
 - **Celery worker + Redis** (`python/celery-background-jobs`) — no background workload in the skeleton; compose omits Redis.
 - **JWT auth / role-based authorization** (`api/jwt-bearer-auth`, `api/role-based-authorization`) — endpoints are anonymous.
-- **A second module** — cross-module communication is shown only as the `contracts/` protocol shape.
 - **shadcn/ui primitives** — the page uses no button/input/dialog primitives yet.
+- **An orders UI** — the second module exists to demonstrate backend module boundaries; the React client only shows the catalog.
 - **Offset pagination** (Optional tier) — the list endpoint returns all rows with `meta.totalCount`.
 
 Additions must follow the profile's ADRs — this skeleton is held to the same constraints it demonstrates.

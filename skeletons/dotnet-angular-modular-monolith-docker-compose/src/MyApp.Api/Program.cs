@@ -2,6 +2,7 @@ using MyApp.Api.Infrastructure;
 using MyApp.Contracts;
 using MyApp.Contracts.Configuration;
 using MyApp.Modules.Catalog;
+using MyApp.Modules.Orders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,8 +26,11 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddControllers();
 
-// Modules self-register; the host stays a composition root (adrs/dotnet/thin-api-host.md)
+// Modules self-register; the host stays a composition root (adrs/dotnet/thin-api-host.md).
+// Orders consumes the catalog only through MyApp.Contracts.ICatalogService, which
+// AddCatalogModule registers (adrs/dotnet/cross-module-by-id.md).
 builder.Services.AddCatalogModule();
+builder.Services.AddOrdersModule();
 
 var app = builder.Build();
 
