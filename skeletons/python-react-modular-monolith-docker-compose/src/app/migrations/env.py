@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from app.config import settings
 from app.core.database import Base
 from app.modules.catalog import models as catalog_models  # noqa: F401 - register tables
+from app.modules.orders import models as orders_models  # noqa: F401 - register tables
 
 target_metadata = Base.metadata
 
