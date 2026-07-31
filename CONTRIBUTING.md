@@ -130,4 +130,5 @@ Never delete an ADR. When a decision changes:
 3. Verify the ADR doesn't duplicate an existing ADR's scope
 4. If creating a language variant, ensure both variants declare `conflicts_with` against each other (the validator enforces symmetry)
 5. Run a test compilation using `compile-adrs.md` to verify the ADR integrates correctly
+6. If the change touches an ADR or profile that a golden skeleton under `skeletons/` demonstrates, CI must stay green there — update the skeleton in the same PR when a constraint changes
 6. After merging, tag a release when the change warrants it (see the Versioning section of README.md): new ADRs or constraints bump MINOR, clarifications bump PATCH, format/semantic breaks bump MAJOR
