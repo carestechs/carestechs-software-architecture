@@ -99,6 +99,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/deployment/aws-sam-infrastructure.md` | All infrastructure defined as SAM/CloudFormation templates. Stack-per-module. | `aws-lambda-serverless` |
 | `adrs/deployment/aws-secrets-parameters.md` | Secrets Manager for credentials, SSM for config. File-based providers for dev. | `aws-lambda-serverless` |
 | `adrs/deployment/queue-based-decoupling.md` | Cross-module async work via SQS with `IQueueProvider` abstraction. | — |
+| `adrs/deployment/idempotent-queue-consumers.md` | At-least-once discipline: idempotent handlers keyed on event ID, DLQ on every queue, triage-fix-redrive. | `queue-based-decoupling` |
 
 ## Recommended (strong defaults — can be swapped with noted alternatives)
 
@@ -107,6 +108,9 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/database/transactional-outbox.md` | Correctness-critical events written in-transaction, drained by a scheduled dispatcher; latency-critical hints may bypass with a reconciliation path. | Direct enqueue everywhere (accepts lost events on crash) |
 | `adrs/api/external-provider-bridge.md` | Third-party platform API isolated in one Bridge module; HMAC-validated webhooks normalized at the edge. | Only for platforms without external provider integration |
 | `adrs/deployment/iot-mqtt-push.md` | Real-time client push via IoT Core MQTT; per-user topics; custom authorizer scopes policy to caller's subtree. | Polling (degraded), API GW WebSockets (self-managed fan-out) |
+| `adrs/api/machine-to-machine-auth.md` | Opaque hashed API tokens for integration clients; dedicated authorizer injects tenant + scope. | OAuth client-credentials via Cognito (OIDC partners) |
+| `adrs/deployment/s3-object-storage.md` | Tenant-scoped object keys, presigned transfer, metadata mastered in the DB. | Only for platforms without binary content |
+| `adrs/deployment/correlation-propagation.md` | One correlation ID from ingress through every queue hop, log scope, outbox row, and push payload. | Managed tracing only (X-Ray/OTel — complementary, sampling-limited) |
 | `adrs/api/role-based-authorization.md` | Role gates at the endpoint layer + ownership checks next to the data. Deny by default. | Policy engine (OPA/Casbin) at larger scale |
 | `adrs/dotnet/xunit-per-module-tests.md` | xUnit test projects mirroring modules/layers. Real PostgreSQL for data-access tests. | NUnit (viable alternative) |
 | `adrs/dotnet/structured-logging.md` | ILogger<T> with message templates. JSON output + correlation IDs in production. | Serilog as host provider (compatible) |
@@ -124,6 +128,9 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/api/offset-pagination.md` | Offset pagination with page/pageSize. Requires `rest-envelope`. | Any project with list endpoints |
 | `adrs/database/soft-deletes.md` | Soft deletion via `IsActive` flag or `DeletedAt` column. | Entities needing audit trails or undo |
 | `adrs/deployment/aws-batch-workers.md` | Compute-heavy jobs on AWS Batch (Fargate) with dual-mode Program.cs. | Media transcoding, bulk imports beyond Lambda limits |
+| `adrs/deployment/fifo-ordered-processing.md` | FIFO only for per-aggregate ordering; group ID = aggregate ID; explicit dedup IDs. | Workflows where out-of-order processing of one aggregate is a correctness bug |
+| `adrs/deployment/eventbridge-domain-events.md` | Domain facts on the bus with versioned detail-types; directed work stays on queues. | Analytics/integration consumers the producer must not know about |
+| `adrs/dotnet/strategy-dispatch.md` | One strategy class per content-type matrix cell; registry dispatch; mandatory unknown-kind fallback. | Dispatch matrices (content x session kinds) fed by external providers |
 
 ---
 
@@ -133,6 +140,7 @@ When using this stack, these patterns emerge from the combination of ADRs:
 
 - **Tenant resolution flow:** Cognito pre-token trigger stamps tenant identifiers into the JWT → API Gateway authorizer validates → handlers read validated claims → per-tenant unit-of-work factory opens the tenant's database. Queue messages carry the same identifiers, stamped by the producer; workers open tenant scope from message metadata.
 - **One Lambda per concern:** every SQS/Cognito/EventBridge/IoT entry point is its own project with its own deploy artifact, IAM scope, and log group. No multi-function worker projects — they couple deploys and blur IAM.
+- **Reliability floor:** every queue has a DLQ and an idempotent consumer; failures park, get triaged, and are redriven after the fix. Correlation IDs minted at ingress ride every hop, so a parked message is traceable to the user action that produced it.
 - **Two event tiers:** correctness-critical events ride the transactional outbox (at-least-once, in-transaction); latency-critical notifications enqueue directly and rely on REST reconciliation. Pick per event type, never both.
 - **Module boundary enforcement stack:** cross-module-by-id (data model) + schema-per-module (storage) + module-facade (code) reinforce each other — a boundary violation has to defeat all three to ship.
 - **Naming translation:** C# PascalCase properties → lowercase database columns → camelCase JSON. DynamoDB table names are plain constants in owning repositories.
