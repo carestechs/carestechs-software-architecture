@@ -40,7 +40,8 @@ carestechs-software-architecture/
 │   │   ├── result-pattern-errors.md
 │   │   ├── event-driven-reactors.md
 │   │   ├── xunit-per-module-tests.md
-│   │   └── structured-logging.md
+│   │   ├── structured-logging.md
+│   │   └── module-facade.md
 │   │
 │   ├── python/                    # Python / FastAPI decisions
 │   │   ├── fastapi-framework.md
@@ -78,13 +79,19 @@ carestechs-software-architecture/
 │   │   ├── snake-case-naming.md
 │   │   ├── lowercase-naming.md
 │   │   ├── soft-deletes.md
-│   │   └── timestamptz-always.md
+│   │   ├── timestamptz-always.md
+│   │   ├── database-per-tenant.md
+│   │   ├── schema-per-module.md
+│   │   ├── dynamodb-hot-path.md
+│   │   └── transactional-outbox.md
 │   │
 │   ├── api/                       # API design decisions
 │   │   ├── rest-envelope.md
 │   │   ├── jwt-bearer-auth.md
 │   │   ├── role-based-authorization.md
-│   │   └── offset-pagination.md
+│   │   ├── offset-pagination.md
+│   │   ├── cognito-authentication.md
+│   │   └── external-provider-bridge.md
 │   │
 │   ├── ai/                        # AI agent decisions
 │   │   ├── ai-agent-module.md           # .NET variant
@@ -109,6 +116,8 @@ carestechs-software-architecture/
 │       ├── aws-sam-infrastructure.md
 │       ├── aws-secrets-parameters.md
 │       ├── flyway-migrations.md
+│       ├── dbup-migrations.md
+│       ├── iot-mqtt-push.md
 │       ├── queue-based-decoupling.md
 │       ├── tauri-desktop-shell.md
 │       ├── aws-batch-workers.md
@@ -124,11 +133,12 @@ carestechs-software-architecture/
     ├── python-react-modular-monolith-docker-compose.md
     ├── python-react-ai-agent-docker-compose.md
     ├── dotnet-angular-clean-architecture-aws-lambda.md
+    ├── dotnet-multitenant-event-driven-aws-lambda.md
     ├── typescript-cli-tool-npm.md
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**75 ADRs** across 9 categories, **7 stack profiles**.
+**84 ADRs** across 9 categories, **8 stack profiles**.
 
 ## How to Use
 
@@ -143,6 +153,7 @@ Profiles are curated sets of ADRs organized into Required, Recommended, and Opti
 | **dotnet-angular-modular-monolith-docker-compose** | .NET + Angular + PostgreSQL | Docker Compose |
 | **dotnet-angular-ai-agent-docker-compose** | .NET + Angular + PostgreSQL + AI | Docker Compose |
 | **dotnet-angular-clean-architecture-aws-lambda** | .NET + Angular + PostgreSQL | AWS Lambda |
+| **dotnet-multitenant-event-driven-aws-lambda** | .NET + PostgreSQL (per tenant) + DynamoDB, backend-only | AWS Lambda |
 | **typescript-cli-tool-npm** | TypeScript CLI / dev tool | npm |
 | **typescript-ai-agent-cli-npm** | TypeScript CLI + Claude Agent SDK | npm |
 
