@@ -241,6 +241,8 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/database/timestamptz-always.md` | All datetimes are `timestamptz`. C# uses `DateTimeOffset`. | `timestamp` without timezone (loses context) |
 | `adrs/api/jwt-bearer-auth.md` | JWT Bearer tokens. Short-lived access + rotated refresh. | Cognito / API Gateway JWT authorizer (managed alternative) |
 | `adrs/deployment/queue-based-decoupling.md` | Cross-module async work via SQS with `IQueueProvider` abstraction. | Direct HTTP calls between Lambdas (tighter coupling) |
+| `adrs/deployment/idempotent-queue-consumers.md` | At-least-once discipline: idempotent handlers keyed on event ID, DLQ on every queue, triage-fix-redrive. | None viable — an SQS pipeline without DLQs is an unmonitored outage |
+| `adrs/deployment/correlation-propagation.md` | One correlation ID from ingress through every queue hop and log scope. | Managed tracing only (X-Ray/OTel — complementary, sampling-limited) |
 | `adrs/deployment/aws-batch-workers.md` | Compute-heavy jobs run on AWS Batch (Fargate). Dual-mode Program.cs: BackgroundService polling in dev, single-shot JOB_PAYLOAD in prod. | Step Functions for orchestration, or Lambda with higher memory/timeout |
 | `adrs/angular/standalone-components.md` | All components standalone. No NgModules. | — |
 | `adrs/angular/signals-state.md` | Angular Signals for reactive state. RxJS only for HTTP/async. | RxJS BehaviorSubjects |
@@ -252,6 +254,8 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 |-----|---------|-----------------|
 | `adrs/deployment/tauri-desktop-shell.md` | Tauri 2 desktop shell wrapping the Angular frontend. Rust backend for native OS access. | Modules needing a native desktop client (image inspection, offline access) |
 | `adrs/deployment/maintenance-cli-scheduler.md` | Dual-mode maintenance worker: CLI for on-demand routines (`run <name> --dry-run`) and scheduler for periodic execution. | Projects with recurring data migration, pipeline verification, or cleanup tasks |
+| `adrs/deployment/fifo-ordered-processing.md` | FIFO only for per-aggregate ordering; group ID = aggregate ID; explicit dedup IDs. | Workflows where out-of-order processing of one aggregate is a correctness bug |
+| `adrs/deployment/eventbridge-domain-events.md` | Domain facts on the bus with versioned detail-types; directed work stays on queues. | Analytics/integration consumers the producer must not know about |
 | `adrs/database/soft-deletes.md` | Soft deletion via `IsActive` flag or `DeletedAt` column. | Entities needing audit trails or undo |
 | `adrs/api/rest-envelope.md` | All responses wrapped in `{ data, meta }` envelope. | Projects wanting a uniform response contract — required if `offset-pagination` is included |
 | `adrs/api/offset-pagination.md` | Offset pagination with page/pageSize. Requires `rest-envelope`. | Any project with list endpoints |
@@ -272,6 +276,7 @@ When using this stack, these patterns emerge from the combination of ADRs:
 - **Local database:** PostgreSQL runs locally as a single Docker container — infrastructure only. The application itself is never containerized in this profile (that is what `aws-lambda-serverless.md`'s conflicts with the Docker ADRs are about). Flyway applies the same `Common.Database/db/` migrations locally and in production, so the schema (uuid, timestamptz) is identical in both environments.
 - **No secrets in code:** Development uses gitignored `.secrets`/`.parameters` files. Production reads from AWS Secrets Manager and SSM Parameter Store. Application code uses the abstraction layer only.
 - **Migration strategy:** Flyway runs against the shared PostgreSQL database. All modules share one migration history. Each module's DbContext maps only its own tables.
+- **Reliability floor:** every queue has a DLQ and an idempotent consumer keyed on event ID; failures park, get triaged, and are redriven after the fix. Correlation IDs minted at ingress ride every queue hop.
 - **Queue abstraction:** `IQueueProvider` → `HttpQueueProvider` (dev, polls local `Common.QueueServer`) or `SqsQueueProvider` (prod) or `BatchJobQueueProvider` (prod, submits AWS Batch jobs with `JOB_PAYLOAD` env var). Reactors enqueue; workers dequeue.
 - **Compute worker duality:** Batch workers have two execution paths in the same `Program.cs`. Development: `BackgroundService` polls local HTTP queue, processes jobs in a loop. Production: reads `JOB_PAYLOAD` env var, deserializes, runs the orchestrator, exits. No host startup in production — just a console app.
 - **Maintenance operations:** Maintenance workers support CLI mode (`list`, `run <routine> --dry-run`) for ad-hoc execution and scheduler mode (default, runs routines on a timer). Routines are registered by name in DI and resolved dynamically.
