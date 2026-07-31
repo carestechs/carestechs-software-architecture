@@ -230,6 +230,15 @@ Example: `adrs/dotnet/dbcontext-per-module.md` requires `adrs/dotnet/modular-mon
 
 Machine-checkable constraints ship as ready-to-copy lint and analyzer configurations in `enforcement/` — BannedApiAnalyzers + `.editorconfig` rules for .NET, a `ruff.toml` for Python, and an ESLint flat config + base `tsconfig` for TypeScript, each annotated with the ADR it enforces. See `enforcement/README.md` for the constraint-to-rule mapping and adoption instructions. Constraints without a rule remain prompt-only (compiled CLAUDE.md + review).
 
+## Golden Skeletons
+
+`skeletons/` holds buildable reference projects, one per profile (currently:
+`python-react-modular-monolith-docker-compose`). Each skeleton follows its profile's
+Required and Recommended ADRs and is built by CI on every push/PR — backend lint+tests
+against a real PostgreSQL, frontend typecheck+build, and Docker image builds. A skeleton
+is the semantic test of the catalog: structural checks prove the graph is coherent; a
+green skeleton proves the profile actually composes into a working project.
+
 ## Versioning
 
 Catalog releases are tagged `vMAJOR.MINOR.PATCH`:

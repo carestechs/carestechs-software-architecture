@@ -3,6 +3,13 @@
 **Status:** Active
 **Assumes:** Python 3.12+, FastAPI 0.110+, React 19+, PostgreSQL 16+, SQLAlchemy 2.0+, Tailwind CSS 4+, Vite 6+, Docker 24+, Docker Compose v2+
 
+## Golden Skeleton
+
+A buildable reference instance of this profile lives at
+`skeletons/python-react-modular-monolith-docker-compose/`. CI installs, lints, tests
+(against a real PostgreSQL), and builds it — backend, frontend, and Docker images — on
+every push and pull request, so a catalog change that breaks this profile fails visibly.
+
 ## Overview
 
 A curated set of ADRs for building a modular monolith backend with Python/FastAPI and a React SPA frontend, deployed via Docker Compose. This is the industry-standard stack for AI-powered API products, developer tools, and data-intensive applications where the Python ecosystem's AI/ML libraries provide a decisive advantage. ADRs are categorized by how essential they are to the stack's coherence.

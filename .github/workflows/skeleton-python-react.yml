@@ -1,0 +1,65 @@
+name: skeleton-python-react
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: skeleton-python-react-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: skeletons/python-react-modular-monolith-docker-compose
+
+jobs:
+  backend:
+    name: Backend (ruff + pytest vs PostgreSQL)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/app_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e ".[dev]"
+      - run: ruff check .
+      - run: pytest -q
+
+  frontend:
+    name: Frontend (tsc + vite build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: skeletons/python-react-modular-monolith-docker-compose/client/package-lock.json
+      - run: npm ci
+        working-directory: skeletons/python-react-modular-monolith-docker-compose/client
+      - run: npm run build
+        working-directory: skeletons/python-react-modular-monolith-docker-compose/client
+
+  images:
+    name: Docker images build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t skeleton-api .
+      - run: docker build -t skeleton-frontend ./client
