@@ -3,7 +3,8 @@ category: api
 stack: any
 status: Active
 requires: []
-conflicts_with: []
+conflicts_with:
+  - adrs/api/cognito-authentication.md
 last_reviewed: 2026-07-29
 ---
 

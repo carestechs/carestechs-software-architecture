@@ -3,7 +3,7 @@ category: api
 stack: any
 status: Active
 requires:
-  - adrs/api/jwt-bearer-auth.md
+  - adrs/api/jwt-bearer-auth.md | adrs/api/cognito-authentication.md
 conflicts_with: []
 last_reviewed: 2026-07-30
 ---
