@@ -15,6 +15,7 @@ class AppError(Exception):
 
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     title = "Internal Server Error"
+    headers: dict[str, str] | None = None
 
     def __init__(self, detail: str) -> None:
         super().__init__(detail)
@@ -31,16 +32,35 @@ class ConflictError(AppError):
     title = "Conflict"
 
 
-def problem(status_code: int, title: str, detail: str, **extensions: object) -> JSONResponse:
+class UnauthorizedError(AppError):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    title = "Unauthorized"
+    headers = {"WWW-Authenticate": "Bearer"}
+
+
+class ForbiddenError(AppError):
+    status_code = status.HTTP_403_FORBIDDEN
+    title = "Forbidden"
+
+
+def problem(
+    status_code: int,
+    title: str,
+    detail: str,
+    headers: dict[str, str] | None = None,
+    **extensions: object,
+) -> JSONResponse:
     body: dict[str, object] = {"title": title, "status": status_code, "detail": detail}
     body.update(extensions)
-    return JSONResponse(body, status_code=status_code, media_type=PROBLEM_MEDIA_TYPE)
+    return JSONResponse(
+        body, status_code=status_code, media_type=PROBLEM_MEDIA_TYPE, headers=headers
+    )
 
 
 def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(AppError)
     async def app_error_handler(request: Request, exc: AppError) -> JSONResponse:
-        return problem(exc.status_code, exc.title, exc.detail)
+        return problem(exc.status_code, exc.title, exc.detail, headers=exc.headers)
 
     @app.exception_handler(RequestValidationError)
     async def validation_handler(request: Request, exc: RequestValidationError) -> JSONResponse:

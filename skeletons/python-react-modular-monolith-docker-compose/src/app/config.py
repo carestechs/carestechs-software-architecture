@@ -8,6 +8,9 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/app"
     debug: bool = False
+    # HS256 signing secret — the dev default is for local use only; production
+    # injects JWT_SECRET from the environment (adrs/deployment/env-connection-urls.md)
+    jwt_secret: str = "dev-only-secret-change-me-minimum-32-bytes!"  # >= 32 bytes for HS256
 
 
 settings = Settings()

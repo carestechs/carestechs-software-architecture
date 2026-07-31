@@ -20,5 +20,6 @@ class OrderRead(BaseModel):
     # Resolved through the catalog contract at read time — never stored on the
     # order row and never joined (adrs/dotnet/cross-module-by-id.md family rule).
     product_name: str | None
+    created_by: UUID
     quantity: int
     created_at: datetime
