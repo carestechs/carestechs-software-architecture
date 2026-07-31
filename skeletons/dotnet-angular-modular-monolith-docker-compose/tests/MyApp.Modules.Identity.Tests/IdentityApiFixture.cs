@@ -8,17 +8,13 @@ using MyApp.Modules.Identity.Services;
 using Npgsql;
 using Xunit;
 
-namespace MyApp.Modules.Orders.Tests;
+namespace MyApp.Modules.Identity.Tests;
 
 /// <summary>Boots the real pipeline against a real PostgreSQL
 /// (adrs/dotnet/xunit-per-module-tests.md).</summary>
-public sealed class OrdersApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
+public sealed class IdentityApiFixture : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private static readonly string ConnectionString = BuildConnectionString();
-
-    public Guid AdminId { get; private set; }
-    public Guid AgentId { get; private set; }
-    public Guid Agent2Id { get; private set; }
 
     private static string BuildConnectionString()
     {
@@ -27,7 +23,7 @@ public sealed class OrdersApiFixture : WebApplicationFactory<Program>, IAsyncLif
         // Test assemblies may run in parallel; each module's test project gets its own
         // database so the destructive reset below never races another fixture.
         var builder = new NpgsqlConnectionStringBuilder(configured);
-        builder.Database += "_orders";
+        builder.Database += "_identity";
         return builder.ConnectionString;
     }
 
@@ -40,22 +36,17 @@ public sealed class OrdersApiFixture : WebApplicationFactory<Program>, IAsyncLif
     public async ValueTask InitializeAsync()
     {
         using var scope = Services.CreateScope();
-        // Orders tests drive the API through the front door — creating products
-        // (admin) and orders (agents) — so all three schemas come up and users
-        // are seeded.
-        var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
-        var orders = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
-        var identity = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        await catalog.Database.EnsureDeletedAsync();
-        await catalog.Database.MigrateAsync();
-        await orders.Database.MigrateAsync();
-        await identity.Database.MigrateAsync();
+        // The role-ladder test exercises a real catalog write after the auth
+        // rungs, so the catalog schema comes up alongside identity.
+        var identityDb = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+        var catalogDb = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        await identityDb.Database.EnsureDeletedAsync();
+        await identityDb.Database.MigrateAsync();
+        await catalogDb.Database.MigrateAsync();
 
-        var identityService = scope.ServiceProvider.GetRequiredService<IIdentityService>();
-        var ct = TestContext.Current.CancellationToken;
-        AdminId = await identityService.CreateUserAsync("admin@example.com", "Admin123!", "admin", ct);
-        AgentId = await identityService.CreateUserAsync("agent@example.com", "Agent123!", "agent", ct);
-        Agent2Id = await identityService.CreateUserAsync("agent2@example.com", "Agent123!", "agent", ct);
+        var identity = scope.ServiceProvider.GetRequiredService<IIdentityService>();
+        await identity.CreateUserAsync("admin@example.com", "Admin123!", "admin", TestContext.Current.CancellationToken);
+        await identity.CreateUserAsync("agent@example.com", "Agent123!", "agent", TestContext.Current.CancellationToken);
     }
 
     public override async ValueTask DisposeAsync()

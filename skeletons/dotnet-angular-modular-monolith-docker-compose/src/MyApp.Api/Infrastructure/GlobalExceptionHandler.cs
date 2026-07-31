@@ -36,6 +36,10 @@ public sealed class GlobalExceptionHandler(
         }
 
         httpContext.Response.StatusCode = problemDetails.Status!.Value;
+        if (problemDetails.Status == 401)
+        {
+            httpContext.Response.Headers.WWWAuthenticate = "Bearer";
+        }
         return await problemDetailsService.TryWriteAsync(new ProblemDetailsContext
         {
             HttpContext = httpContext,
