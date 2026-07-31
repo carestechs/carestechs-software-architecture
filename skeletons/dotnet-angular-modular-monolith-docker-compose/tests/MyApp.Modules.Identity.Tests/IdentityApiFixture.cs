@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using MyApp.Modules.Catalog;
 using MyApp.Modules.Identity;
 using MyApp.Modules.Identity.Services;
 using Npgsql;
@@ -35,9 +36,13 @@ public sealed class IdentityApiFixture : WebApplicationFactory<Program>, IAsyncL
     public async ValueTask InitializeAsync()
     {
         using var scope = Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
-        await db.Database.EnsureDeletedAsync();
-        await db.Database.MigrateAsync();
+        // The role-ladder test exercises a real catalog write after the auth
+        // rungs, so the catalog schema comes up alongside identity.
+        var identity = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
+        var catalog = scope.ServiceProvider.GetRequiredService<CatalogDbContext>();
+        await identity.Database.EnsureDeletedAsync();
+        await identity.Database.MigrateAsync();
+        await catalog.Database.MigrateAsync();
 
         var identity = scope.ServiceProvider.GetRequiredService<IIdentityService>();
         await identity.CreateUserAsync("admin@example.com", "Admin123!", "admin", TestContext.Current.CancellationToken);
