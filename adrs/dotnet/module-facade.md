@@ -21,6 +21,7 @@ Each module that other modules consume exposes exactly ONE public facade interfa
 
 ## Constraints (non-negotiable for AI)
 - ONE facade per module, named `I<Module>ModuleApi`, living in `<Module>.Application`. NEVER add a second public cross-module contract to the same module.
+- This ADR refines `cross-module-by-id`'s contract placement: the facade IS the module's cross-module contract. Do NOT duplicate facade interfaces in the shared contracts project — shared projects keep only cross-module events and truly shared value types.
 - Facade operations return snapshot records defined next to the facade. NEVER return domain entities, EF entities, or types from the module's internal layers.
 - Shape operations by consumer use case (e.g., `GetUserSnapshotAsync` returning id + status + display name) — not by CRUD symmetry with internal entities.
 - Tenant identifiers cross the facade as primitive `string`/`Guid` parameters — consumers must not need the owning module's value-object types.

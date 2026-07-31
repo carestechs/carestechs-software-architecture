@@ -5,7 +5,7 @@ status: Active
 requires:
   - adrs/dotnet/modular-monolith.md | adrs/dotnet/clean-architecture-layers.md
 conflicts_with: []
-last_reviewed: 2026-07-29
+last_reviewed: 2026-07-31
 ---
 
 # Cross-Module References By ID Only
@@ -25,7 +25,7 @@ Modules reference each other's entities exclusively by storing the foreign entit
 - NEVER use `.Include()` to load an entity from another module's DbContext.
 - NEVER write cross-module joins (LINQ `join` or raw SQL joins across module schemas).
 - If you need data from another module, inject and call a contract interface exposed by that module (e.g., `IUserService.GetByIdAsync(Guid id)`), or consume events it publishes.
-- The contract interface MUST be defined in the shared contracts project (e.g., `MyApp.Contracts` or `Common.Core`), not in the module itself.
+- The contract interface MUST be defined in the shared contracts project (e.g., `MyApp.Contracts` or `Common.Core`) — unless `adrs/dotnet/module-facade.md` is adopted, in which case the owning module's single `I<Module>ModuleApi` facade in its Application layer IS the contract surface, and no duplicate interface goes in the shared project.
 
 ## Examples
 
