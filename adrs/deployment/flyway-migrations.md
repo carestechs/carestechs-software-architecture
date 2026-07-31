@@ -3,7 +3,8 @@ category: deployment
 stack: dotnet
 status: Active
 requires: []
-conflicts_with: []
+conflicts_with:
+  - adrs/deployment/dbup-migrations.md
 last_reviewed: 2026-07-29
 ---
 

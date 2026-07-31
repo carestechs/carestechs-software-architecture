@@ -3,7 +3,7 @@ category: database
 stack: dotnet
 status: Active
 requires:
-  - adrs/deployment/flyway-migrations.md
+  - adrs/deployment/flyway-migrations.md | adrs/deployment/dbup-migrations.md
 conflicts_with:
   - adrs/database/snake-case-naming.md
 last_reviewed: 2026-07-29
