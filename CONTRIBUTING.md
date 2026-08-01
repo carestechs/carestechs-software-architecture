@@ -121,6 +121,7 @@ Never delete an ADR. When a decision changes:
 - Set `status: Deprecated` when the decision no longer applies and has no replacement.
 - Set `status: Superseded` and add `superseded_by: adrs/<path>.md` when a newer ADR replaces it (the validator enforces this pairing).
 - Update `last_reviewed` (YYYY-MM-DD) whenever an ADR is re-verified against current framework versions.
+- Profile tier tables (Required/Recommended/Optional) are GENERATED from `profiles/profiles.toml` — the single source of truth for tier membership and row texts. To change what a profile lists: edit the manifest, run `python scripts/generate_profiles.py`, and commit both. Never edit the tables by hand (CI rejects drift). Row texts live once under `[adr."<path>"]`; a profile needing different wording declares `[profile.<name>.override."<path>"]`. Prose sections of profile documents stay handwritten.
 - ADRs whose claims depend on framework behavior carry a `verify_against` list naming those frameworks. The scheduled `freshness` workflow runs `python scripts/validate_adrs.py --stale` quarterly and opens/updates a GitHub issue listing what is due (closing it when everything is fresh); the command also works locally. Re-verify what it lists — version-sensitive claims rot silently otherwise.
 
 ## Review Process

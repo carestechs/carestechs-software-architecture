@@ -16,3 +16,5 @@ jobs:
           python-version: "3.12"
       - name: Run catalog validator
         run: python scripts/validate_adrs.py
+      - name: Profile tables match the manifest
+        run: python scripts/generate_profiles.py --check
