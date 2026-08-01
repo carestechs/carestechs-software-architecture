@@ -105,8 +105,9 @@ MyApp/
 
 These ADRs define the fundamental architecture. Removing any of them breaks the coherence of the stack.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | Depends On |
-|-----|---------|------------|
+|-----|---------|-------------|
 | `adrs/dotnet/modular-monolith.md` | Single deployable, feature modules as separate .csproj with clear boundaries | — |
 | `adrs/dotnet/dbcontext-per-module.md` | Each module owns its own DbContext. Migrations are per-module. | `modular-monolith` |
 | `adrs/dotnet/cross-module-by-id.md` | Modules reference each other by ID only. No cross-module navigation properties. | `modular-monolith`, `dbcontext-per-module` |
@@ -124,6 +125,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 
 These are battle-tested defaults. You can swap them, but you should have a good reason.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | Alternative |
 |-----|---------|-------------|
 | `adrs/dotnet/rfc7807-errors.md` | RFC 7807 Problem Details for all errors. Global exception handler. | Custom error envelope (not recommended) |
@@ -144,8 +146,9 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 
 These address specific concerns that not every project has.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | When to Include |
-|-----|---------|-----------------|
+|-----|---------|-------------|
 | `adrs/database/soft-deletes.md` | Soft deletion via nullable `deleted_at` column. | Projects needing audit trails or undo capability |
 | `adrs/api/offset-pagination.md` | Offset pagination with page/pageSize/sortBy/sortDir. Requires `rest-envelope`. | Any project with list endpoints |
 | `adrs/api/role-based-authorization.md` | Role gates at the endpoint layer + ownership checks in services. Deny by default. Requires `jwt-bearer-auth`. | Policy engine (OPA/Casbin) at larger scale |

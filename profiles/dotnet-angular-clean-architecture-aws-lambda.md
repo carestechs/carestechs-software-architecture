@@ -214,8 +214,9 @@ MyApp/
 
 These ADRs define the fundamental architecture. Removing any of them breaks the coherence of the stack.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | Depends On |
-|-----|---------|------------|
+|-----|---------|-------------|
 | `adrs/dotnet/clean-architecture-layers.md` | Four projects per module: Domain, Application, Data, Api. Dependencies flow inward. | — |
 | `adrs/dotnet/cqrs-handlers.md` | Commands and Queries with dedicated Handler classes. No service layer. No MediatR. | `clean-architecture-layers` |
 | `adrs/dotnet/rich-domain-entities.md` | Private setters, static `Create()` factory, business logic in entities. | `clean-architecture-layers` |
@@ -231,6 +232,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 
 ## Recommended (strong defaults — can be swapped with noted alternatives)
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | Alternative |
 |-----|---------|-------------|
 | `adrs/dotnet/xunit-per-module-tests.md` | xUnit test projects mirroring modules/layers. Real PostgreSQL (Testcontainers) for data-access tests. | NUnit (viable alternative) |
@@ -250,8 +252,9 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 
 ## Optional (pick based on project needs)
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | When to Include |
-|-----|---------|-----------------|
+|-----|---------|-------------|
 | `adrs/deployment/tauri-desktop-shell.md` | Tauri 2 desktop shell wrapping the Angular frontend. Rust backend for native OS access. | Modules needing a native desktop client (image inspection, offline access) |
 | `adrs/deployment/maintenance-cli-scheduler.md` | Dual-mode maintenance worker: CLI for on-demand routines (`run <name> --dry-run`) and scheduler for periodic execution. | Projects with recurring data migration, pipeline verification, or cleanup tasks |
 | `adrs/deployment/fifo-ordered-processing.md` | FIFO only for per-aggregate ordering; group ID = aggregate ID; explicit dedup IDs. | Workflows where out-of-order processing of one aggregate is a correctness bug |

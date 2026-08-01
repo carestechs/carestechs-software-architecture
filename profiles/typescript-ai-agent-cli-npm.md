@@ -92,8 +92,9 @@ my-ai-tool/
 
 These ADRs define the fundamental architecture. Removing any of them breaks the coherence of the stack.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | Depends On |
-|-----|---------|------------|
+|-----|---------|-------------|
 | `adrs/typescript/strict-typescript.md` | TypeScript strict mode, no `any`, no `@ts-ignore`. `unknown` + type guards for untyped data. | — |
 | `adrs/typescript/named-exports.md` | Named exports only, no default exports. Barrel `index.ts` per component. | — |
 | `adrs/typescript/functional-composition.md` | Plain functions and objects over classes. No inheritance chains. Classes only for custom Errors. | — |
@@ -109,6 +110,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 
 These are battle-tested defaults. You can swap them, but you should have a good reason.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | Alternative |
 |-----|---------|-------------|
 | `adrs/deployment/github-action-composite.md` | GitHub Action as composite action running Node.js. Same core engine as CLI. | JavaScript action with `@vercel/ncc` bundle (single file, more complex build) |
@@ -118,9 +120,9 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 
 These address specific concerns that not every AI tool has.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | When to Include |
-|-----|---------|-----------------|
-| *None currently* | As the AI agent ecosystem matures, ADRs for RAG-in-CLI, conversation persistence (file-based), and multi-model routing will be added. | — |
+|-----|---------|-------------|
 
 ---
 

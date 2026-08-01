@@ -1,0 +1,800 @@
+# Single source of truth for profile tier tables.
+# Edit this file, then run: python scripts/generate_profiles.py
+# CI rejects drift between this manifest and the generated tables
+# (scripts/generate_profiles.py --check).
+#
+# [adr."<path>"] holds the canonical row text per column; a profile that
+# needs different wording declares [profile.<name>.override."<path>"].
+
+[adr."adrs/ai/ai-agent-module.md"]
+summary = "AI agent is a dedicated module (`MyApp.Modules.AI`) following all modular monolith conventions."
+depends_on = "`modular-monolith`, `dbcontext-per-module`, `cross-module-by-id`, `thin-api-host`, `service-layer-logic`, `dto-at-boundary`"
+
+[adr."adrs/ai/ai-module-python.md"]
+summary = "AI agent is a dedicated module (`src/app/modules/ai/`) following all modular monolith conventions."
+depends_on = "`modular-packages`, `service-layer-logic`, `pydantic-at-boundary`, `sqlalchemy-async`"
+
+[adr."adrs/ai/claude-agent-sdk.md"]
+summary = "Claude Agent SDK for AI analysis. Single orchestrator component. AI responses validated as untrusted."
+depends_on = "`strict-typescript`"
+when_to_include = "Tools that use LLM-powered analysis, generation, or reasoning"
+
+[adr."adrs/ai/conversation-history-python.md"]
+summary = "Multi-turn conversation persistence with token-aware context windowing."
+alternative = "Stateless single-turn interactions (if no conversation continuity needed)"
+
+[adr."adrs/ai/conversation-history.md"]
+summary = "Multi-turn conversation persistence with token-aware context windowing."
+alternative = "Stateless single-turn interactions (if no conversation continuity needed)"
+
+[adr."adrs/ai/llm-abstraction-python.md"]
+summary = "All LLM and embedding calls go through a provider-agnostic abstraction. Provider SDKs only in composition root."
+depends_on = "`async-all-the-way`, `service-layer-logic`"
+
+[adr."adrs/ai/meai-abstraction.md"]
+summary = "All LLM and embedding calls go through M.E.AI abstractions (`IChatClient`, `IEmbeddingGenerator`)."
+depends_on = "`modular-monolith`, `async-all-the-way`"
+
+[adr."adrs/ai/rag-pgvector-python.md"]
+summary = "RAG pipeline using pgvector for vector storage and cosine similarity search."
+alternative = "Dedicated vector DB (Pinecone, Qdrant) if scale demands it"
+
+[adr."adrs/ai/rag-pgvector.md"]
+summary = "RAG pipeline using pgvector for vector storage and similarity search."
+alternative = "Dedicated vector DB (Pinecone, Qdrant) if scale demands it"
+
+[adr."adrs/ai/tool-calling-via-services-python.md"]
+summary = "AI tools are thin adapters that delegate to existing service functions. No business logic in tools."
+depends_on = "`modular-packages`, `service-layer-logic`, `llm-abstraction-python`"
+
+[adr."adrs/ai/tool-calling-via-services.md"]
+summary = "AI tools are thin adapters that delegate to existing service interfaces. No business logic in tools."
+depends_on = "`modular-monolith`, `service-layer-logic`, `meai-abstraction`"
+
+[adr."adrs/angular/separate-template-file.md"]
+summary = "Component templates in separate `.html` files via `templateUrl`. No inline templates."
+alternative = "Inline `template` strings (loses HTML tooling and readability)"
+when_to_include = "Team preference for HTML tooling"
+
+[adr."adrs/angular/signals-state.md"]
+summary = "Angular Signals for reactive state. RxJS only for HTTP/async."
+alternative = "RxJS BehaviorSubjects (more boilerplate)"
+
+[adr."adrs/angular/standalone-components.md"]
+summary = "All components standalone. No NgModules."
+depends_on = "—"
+alternative = "—"
+
+[adr."adrs/angular/tailwind-no-css.md"]
+summary = "Tailwind utility classes only. No component CSS files."
+alternative = "Component-scoped SCSS (if team prefers)"
+
+[adr."adrs/api/cognito-authentication.md"]
+summary = "Managed user pool, per-app clients, pre-token/post-auth triggers; app DB masters user lifecycle."
+depends_on = "—"
+
+[adr."adrs/api/external-provider-bridge.md"]
+summary = "Third-party platform API isolated in one Bridge module; HMAC-validated webhooks normalized at the edge."
+alternative = "Only for platforms without external provider integration"
+
+[adr."adrs/api/jwt-bearer-auth.md"]
+summary = "JWT Bearer tokens. Short-lived access + rotated refresh."
+alternative = "Session cookies (if not SPA architecture)"
+
+[adr."adrs/api/machine-to-machine-auth.md"]
+summary = "Opaque hashed API tokens for integration clients; dedicated authorizer injects tenant + scope."
+alternative = "OAuth client-credentials via Cognito (OIDC partners)"
+
+[adr."adrs/api/offset-pagination.md"]
+summary = "Offset pagination with page/pageSize/sortBy/sortDir. Requires `rest-envelope`."
+when_to_include = "Any project with list endpoints"
+
+[adr."adrs/api/rest-envelope.md"]
+summary = "All responses wrapped in `{ data, meta }` envelope."
+alternative = "Flat responses with pagination in headers"
+when_to_include = "Projects wanting a uniform response contract — required if `offset-pagination` is included"
+
+[adr."adrs/api/role-based-authorization.md"]
+summary = "Role gates at the endpoint layer + ownership checks in services. Deny by default. Requires `jwt-bearer-auth`."
+alternative = "Policy engine (OPA/Casbin) at larger scale"
+when_to_include = "Policy engine (OPA/Casbin) at larger scale"
+
+[adr."adrs/database/database-per-tenant.md"]
+summary = "A PostgreSQL database per tenant; per-tenant unit-of-work factory; tenant ids from validated claims."
+depends_on = "—"
+
+[adr."adrs/database/dynamodb-hot-path.md"]
+summary = "High-throughput document data in DynamoDB with tenant-scoped partition keys; PG stays relational truth."
+depends_on = "—"
+
+[adr."adrs/database/lowercase-naming.md"]
+summary = "Lowercase table/column names via `OnModelCreating` loop."
+alternative = "`snake-case-naming` with naming convention package"
+
+[adr."adrs/database/schema-per-module.md"]
+summary = "Each module owns a PG schema; ORM default-schema per module; optional per-module DB roles."
+depends_on = "—"
+
+[adr."adrs/database/snake-case-naming.md"]
+summary = "snake_case tables/columns via EF Core naming convention."
+alternative = "PascalCase with quoting (non-idiomatic for PostgreSQL)"
+
+[adr."adrs/database/soft-deletes.md"]
+summary = "Soft deletion via nullable `deleted_at` column."
+when_to_include = "Projects needing audit trails or undo capability"
+
+[adr."adrs/database/timestamptz-always.md"]
+summary = "All datetimes are timestamptz. C# uses DateTimeOffset."
+alternative = "timestamp without timezone (loses timezone context)"
+
+[adr."adrs/database/transactional-outbox.md"]
+summary = "Correctness-critical events written in-transaction, drained by a scheduled dispatcher; latency-critical hints may bypass with a reconciliation path."
+alternative = "Direct enqueue everywhere (accepts lost events on crash)"
+
+[adr."adrs/database/uuid-primary-keys.md"]
+summary = "All PKs are UUIDs. No auto-increment."
+alternative = "Auto-increment integers (simpler but less secure)"
+
+[adr."adrs/deployment/aws-batch-workers.md"]
+summary = "Compute-heavy jobs run on AWS Batch (Fargate). Dual-mode Program.cs: BackgroundService polling in dev, single-shot JOB_PAYLOAD in prod."
+alternative = "Step Functions for orchestration, or Lambda with higher memory/timeout"
+when_to_include = "Media transcoding, bulk imports beyond Lambda limits"
+
+[adr."adrs/deployment/aws-lambda-serverless.md"]
+summary = "Each module's API deploys as its own Lambda behind API Gateway."
+depends_on = "—"
+
+[adr."adrs/deployment/aws-sam-infrastructure.md"]
+summary = "All infrastructure defined as SAM/CloudFormation templates. Stack-per-module."
+depends_on = "`aws-lambda-serverless`"
+
+[adr."adrs/deployment/aws-secrets-parameters.md"]
+summary = "Secrets Manager for credentials, SSM for config. File-based providers for dev."
+depends_on = "`aws-lambda-serverless`"
+
+[adr."adrs/deployment/container-per-process.md"]
+summary = "API and frontend as separate containers."
+depends_on = "`docker-multi-stage-builds`"
+
+[adr."adrs/deployment/correlation-propagation.md"]
+summary = "One correlation ID from ingress through every queue hop and log scope."
+alternative = "Managed tracing only (X-Ray/OTel — complementary, sampling-limited)"
+
+[adr."adrs/deployment/dbup-migrations.md"]
+summary = "Embedded `V{N}__` SQL scripts applied by DbUp — at tenant provisioning and via operator CLI."
+depends_on = "—"
+
+[adr."adrs/deployment/docker-multi-stage-builds.md"]
+summary = "All components packaged as Docker images with multi-stage builds. `dotnet/aspnet` final stage for backend."
+depends_on = "—"
+
+[adr."adrs/deployment/env-connection-urls.md"]
+summary = "All config via env vars. External services via connection URLs. Strongly-typed `IConfiguration` sections validate at startup."
+depends_on = "—"
+
+[adr."adrs/deployment/eventbridge-domain-events.md"]
+summary = "Domain facts on the bus with versioned detail-types; directed work stays on queues."
+when_to_include = "Analytics/integration consumers the producer must not know about"
+
+[adr."adrs/deployment/fifo-ordered-processing.md"]
+summary = "FIFO only for per-aggregate ordering; group ID = aggregate ID; explicit dedup IDs."
+when_to_include = "Workflows where out-of-order processing of one aggregate is a correctness bug"
+
+[adr."adrs/deployment/flyway-migrations.md"]
+summary = "Hand-written SQL migrations. EF Core is runtime-only ORM."
+depends_on = "—"
+
+[adr."adrs/deployment/github-action-composite.md"]
+summary = "GitHub Action as composite action running Node.js. Same core engine as CLI."
+alternative = "JavaScript action with `@vercel/ncc` bundle (single file, more complex build)"
+
+[adr."adrs/deployment/github-actions-ci.md"]
+summary = "CI gate on every push/PR: lint (enforcement configs), typecheck, tests, build. Deploys are separate workflows."
+alternative = "GitLab CI / Azure DevOps (if repos move)"
+
+[adr."adrs/deployment/idempotent-queue-consumers.md"]
+summary = "At-least-once discipline: idempotent handlers keyed on event ID, DLQ on every queue, triage-fix-redrive."
+depends_on = "`queue-based-decoupling`"
+alternative = "None viable — an SQS pipeline without DLQs is an unmonitored outage"
+
+[adr."adrs/deployment/iot-mqtt-push.md"]
+summary = "Real-time client push via IoT Core MQTT; per-user topics; custom authorizer scopes policy to caller's subtree."
+alternative = "Polling (degraded), API GW WebSockets (self-managed fan-out)"
+
+[adr."adrs/deployment/local-dev-compose.md"]
+summary = "`docker-compose.yml` for local infra, `docker-compose.prod.yml` for app services on shared network."
+depends_on = "`docker-multi-stage-builds`, `env-connection-urls`"
+
+[adr."adrs/deployment/maintenance-cli-scheduler.md"]
+summary = "Dual-mode maintenance worker: CLI for on-demand routines (`run <name> --dry-run`) and scheduler for periodic execution."
+alternative = "Ad-hoc scripts (unauditable)"
+when_to_include = "Projects with recurring data migration, pipeline verification, or cleanup tasks"
+
+[adr."adrs/deployment/nginx-spa-proxy.md"]
+summary = "Nginx serves built SPA and reverse-proxies `/api/` to backend. `try_files` for client-side routing."
+alternative = "Serving SPA from backend framework or separate CDN"
+
+[adr."adrs/deployment/npm-cli-package.md"]
+summary = "npm distribution with `bin` field, `npx` support, `engines` field, `dist/` build output."
+depends_on = "`strict-typescript`"
+
+[adr."adrs/deployment/queue-based-decoupling.md"]
+summary = "Cross-module async work via SQS with `IQueueProvider` abstraction."
+depends_on = "—"
+alternative = "Direct HTTP calls between Lambdas (tighter coupling)"
+
+[adr."adrs/deployment/s3-object-storage.md"]
+summary = "Tenant-scoped object keys, presigned transfer, metadata mastered in the DB."
+alternative = "Only for platforms without binary content"
+
+[adr."adrs/deployment/tauri-desktop-shell.md"]
+summary = "Tauri 2 desktop shell wrapping the Angular frontend. Rust backend for native OS access."
+when_to_include = "Modules needing a native desktop client (image inspection, offline access)"
+
+[adr."adrs/deployment/zod-config-validation.md"]
+summary = "Zod for runtime validation of config files, env vars, and AI responses. Types from schemas."
+depends_on = "`strict-typescript`"
+alternative = "io-ts (steeper learning curve), manual type guards (verbose)"
+
+[adr."adrs/dotnet/async-all-the-way.md"]
+summary = "All I/O uses async/await. Async suffix on service methods."
+depends_on = "—"
+
+[adr."adrs/dotnet/clean-architecture-layers.md"]
+summary = "Four projects per module: Domain, Application, Data, Api. Dependencies flow inward."
+depends_on = "—"
+
+[adr."adrs/dotnet/cqrs-handlers.md"]
+summary = "Commands and Queries with dedicated Handler classes. No service layer. No MediatR."
+depends_on = "`clean-architecture-layers`"
+
+[adr."adrs/dotnet/cross-module-by-id.md"]
+summary = "Modules reference each other by ID only. No cross-module navigation properties."
+depends_on = "`modular-monolith`, `dbcontext-per-module`"
+
+[adr."adrs/dotnet/dbcontext-per-module.md"]
+summary = "Each module owns its own DbContext. Migrations are per-module."
+depends_on = "`modular-monolith`"
+
+[adr."adrs/dotnet/dto-at-boundary.md"]
+summary = "Never expose EF entities via API. Mapping happens in service layer."
+depends_on = "`service-layer-logic`"
+
+[adr."adrs/dotnet/event-driven-reactors.md"]
+summary = "In-process EventBus + Reactors for side effects. Cross-module work goes through queues."
+depends_on = "`cqrs-handlers`"
+
+[adr."adrs/dotnet/modular-monolith.md"]
+summary = "Single deployable, feature modules as separate .csproj with clear boundaries"
+depends_on = "—"
+
+[adr."adrs/dotnet/module-facade.md"]
+summary = "One public `I<Module>ModuleApi` facade per consumed module; snapshot records; everything else internal."
+depends_on = "`clean-architecture-layers`"
+
+[adr."adrs/dotnet/result-pattern-errors.md"]
+summary = "`Result<T>` return types from command handlers. Exceptions only for unexpected failures."
+depends_on = "`cqrs-handlers`"
+
+[adr."adrs/dotnet/rfc7807-errors.md"]
+summary = "RFC 7807 Problem Details for all errors. Global exception handler."
+alternative = "Custom error envelope (not recommended)"
+
+[adr."adrs/dotnet/rich-domain-entities.md"]
+summary = "Private setters, static `Create()` factory, business logic in entities."
+depends_on = "`clean-architecture-layers`"
+
+[adr."adrs/dotnet/service-layer-logic.md"]
+summary = "Controllers are thin. All business logic lives in service classes."
+depends_on = "—"
+
+[adr."adrs/dotnet/strategy-dispatch.md"]
+summary = "One strategy class per content-type matrix cell; registry dispatch; mandatory unknown-kind fallback."
+when_to_include = "Dispatch matrices (content x session kinds) fed by external providers"
+
+[adr."adrs/dotnet/structured-logging.md"]
+summary = "ILogger<T> with message templates. JSON output + correlation IDs in production."
+alternative = "Serilog as host provider (compatible)"
+
+[adr."adrs/dotnet/thin-api-host.md"]
+summary = "API host is composition root only — no controllers, services, or business logic."
+depends_on = "`modular-monolith`"
+
+[adr."adrs/dotnet/xunit-per-module-tests.md"]
+summary = "xUnit test projects mirroring modules/layers. Real PostgreSQL (Testcontainers) for data-access tests."
+alternative = "NUnit (viable alternative)"
+
+[adr."adrs/python/async-all-the-way.md"]
+summary = "All I/O uses async/await. AsyncSession for DB. Uvicorn as ASGI server."
+depends_on = "`fastapi-framework`"
+
+[adr."adrs/python/celery-background-jobs.md"]
+summary = "Celery + Redis for background task processing. Tasks delegate to services."
+alternative = "ARQ or Dramatiq (smaller ecosystem)"
+
+[adr."adrs/python/fastapi-framework.md"]
+summary = "FastAPI as the web framework. Async-native, auto OpenAPI docs, Pydantic validation."
+depends_on = "—"
+
+[adr."adrs/python/modular-packages.md"]
+summary = "Feature modules as Python packages under `src/app/modules/`. Clear boundaries, shared contracts."
+depends_on = "`fastapi-framework`"
+
+[adr."adrs/python/pydantic-at-boundary.md"]
+summary = "Pydantic schemas for all request/response payloads. Never expose ORM models."
+depends_on = "`service-layer-logic`"
+
+[adr."adrs/python/pytest-testing.md"]
+summary = "pytest + pytest-asyncio, httpx ASGI test client, per-test DB isolation."
+alternative = "unittest (not recommended)"
+
+[adr."adrs/python/rfc7807-errors.md"]
+summary = "RFC 9457 Problem Details for all errors. Global exception handlers override FastAPI's default error shape."
+alternative = "Custom error envelope (not recommended)"
+
+[adr."adrs/python/service-layer-logic.md"]
+summary = "Route handlers are thin. All business logic in service functions/classes."
+depends_on = "—"
+
+[adr."adrs/python/sqlalchemy-async.md"]
+summary = "SQLAlchemy 2.0 async ORM with Alembic migrations. asyncpg driver."
+depends_on = "`async-all-the-way`"
+
+[adr."adrs/python/structured-logging.md"]
+summary = "stdlib logging, per-module loggers, JSON formatter, correlation-ID middleware."
+alternative = "structlog (heavier, viable)"
+
+[adr."adrs/react/functional-components.md"]
+summary = "Functional components with hooks only. Feature-based folder organization."
+depends_on = "—"
+
+[adr."adrs/react/tailwind-shadcn.md"]
+summary = "Tailwind CSS + shadcn/ui components. Full ownership, no runtime dependency."
+alternative = "Material UI or Chakra UI (heavier, opinionated)"
+
+[adr."adrs/react/tanstack-query.md"]
+summary = "TanStack Query for all server state. Caching, refetching, cache invalidation."
+alternative = "SWR (fewer features) or raw useEffect (not recommended)"
+
+[adr."adrs/typescript/core-adapter-pattern.md"]
+summary = "Core engine is framework-agnostic. Adapters handle I/O. Core never imports adapter code."
+depends_on = "`strict-typescript`"
+
+[adr."adrs/typescript/functional-composition.md"]
+summary = "Plain functions and objects over classes. No inheritance chains. Classes only for custom Errors."
+depends_on = "—"
+
+[adr."adrs/typescript/named-exports.md"]
+summary = "Named exports only, no default exports. Barrel `index.ts` per component."
+depends_on = "—"
+
+[adr."adrs/typescript/strict-typescript.md"]
+summary = "TypeScript strict mode, no `any`, no `@ts-ignore`. `unknown` + type guards for untyped data."
+depends_on = "—"
+
+[adr."adrs/typescript/types-at-boundary.md"]
+summary = "`interface` for component contracts, `type` for data shapes. All data types JSON-serializable."
+depends_on = "`strict-typescript`"
+
+[adr."adrs/typescript/vitest-colocated.md"]
+summary = "Vitest framework, `*.test.ts` co-located with source. Mock only at system boundaries."
+depends_on = "`strict-typescript`"
+
+[profile.dotnet-angular-ai-agent-docker-compose]
+required = [
+  "adrs/dotnet/modular-monolith.md",
+  "adrs/dotnet/dbcontext-per-module.md",
+  "adrs/dotnet/cross-module-by-id.md",
+  "adrs/dotnet/thin-api-host.md",
+  "adrs/dotnet/service-layer-logic.md",
+  "adrs/dotnet/dto-at-boundary.md",
+  "adrs/dotnet/async-all-the-way.md",
+  "adrs/angular/standalone-components.md",
+  "adrs/ai/ai-agent-module.md",
+  "adrs/ai/meai-abstraction.md",
+  "adrs/ai/tool-calling-via-services.md",
+  "adrs/deployment/docker-multi-stage-builds.md",
+  "adrs/deployment/env-connection-urls.md",
+  "adrs/deployment/container-per-process.md",
+  "adrs/deployment/local-dev-compose.md",
+]
+recommended = [
+  "adrs/dotnet/rfc7807-errors.md",
+  "adrs/dotnet/xunit-per-module-tests.md",
+  "adrs/dotnet/structured-logging.md",
+  "adrs/deployment/github-actions-ci.md",
+  "adrs/database/uuid-primary-keys.md",
+  "adrs/database/snake-case-naming.md",
+  "adrs/database/timestamptz-always.md",
+  "adrs/api/rest-envelope.md",
+  "adrs/api/jwt-bearer-auth.md",
+  "adrs/angular/separate-template-file.md",
+  "adrs/angular/signals-state.md",
+  "adrs/angular/tailwind-no-css.md",
+  "adrs/ai/rag-pgvector.md",
+  "adrs/ai/conversation-history.md",
+  "adrs/deployment/nginx-spa-proxy.md",
+]
+optional = [
+  "adrs/database/soft-deletes.md",
+  "adrs/api/offset-pagination.md",
+  "adrs/api/role-based-authorization.md",
+]
+
+[profile.dotnet-angular-clean-architecture-aws-lambda]
+required = [
+  "adrs/dotnet/clean-architecture-layers.md",
+  "adrs/dotnet/cqrs-handlers.md",
+  "adrs/dotnet/rich-domain-entities.md",
+  "adrs/dotnet/result-pattern-errors.md",
+  "adrs/dotnet/event-driven-reactors.md",
+  "adrs/dotnet/dto-at-boundary.md",
+  "adrs/dotnet/async-all-the-way.md",
+  "adrs/dotnet/cross-module-by-id.md",
+  "adrs/deployment/aws-lambda-serverless.md",
+  "adrs/deployment/aws-sam-infrastructure.md",
+  "adrs/deployment/aws-secrets-parameters.md",
+  "adrs/deployment/flyway-migrations.md",
+]
+recommended = [
+  "adrs/dotnet/xunit-per-module-tests.md",
+  "adrs/dotnet/structured-logging.md",
+  "adrs/deployment/github-actions-ci.md",
+  "adrs/database/uuid-primary-keys.md",
+  "adrs/database/lowercase-naming.md",
+  "adrs/database/timestamptz-always.md",
+  "adrs/api/jwt-bearer-auth.md",
+  "adrs/deployment/queue-based-decoupling.md",
+  "adrs/deployment/idempotent-queue-consumers.md",
+  "adrs/deployment/correlation-propagation.md",
+  "adrs/deployment/aws-batch-workers.md",
+  "adrs/angular/standalone-components.md",
+  "adrs/angular/signals-state.md",
+  "adrs/angular/tailwind-no-css.md",
+]
+optional = [
+  "adrs/deployment/tauri-desktop-shell.md",
+  "adrs/deployment/maintenance-cli-scheduler.md",
+  "adrs/deployment/fifo-ordered-processing.md",
+  "adrs/deployment/eventbridge-domain-events.md",
+  "adrs/database/soft-deletes.md",
+  "adrs/api/rest-envelope.md",
+  "adrs/api/offset-pagination.md",
+  "adrs/api/role-based-authorization.md",
+  "adrs/angular/separate-template-file.md",
+]
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/angular/separate-template-file.md"]
+summary = "Component templates in separate `.html` files."
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/angular/signals-state.md"]
+alternative = "RxJS BehaviorSubjects"
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/angular/tailwind-no-css.md"]
+alternative = "Component-scoped SCSS"
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/api/jwt-bearer-auth.md"]
+alternative = "Cognito / API Gateway JWT authorizer (managed alternative)"
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/api/offset-pagination.md"]
+summary = "Offset pagination with page/pageSize. Requires `rest-envelope`."
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/database/soft-deletes.md"]
+summary = "Soft deletion via `IsActive` flag or `DeletedAt` column."
+when_to_include = "Entities needing audit trails or undo"
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/database/timestamptz-always.md"]
+summary = "All datetimes are `timestamptz`. C# uses `DateTimeOffset`."
+alternative = "`timestamp` without timezone (loses context)"
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/database/uuid-primary-keys.md"]
+summary = "All PKs are UUIDs. Generated server-side with `Guid.NewGuid()`."
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/dotnet/async-all-the-way.md"]
+summary = "All I/O uses async/await. EF Core async methods throughout."
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/dotnet/cross-module-by-id.md"]
+summary = "Modules reference each other by `Guid` ID only. No cross-module navigation properties."
+depends_on = "`clean-architecture-layers`"
+
+[profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/dotnet/dto-at-boundary.md"]
+summary = "Never expose EF entities via API. DTOs (Context models) at the boundary. Mapping in handlers."
+depends_on = "`cqrs-handlers`"
+
+[profile.dotnet-angular-modular-monolith-docker-compose]
+required = [
+  "adrs/dotnet/modular-monolith.md",
+  "adrs/dotnet/dbcontext-per-module.md",
+  "adrs/dotnet/cross-module-by-id.md",
+  "adrs/dotnet/thin-api-host.md",
+  "adrs/dotnet/service-layer-logic.md",
+  "adrs/dotnet/dto-at-boundary.md",
+  "adrs/dotnet/async-all-the-way.md",
+  "adrs/angular/standalone-components.md",
+  "adrs/deployment/docker-multi-stage-builds.md",
+  "adrs/deployment/env-connection-urls.md",
+  "adrs/deployment/container-per-process.md",
+  "adrs/deployment/local-dev-compose.md",
+]
+recommended = [
+  "adrs/dotnet/rfc7807-errors.md",
+  "adrs/dotnet/xunit-per-module-tests.md",
+  "adrs/dotnet/structured-logging.md",
+  "adrs/deployment/github-actions-ci.md",
+  "adrs/database/uuid-primary-keys.md",
+  "adrs/database/snake-case-naming.md",
+  "adrs/database/timestamptz-always.md",
+  "adrs/api/rest-envelope.md",
+  "adrs/api/jwt-bearer-auth.md",
+  "adrs/angular/separate-template-file.md",
+  "adrs/angular/signals-state.md",
+  "adrs/angular/tailwind-no-css.md",
+  "adrs/deployment/nginx-spa-proxy.md",
+]
+optional = [
+  "adrs/database/soft-deletes.md",
+  "adrs/api/offset-pagination.md",
+  "adrs/api/role-based-authorization.md",
+]
+
+[profile.dotnet-multitenant-event-driven-aws-lambda]
+required = [
+  "adrs/dotnet/clean-architecture-layers.md",
+  "adrs/dotnet/cqrs-handlers.md",
+  "adrs/dotnet/rich-domain-entities.md",
+  "adrs/dotnet/result-pattern-errors.md",
+  "adrs/dotnet/event-driven-reactors.md",
+  "adrs/dotnet/dto-at-boundary.md",
+  "adrs/dotnet/async-all-the-way.md",
+  "adrs/dotnet/cross-module-by-id.md",
+  "adrs/dotnet/module-facade.md",
+  "adrs/database/database-per-tenant.md",
+  "adrs/database/schema-per-module.md",
+  "adrs/database/dynamodb-hot-path.md",
+  "adrs/deployment/dbup-migrations.md",
+  "adrs/api/cognito-authentication.md",
+  "adrs/deployment/aws-lambda-serverless.md",
+  "adrs/deployment/aws-sam-infrastructure.md",
+  "adrs/deployment/aws-secrets-parameters.md",
+  "adrs/deployment/queue-based-decoupling.md",
+  "adrs/deployment/idempotent-queue-consumers.md",
+]
+recommended = [
+  "adrs/database/transactional-outbox.md",
+  "adrs/api/external-provider-bridge.md",
+  "adrs/deployment/iot-mqtt-push.md",
+  "adrs/api/machine-to-machine-auth.md",
+  "adrs/deployment/s3-object-storage.md",
+  "adrs/deployment/correlation-propagation.md",
+  "adrs/api/role-based-authorization.md",
+  "adrs/dotnet/xunit-per-module-tests.md",
+  "adrs/dotnet/structured-logging.md",
+  "adrs/deployment/github-actions-ci.md",
+  "adrs/database/uuid-primary-keys.md",
+  "adrs/database/lowercase-naming.md",
+  "adrs/database/timestamptz-always.md",
+  "adrs/api/rest-envelope.md",
+  "adrs/deployment/maintenance-cli-scheduler.md",
+]
+optional = [
+  "adrs/api/offset-pagination.md",
+  "adrs/database/soft-deletes.md",
+  "adrs/deployment/aws-batch-workers.md",
+  "adrs/deployment/fifo-ordered-processing.md",
+  "adrs/deployment/eventbridge-domain-events.md",
+  "adrs/dotnet/strategy-dispatch.md",
+]
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/api/offset-pagination.md"]
+summary = "Offset pagination with page/pageSize. Requires `rest-envelope`."
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/api/rest-envelope.md"]
+summary = "All 2xx responses wrapped in `{ data, meta }` envelope."
+alternative = "Bare payloads (loses uniform meta)"
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/api/role-based-authorization.md"]
+summary = "Role gates at the endpoint layer + ownership checks next to the data. Deny by default."
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/database/soft-deletes.md"]
+summary = "Soft deletion via `IsActive` flag or `DeletedAt` column."
+when_to_include = "Entities needing audit trails or undo"
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/database/timestamptz-always.md"]
+summary = "All datetimes are `timestamptz`. C# uses `DateTimeOffset`."
+alternative = "`timestamp` without timezone (loses context)"
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/database/uuid-primary-keys.md"]
+summary = "All PKs are UUIDs, generated server-side."
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/deployment/aws-batch-workers.md"]
+summary = "Compute-heavy jobs on AWS Batch (Fargate) with dual-mode Program.cs."
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/deployment/correlation-propagation.md"]
+summary = "One correlation ID from ingress through every queue hop, log scope, outbox row, and push payload."
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/deployment/maintenance-cli-scheduler.md"]
+summary = "Maintenance routines runnable via operator CLI and scheduled worker (EventBridge rule per routine)."
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/dotnet/async-all-the-way.md"]
+summary = "All I/O uses async/await. EF Core async methods throughout."
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/dotnet/cross-module-by-id.md"]
+summary = "Modules reference each other by `Guid` ID only. No cross-module navigation properties."
+depends_on = "`clean-architecture-layers`"
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/dotnet/dto-at-boundary.md"]
+summary = "Never expose EF entities via API. DTOs (Context models) at the boundary. Mapping in handlers."
+depends_on = "`cqrs-handlers`"
+
+[profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/dotnet/xunit-per-module-tests.md"]
+summary = "xUnit test projects mirroring modules/layers. Real PostgreSQL for data-access tests."
+
+[profile.python-react-ai-agent-docker-compose]
+required = [
+  "adrs/python/fastapi-framework.md",
+  "adrs/python/modular-packages.md",
+  "adrs/python/service-layer-logic.md",
+  "adrs/python/pydantic-at-boundary.md",
+  "adrs/python/async-all-the-way.md",
+  "adrs/python/sqlalchemy-async.md",
+  "adrs/react/functional-components.md",
+  "adrs/ai/ai-module-python.md",
+  "adrs/ai/llm-abstraction-python.md",
+  "adrs/ai/tool-calling-via-services-python.md",
+  "adrs/deployment/docker-multi-stage-builds.md",
+  "adrs/deployment/env-connection-urls.md",
+  "adrs/deployment/container-per-process.md",
+  "adrs/deployment/local-dev-compose.md",
+]
+recommended = [
+  "adrs/python/rfc7807-errors.md",
+  "adrs/python/celery-background-jobs.md",
+  "adrs/python/pytest-testing.md",
+  "adrs/python/structured-logging.md",
+  "adrs/deployment/github-actions-ci.md",
+  "adrs/database/uuid-primary-keys.md",
+  "adrs/database/snake-case-naming.md",
+  "adrs/database/timestamptz-always.md",
+  "adrs/api/rest-envelope.md",
+  "adrs/api/jwt-bearer-auth.md",
+  "adrs/react/tanstack-query.md",
+  "adrs/react/tailwind-shadcn.md",
+  "adrs/ai/rag-pgvector-python.md",
+  "adrs/ai/conversation-history-python.md",
+  "adrs/deployment/nginx-spa-proxy.md",
+]
+optional = [
+  "adrs/database/soft-deletes.md",
+  "adrs/api/offset-pagination.md",
+  "adrs/api/role-based-authorization.md",
+]
+
+[profile.python-react-ai-agent-docker-compose.override."adrs/api/jwt-bearer-auth.md"]
+alternative = "API key auth (simpler for developer-facing APIs)"
+
+[profile.python-react-ai-agent-docker-compose.override."adrs/database/snake-case-naming.md"]
+summary = "snake_case tables/columns. Native to both Python and PostgreSQL."
+alternative = "— (already the natural convention)"
+
+[profile.python-react-ai-agent-docker-compose.override."adrs/database/timestamptz-always.md"]
+summary = "All datetimes are timestamptz. Python uses `datetime` with UTC timezone."
+
+[profile.python-react-ai-agent-docker-compose.override."adrs/database/uuid-primary-keys.md"]
+alternative = "Auto-increment integers (simpler but less secure for external APIs)"
+
+[profile.python-react-ai-agent-docker-compose.override."adrs/deployment/container-per-process.md"]
+summary = "API, worker, and frontend as separate containers. Same image + different command for backend services."
+
+[profile.python-react-ai-agent-docker-compose.override."adrs/deployment/docker-multi-stage-builds.md"]
+summary = "All components packaged as Docker images with multi-stage builds. Slim final stages."
+
+[profile.python-react-ai-agent-docker-compose.override."adrs/deployment/env-connection-urls.md"]
+summary = "All config via env vars. External services via connection URLs. Pydantic BaseSettings validates at startup."
+
+[profile.python-react-modular-monolith-docker-compose]
+required = [
+  "adrs/python/fastapi-framework.md",
+  "adrs/python/modular-packages.md",
+  "adrs/python/service-layer-logic.md",
+  "adrs/python/pydantic-at-boundary.md",
+  "adrs/python/async-all-the-way.md",
+  "adrs/python/sqlalchemy-async.md",
+  "adrs/react/functional-components.md",
+  "adrs/deployment/docker-multi-stage-builds.md",
+  "adrs/deployment/env-connection-urls.md",
+  "adrs/deployment/container-per-process.md",
+  "adrs/deployment/local-dev-compose.md",
+]
+recommended = [
+  "adrs/python/rfc7807-errors.md",
+  "adrs/python/celery-background-jobs.md",
+  "adrs/python/pytest-testing.md",
+  "adrs/python/structured-logging.md",
+  "adrs/deployment/github-actions-ci.md",
+  "adrs/database/uuid-primary-keys.md",
+  "adrs/database/snake-case-naming.md",
+  "adrs/database/timestamptz-always.md",
+  "adrs/api/rest-envelope.md",
+  "adrs/api/jwt-bearer-auth.md",
+  "adrs/react/tanstack-query.md",
+  "adrs/react/tailwind-shadcn.md",
+  "adrs/deployment/nginx-spa-proxy.md",
+]
+optional = [
+  "adrs/database/soft-deletes.md",
+  "adrs/api/offset-pagination.md",
+  "adrs/api/role-based-authorization.md",
+]
+
+[profile.python-react-modular-monolith-docker-compose.override."adrs/api/jwt-bearer-auth.md"]
+alternative = "API key auth (simpler for developer-facing APIs)"
+
+[profile.python-react-modular-monolith-docker-compose.override."adrs/database/snake-case-naming.md"]
+summary = "snake_case tables/columns. Native to both Python and PostgreSQL."
+alternative = "— (already the natural convention for Python + PostgreSQL)"
+
+[profile.python-react-modular-monolith-docker-compose.override."adrs/database/timestamptz-always.md"]
+summary = "All datetimes are timestamptz. Python uses `datetime` with UTC timezone."
+
+[profile.python-react-modular-monolith-docker-compose.override."adrs/database/uuid-primary-keys.md"]
+alternative = "Auto-increment integers (simpler but less secure for external APIs)"
+
+[profile.python-react-modular-monolith-docker-compose.override."adrs/deployment/container-per-process.md"]
+summary = "API, worker, and frontend as separate containers. Same image + different command for backend services."
+
+[profile.python-react-modular-monolith-docker-compose.override."adrs/deployment/docker-multi-stage-builds.md"]
+summary = "All components packaged as Docker images with multi-stage builds. Slim final stages."
+
+[profile.python-react-modular-monolith-docker-compose.override."adrs/deployment/env-connection-urls.md"]
+summary = "All config via env vars. External services via connection URLs. Pydantic BaseSettings validates at startup."
+
+[profile.typescript-ai-agent-cli-npm]
+required = [
+  "adrs/typescript/strict-typescript.md",
+  "adrs/typescript/named-exports.md",
+  "adrs/typescript/functional-composition.md",
+  "adrs/typescript/types-at-boundary.md",
+  "adrs/typescript/core-adapter-pattern.md",
+  "adrs/typescript/vitest-colocated.md",
+  "adrs/deployment/npm-cli-package.md",
+  "adrs/deployment/env-connection-urls.md",
+  "adrs/deployment/zod-config-validation.md",
+  "adrs/ai/claude-agent-sdk.md",
+]
+recommended = [
+  "adrs/deployment/github-action-composite.md",
+  "adrs/deployment/github-actions-ci.md",
+]
+optional = []
+
+[profile.typescript-ai-agent-cli-npm.override."adrs/deployment/env-connection-urls.md"]
+summary = "All config via env vars. API keys and tokens via env vars. `.env.example` required."
+
+[profile.typescript-cli-tool-npm]
+required = [
+  "adrs/typescript/strict-typescript.md",
+  "adrs/typescript/named-exports.md",
+  "adrs/typescript/functional-composition.md",
+  "adrs/typescript/types-at-boundary.md",
+  "adrs/typescript/core-adapter-pattern.md",
+  "adrs/typescript/vitest-colocated.md",
+  "adrs/deployment/npm-cli-package.md",
+  "adrs/deployment/env-connection-urls.md",
+]
+recommended = [
+  "adrs/deployment/zod-config-validation.md",
+  "adrs/deployment/github-action-composite.md",
+  "adrs/deployment/github-actions-ci.md",
+]
+optional = [
+  "adrs/ai/claude-agent-sdk.md",
+]
+
+[profile.typescript-cli-tool-npm.override."adrs/ai/claude-agent-sdk.md"]
+summary = "Claude Agent SDK for AI-powered analysis. Direct integration, abstract later."
+
+[profile.typescript-cli-tool-npm.override."adrs/deployment/env-connection-urls.md"]
+summary = "All config via env vars. External service credentials via env vars. `.env.example` required."
+
+[profile.typescript-cli-tool-npm.override."adrs/deployment/zod-config-validation.md"]
+summary = "Zod for runtime validation of config files, env vars, and external input. Types derived from schemas."

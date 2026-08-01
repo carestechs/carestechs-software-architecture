@@ -114,8 +114,9 @@ myapp/
 
 These ADRs define the fundamental architecture. Removing any of them breaks the coherence of the stack.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | Depends On |
-|-----|---------|------------|
+|-----|---------|-------------|
 | `adrs/python/fastapi-framework.md` | FastAPI as the web framework. Async-native, auto OpenAPI docs, Pydantic validation. | — |
 | `adrs/python/modular-packages.md` | Feature modules as Python packages under `src/app/modules/`. Clear boundaries, shared contracts. | `fastapi-framework` |
 | `adrs/python/service-layer-logic.md` | Route handlers are thin. All business logic in service functions/classes. | — |
@@ -132,6 +133,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 
 These are battle-tested defaults. You can swap them, but you should have a good reason.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | Alternative |
 |-----|---------|-------------|
 | `adrs/python/rfc7807-errors.md` | RFC 9457 Problem Details for all errors. Global exception handlers override FastAPI's default error shape. | Custom error envelope (not recommended) |
@@ -152,8 +154,9 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 
 These address specific concerns that not every project has.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | When to Include |
-|-----|---------|-----------------|
+|-----|---------|-------------|
 | `adrs/database/soft-deletes.md` | Soft deletion via nullable `deleted_at` column. | Projects needing audit trails or undo capability |
 | `adrs/api/offset-pagination.md` | Offset pagination with page/pageSize/sortBy/sortDir. Requires `rest-envelope`. | Any project with list endpoints |
 | `adrs/api/role-based-authorization.md` | Role gates at the endpoint layer + ownership checks in services. Deny by default. Requires `jwt-bearer-auth`. | Policy engine (OPA/Casbin) at larger scale |
