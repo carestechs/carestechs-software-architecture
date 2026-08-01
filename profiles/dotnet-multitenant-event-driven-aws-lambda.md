@@ -79,8 +79,9 @@ MyPlatform/
 
 These ADRs define the fundamental architecture. Removing any of them breaks the coherence of the stack.
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | Depends On |
-|-----|---------|------------|
+|-----|---------|-------------|
 | `adrs/dotnet/clean-architecture-layers.md` | Four projects per module: Domain, Application, Data, Api. Dependencies flow inward. | — |
 | `adrs/dotnet/cqrs-handlers.md` | Commands and Queries with dedicated Handler classes. No service layer. No MediatR. | `clean-architecture-layers` |
 | `adrs/dotnet/rich-domain-entities.md` | Private setters, static `Create()` factory, business logic in entities. | `clean-architecture-layers` |
@@ -103,6 +104,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 
 ## Recommended (strong defaults — can be swapped with noted alternatives)
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | Alternative |
 |-----|---------|-------------|
 | `adrs/database/transactional-outbox.md` | Correctness-critical events written in-transaction, drained by a scheduled dispatcher; latency-critical hints may bypass with a reconciliation path. | Direct enqueue everywhere (accepts lost events on crash) |
@@ -123,8 +125,9 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 
 ## Optional (pick based on project needs)
 
+<!-- generated from profiles/profiles.toml — edit the manifest and run scripts/generate_profiles.py -->
 | ADR | Summary | When to Include |
-|-----|---------|-----------------|
+|-----|---------|-------------|
 | `adrs/api/offset-pagination.md` | Offset pagination with page/pageSize. Requires `rest-envelope`. | Any project with list endpoints |
 | `adrs/database/soft-deletes.md` | Soft deletion via `IsActive` flag or `DeletedAt` column. | Entities needing audit trails or undo |
 | `adrs/deployment/aws-batch-workers.md` | Compute-heavy jobs on AWS Batch (Fargate) with dual-mode Program.cs. | Media transcoding, bulk imports beyond Lambda limits |
