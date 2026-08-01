@@ -7,11 +7,31 @@ namespace MyApp.Modules.Catalog.Services;
 
 public class CatalogService(CatalogDbContext db) : ICatalogService, Contracts.ICatalogService
 {
-    public async Task<IReadOnlyList<ProductDto>> ListProductsAsync(CancellationToken cancellationToken)
+    public async Task<(IReadOnlyList<ProductDto> Items, int TotalCount)> ListProductsAsync(
+        PaginationParams pagination, CancellationToken cancellationToken)
     {
-        var products = await db.Products.OrderBy(p => p.CreatedAt).ToListAsync(cancellationToken);
-        return products.Select(ToDto).ToList();
+        var total = await db.Products.CountAsync(cancellationToken);
+        var products = await ApplySort(db.Products, pagination.SortBy, pagination.SortDir)
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
+            .ToListAsync(cancellationToken);
+        return (products.Select(ToDto).ToList(), total);
     }
+
+    // Sortable columns are an allowlist — raw client input never reaches
+    // ORDER BY (adrs/api/offset-pagination.md)
+    private static IQueryable<Product> ApplySort(IQueryable<Product> query, string sortBy, string sortDir) =>
+        (sortBy, Descending: sortDir == "desc") switch
+        {
+            ("createdAt", false) => query.OrderBy(p => p.CreatedAt),
+            ("createdAt", true) => query.OrderByDescending(p => p.CreatedAt),
+            ("name", false) => query.OrderBy(p => p.Name),
+            ("name", true) => query.OrderByDescending(p => p.Name),
+            ("sku", false) => query.OrderBy(p => p.Sku),
+            ("sku", true) => query.OrderByDescending(p => p.Sku),
+            _ => throw new BadRequestException(
+                $"Unknown sortBy '{sortBy}'. Sortable: createdAt, name, sku."),
+        };
 
     public async Task<ProductDto> CreateProductAsync(CreateProductRequest request, CancellationToken cancellationToken)
     {

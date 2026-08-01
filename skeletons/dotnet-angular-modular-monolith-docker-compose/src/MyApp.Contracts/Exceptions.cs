@@ -19,6 +19,12 @@ public sealed class ConflictException(string detail) : AppException(detail)
     public override string Title => "Conflict";
 }
 
+public sealed class BadRequestException(string detail) : AppException(detail)
+{
+    public override int StatusCode => StatusCodes.Status400BadRequest;
+    public override string Title => "Bad Request";
+}
+
 public sealed class UnauthorizedException(string detail) : AppException(detail)
 {
     public override int StatusCode => StatusCodes.Status401Unauthorized;
@@ -33,6 +39,7 @@ public sealed class ForbiddenException(string detail) : AppException(detail)
 
 internal static class StatusCodes
 {
+    public const int Status400BadRequest = 400;
     public const int Status401Unauthorized = 401;
     public const int Status403Forbidden = 403;
     public const int Status404NotFound = 404;

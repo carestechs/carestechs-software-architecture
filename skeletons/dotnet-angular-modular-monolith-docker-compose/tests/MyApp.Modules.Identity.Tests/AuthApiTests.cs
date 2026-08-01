@@ -106,6 +106,47 @@ public class AuthApiTests(IdentityApiFixture fixture) : IClassFixture<IdentityAp
         }
     }
 
+    [Fact]
+    public async Task Logout_RevokesTheRefreshFamily()
+    {
+        var client = CreateRawClient();
+        var login = await client.PostAsJsonAsync(
+            "/api/auth/login",
+            new { email = "agent@example.com", password = "Agent123!" },
+            TestContext.Current.CancellationToken);
+        var refreshToken = ExtractRefreshToken(login);
+
+        // CSRF guard applies to logout exactly as to refresh
+        var noHeader = new HttpRequestMessage(HttpMethod.Post, "/api/auth/logout");
+        noHeader.Headers.Add("Cookie", $"refresh_token={refreshToken}");
+        var forbidden = await client.SendAsync(noHeader, TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.Forbidden, forbidden.StatusCode);
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/auth/logout");
+        request.Headers.Add("Cookie", $"refresh_token={refreshToken}");
+        request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        // the cookie is cleared on the way out
+        var cleared = Assert.Single(response.Headers.GetValues("Set-Cookie"));
+        Assert.Contains("refresh_token=", cleared);
+        Assert.Contains("path=/api/auth", cleared.ToLowerInvariant());
+
+        // the revoked family can no longer refresh
+        var reuse = await Refresh(client, refreshToken);
+        Assert.Equal(HttpStatusCode.Unauthorized, reuse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Logout_WithoutACookie_IsANoOp()
+    {
+        var client = CreateRawClient();
+        var request = new HttpRequestMessage(HttpMethod.Post, "/api/auth/logout");
+        request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+        var response = await client.SendAsync(request, TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
     private static HttpRequestMessage ForRole(HttpClient client, string url, object payload, string token)
     {
         var request = new HttpRequestMessage(HttpMethod.Post, url)
