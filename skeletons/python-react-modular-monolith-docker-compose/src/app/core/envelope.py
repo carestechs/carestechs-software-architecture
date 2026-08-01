@@ -7,6 +7,8 @@ T = TypeVar("T")
 
 class Meta(BaseModel):
     total_count: int | None = Field(default=None, serialization_alias="totalCount")
+    page: int | None = None
+    page_size: int | None = Field(default=None, serialization_alias="pageSize")
 
 
 class Envelope(BaseModel, Generic[T]):

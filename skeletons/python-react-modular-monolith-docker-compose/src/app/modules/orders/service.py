@@ -21,6 +21,25 @@ async def create_order(
     return order, product
 
 
+async def build_receipt(order_id: UUID) -> dict:
+    """Runs outside any HTTP request (Celery worker): the session comes from the
+    shared factory, never from FastAPI Depends
+    (adrs/python/celery-background-jobs.md)."""
+    from app.core.database import async_session_factory
+
+    async with async_session_factory() as session:
+        order = await session.get(Order, order_id)
+        if order is None:
+            return {"status": "not_found", "orderId": str(order_id)}
+        return {
+            "status": "ready",
+            "orderId": str(order.id),
+            "productId": str(order.product_id),
+            "quantity": order.quantity,
+            "createdAt": order.created_at.isoformat(),
+        }
+
+
 async def get_order(
     session: AsyncSession, catalog: CatalogService, order_id: UUID, caller: CurrentUser
 ) -> tuple[Order, ProductSummary | None]:

@@ -50,6 +50,22 @@ async def issue_refresh_token(
     return raw
 
 
+async def revoke_refresh_family(session: AsyncSession, raw: str) -> None:
+    """Logout: revoke the whole family of the presented token. Idempotent —
+    unknown tokens are a no-op (adrs/api/jwt-bearer-auth.md)."""
+    result = await session.execute(
+        select(RefreshToken).where(RefreshToken.token_hash == security.hash_refresh_token(raw))
+    )
+    token = result.scalar_one_or_none()
+    if token is None:
+        return
+    await session.execute(
+        update(RefreshToken)
+        .where(RefreshToken.family_id == token.family_id, RefreshToken.revoked_at.is_(None))
+        .values(revoked_at=datetime.now(timezone.utc))
+    )
+
+
 async def rotate_refresh_token(session: AsyncSession, raw: str) -> tuple[User, str]:
     """Rotate on every use; reuse of an already-rotated token revokes the family
     (adrs/api/jwt-bearer-auth.md)."""

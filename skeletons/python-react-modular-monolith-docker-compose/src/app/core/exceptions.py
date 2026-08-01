@@ -32,6 +32,11 @@ class ConflictError(AppError):
     title = "Conflict"
 
 
+class BadRequestError(AppError):
+    status_code = status.HTTP_400_BAD_REQUEST
+    title = "Bad Request"
+
+
 class UnauthorizedError(AppError):
     status_code = status.HTTP_401_UNAUTHORIZED
     title = "Unauthorized"
