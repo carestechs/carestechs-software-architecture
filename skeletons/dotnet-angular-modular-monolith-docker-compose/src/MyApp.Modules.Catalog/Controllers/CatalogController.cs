@@ -15,10 +15,12 @@ public class CatalogController(ICatalogService catalogService) : ControllerBase
 {
     [AllowAnonymous] // public catalog reads, deliberate
     [HttpGet]
-    public async Task<ActionResult<ApiListResponse<ProductDto>>> ListProducts(CancellationToken cancellationToken)
+    public async Task<ActionResult<ApiListResponse<ProductDto>>> ListProducts(
+        [FromQuery] PaginationParams pagination, CancellationToken cancellationToken)
     {
-        var products = await catalogService.ListProductsAsync(cancellationToken);
-        return Ok(new ApiListResponse<ProductDto>(products, new ResponseMeta(products.Count)));
+        var (products, total) = await catalogService.ListProductsAsync(pagination, cancellationToken);
+        return Ok(new ApiListResponse<ProductDto>(
+            products, new ResponseMeta(total, pagination.Page, pagination.PageSize)));
     }
 
     [Authorize(Roles = "admin")] // endpoint-layer role gate

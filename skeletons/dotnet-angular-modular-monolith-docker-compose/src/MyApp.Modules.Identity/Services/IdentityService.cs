@@ -79,6 +79,24 @@ public class IdentityService(IdentityDbContext db, IPasswordHasher<User> passwor
         return (new AuthenticatedUser(user.Id, user.Role), newRaw);
     }
 
+    public async Task RevokeRefreshFamilyAsync(string rawToken, CancellationToken cancellationToken)
+    {
+        // Logout: revoke the whole family of the presented token. Idempotent —
+        // unknown tokens are a no-op (adrs/api/jwt-bearer-auth.md).
+        var hash = HashToken(rawToken);
+        var token = await db.RefreshTokens.FirstOrDefaultAsync(
+            t => t.TokenHash == hash, cancellationToken);
+        if (token is null)
+        {
+            return;
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        await db.RefreshTokens
+            .Where(t => t.FamilyId == token.FamilyId && t.RevokedAt == null)
+            .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, now), cancellationToken);
+    }
+
     private async Task<string> IssueAsync(
         Guid userId, Guid familyId, DateTimeOffset expiresAt, CancellationToken cancellationToken)
     {

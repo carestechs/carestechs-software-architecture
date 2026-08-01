@@ -51,6 +51,21 @@ async def login(
     return _token_envelope(user.id, user.role)
 
 
+@router.post("/logout", status_code=204)
+async def logout(
+    response: Response,
+    session: AsyncSession = Depends(get_session),
+    refresh_token: Annotated[str | None, Cookie()] = None,
+    x_requested_with: Annotated[str, Header()] = "",
+) -> None:
+    # same CSRF guard as refresh — this endpoint is cookie-authenticated
+    if x_requested_with != "XMLHttpRequest":
+        raise ForbiddenError("Missing the X-Requested-With header.")
+    if refresh_token:
+        await service.revoke_refresh_family(session, refresh_token)
+    response.delete_cookie(REFRESH_COOKIE, path="/api/auth")
+
+
 @router.post("/refresh", response_model=Envelope[TokenRead])
 async def refresh(
     response: Response,

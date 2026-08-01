@@ -48,6 +48,25 @@ public class AuthController(
         return Ok(new ApiResponse<TokenResponse>(tokenService.CreateFor(user.Id, user.Role)));
     }
 
+    [AllowAnonymous]
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(CancellationToken cancellationToken)
+    {
+        // same CSRF guard as refresh — this endpoint is cookie-authenticated
+        if (Request.Headers.XRequestedWith != "XMLHttpRequest")
+        {
+            throw new ForbiddenException("Missing the X-Requested-With header.");
+        }
+
+        if (Request.Cookies[RefreshCookie] is { Length: > 0 } raw)
+        {
+            await identityService.RevokeRefreshFamilyAsync(raw, cancellationToken);
+        }
+
+        Response.Cookies.Delete(RefreshCookie, new CookieOptions { Path = "/api/auth" });
+        return NoContent();
+    }
+
     private void SetRefreshCookie(string raw)
     {
         // httpOnly + SameSite=Strict + path-scoped to the auth endpoints; Secure

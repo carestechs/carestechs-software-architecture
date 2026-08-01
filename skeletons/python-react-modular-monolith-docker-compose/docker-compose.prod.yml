@@ -5,12 +5,22 @@ services:
     build: .
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@infra-postgres:5432/app
+      REDIS_URL: redis://infra-redis:6379/0
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
       interval: 10s
       timeout: 5s
       retries: 5
+    networks: [infra]
+
+  worker:
+    build: .
+    command: celery -A app.core.celery:celery_app worker --loglevel=info
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@infra-postgres:5432/app
+      REDIS_URL: redis://infra-redis:6379/0
+    restart: unless-stopped
     networks: [infra]
 
   frontend:

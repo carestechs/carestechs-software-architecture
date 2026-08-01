@@ -17,9 +17,11 @@ tests, and builds. If a catalog change breaks this skeleton, the change — not 
 | stdlib logging: JSON handler, request-ID contextvar filter | `python/structured-logging` |
 | JWT auth: 15-min HS256 access tokens (explicit alg allowlist, iss/aud, 60s leeway), refresh rotation with family revocation on reuse, httpOnly `SameSite=Strict` cookie scoped to `/api/auth`, CSRF header guard on refresh | `api/jwt-bearer-auth` |
 | Two-layer authorization: `require_role("admin")` endpoint gate on product writes; order ownership enforced in the service next to the data (404 for "not yours", so IDs leak nothing) | `api/role-based-authorization` |
+| Celery + Redis: config in `core/celery.py`, thin task (`orders/tasks.py`) bridging into the async service via `asyncio.run` + the shared session factory (engine disposed per loop), 202-with-task-id enqueue endpoint, status endpoint reading the result backend, worker container in prod compose | `python/celery-background-jobs` |
+| Offset pagination: shared `PaginationParams` dependency (`core/pagination.py`), 1-based page, `pageSize` capped at 100, allowlisted `sortBy`, `meta` reports `totalCount`/`page`/`pageSize` | `api/offset-pagination` |
 | pytest + pytest-asyncio, httpx ASGI client, per-test transaction rollback against real PostgreSQL | `python/pytest-testing` |
 | ruff config copied from `enforcement/python/` | enforcement layer |
-| React 19 + Vite + Tailwind v4 (`@theme`-era, no config file) + TanStack Query v5 (`isPending`) | `react/functional-components`, `react/tanstack-query`, `react/tailwind-shadcn` (partially) |
+| React 19 + Vite + Tailwind v4 + TanStack Query v5 (`isPending`) + shadcn/ui primitives (`components/ui/button`, `components/ui/input` — copied, fully owned) with `cn()` merging and `@theme` design tokens | `react/functional-components`, `react/tanstack-query`, `react/tailwind-shadcn` |
 | Multi-stage Dockerfiles, dev-infra vs prod-app compose split, nginx SPA proxy | `deployment/docker-multi-stage-builds`, `deployment/local-dev-compose`, `deployment/container-per-process`, `deployment/nginx-spa-proxy`, `deployment/env-connection-urls` |
 | CI: ruff + pytest (with a PostgreSQL service) + tsc + vite build + docker builds | `deployment/github-actions-ci` |
 
@@ -33,6 +35,9 @@ docker compose up -d
 python -m venv .venv && .venv/bin/pip install -e ".[dev]"
 .venv/bin/alembic upgrade head
 .venv/bin/uvicorn app.main:app --reload
+
+# celery worker (separate terminal; consumes the receipt queue)
+.venv/bin/celery -A app.core.celery:celery_app worker --loglevel=info
 
 # seed dev users (admin@example.com / Admin123!, agent@example.com / Agent123!)
 .venv/bin/python -m app.modules.identity.dev_seed
@@ -57,14 +62,13 @@ Every endpoint's access level is explicit (adrs/api/role-based-authorization.md)
 | `POST /api/products` | role `admin` |
 | `POST /api/orders` | any authenticated user (`created_by` stamped from claims) |
 | `GET /api/orders/{id}` | owner or `admin` — service-layer check, 404 otherwise |
+| `POST /api/auth/logout` | refresh cookie + `X-Requested-With` header — revokes the token family |
+| `POST /api/orders/{id}/receipt` | owner or `admin` — enqueues the receipt task, returns 202 + task id |
+| `GET /api/orders/receipts/{taskId}` | any authenticated user |
 | `GET /health` | anonymous |
 
 ## Deliberately not demonstrated (yet)
 
-- **Celery worker + Redis** (`python/celery-background-jobs`) — no background workload in the skeleton; compose omits Redis.
-- **shadcn/ui primitives** — the page uses no button/input/dialog primitives yet.
 - **An orders UI and a login UI** — the second module and the auth stack demonstrate backend rules; the React client only shows the public catalog. (A frontend would keep access tokens in memory only — never localStorage/sessionStorage.)
-- **Logout / token revocation endpoint** — the refresh-token model supports it (revoke the family); only the endpoint is omitted.
-- **Offset pagination** (Optional tier) — the list endpoint returns all rows with `meta.totalCount`.
 
 Additions must follow the profile's ADRs — this skeleton is held to the same constraints it demonstrates.

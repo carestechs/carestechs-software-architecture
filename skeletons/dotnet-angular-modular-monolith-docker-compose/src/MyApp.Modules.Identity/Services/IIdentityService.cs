@@ -9,4 +9,5 @@ public interface IIdentityService
     Task<AuthenticatedUser> AuthenticateAsync(string email, string password, CancellationToken cancellationToken);
     Task<string> IssueRefreshTokenAsync(Guid userId, CancellationToken cancellationToken);
     Task<(AuthenticatedUser User, string NewToken)> RotateRefreshTokenAsync(string rawToken, CancellationToken cancellationToken);
+    Task RevokeRefreshFamilyAsync(string rawToken, CancellationToken cancellationToken);
 }

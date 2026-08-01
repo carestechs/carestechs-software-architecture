@@ -65,6 +65,58 @@ public class CatalogApiTests(CatalogApiFixture fixture) : IClassFixture<CatalogA
         Assert.Equal(2, errors.EnumerateObject().Count());
     }
 
+    [Fact]
+    public async Task Pagination_SlicesAndReportsMeta()
+    {
+        var client = await AdminClient();
+        foreach (var (sku, name) in new[] { ("PAG-A", "Alpha"), ("PAG-B", "Beta"), ("PAG-C", "Gamma") })
+        {
+            var seeded = await client.PostAsJsonAsync(
+                "/api/products", new { sku, name }, TestContext.Current.CancellationToken);
+            Assert.Equal(HttpStatusCode.Created, seeded.StatusCode);
+        }
+
+        var response = await client.GetAsync(
+            "/api/products?page=1&pageSize=2", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        using var body = await ReadJson(response);
+        Assert.Equal(2, body.RootElement.GetProperty("data").GetArrayLength());
+        var meta = body.RootElement.GetProperty("meta");
+        Assert.True(meta.GetProperty("totalCount").GetInt32() >= 3); // fixture DB accumulates across the class
+        Assert.Equal(1, meta.GetProperty("page").GetInt32());
+        Assert.Equal(2, meta.GetProperty("pageSize").GetInt32());
+    }
+
+    [Fact]
+    public async Task Sorting_IsAllowlisted()
+    {
+        var client = await AdminClient();
+
+        var descending = await client.GetAsync(
+            "/api/products?sortBy=name&sortDir=desc&pageSize=100", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.OK, descending.StatusCode);
+        using var body = await ReadJson(descending);
+        var names = body.RootElement.GetProperty("data").EnumerateArray()
+            .Select(p => p.GetProperty("name").GetString()!).ToList();
+        Assert.Equal(names.OrderByDescending(n => n, StringComparer.Ordinal).ToList(), names);
+
+        // raw client input never reaches ORDER BY (adrs/api/offset-pagination.md)
+        var unknown = await client.GetAsync(
+            "/api/products?sortBy=passwordHash", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.BadRequest, unknown.StatusCode);
+        Assert.StartsWith(Problem, unknown.Content.Headers.ContentType!.ToString());
+    }
+
+    [Fact]
+    public async Task PageSize_IsCappedAt100()
+    {
+        var client = fixture.CreateClient();
+        var response = await client.GetAsync(
+            "/api/products?pageSize=101", TestContext.Current.CancellationToken);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.StartsWith(Problem, response.Content.Headers.ContentType!.ToString());
+    }
+
     private async Task<HttpClient> AdminClient()
     {
         var client = fixture.CreateClient();

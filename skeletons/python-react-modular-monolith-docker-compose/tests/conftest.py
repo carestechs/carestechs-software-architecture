@@ -9,6 +9,11 @@ os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 # Secure cookies are not sent over http by the test client; debug mode keeps the
 # refresh cookie testable (production always runs behind TLS)
 os.environ["DEBUG"] = "1"
+# Celery in tests: in-memory broker (202/enqueue works without Redis) and an
+# in-memory result backend; the bridge itself is exercised by a direct task
+# invocation test (adrs/python/celery-background-jobs.md)
+os.environ["REDIS_URL"] = "memory://"
+os.environ["CELERY_RESULT_BACKEND"] = "cache+memory://"
 
 from collections.abc import AsyncIterator
 
