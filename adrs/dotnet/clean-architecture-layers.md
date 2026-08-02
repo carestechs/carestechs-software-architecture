@@ -5,6 +5,7 @@ status: Active
 requires: []
 conflicts_with:
   - adrs/dotnet/modular-monolith.md
+  - adrs/dotnet/single-project-monolith.md
 last_reviewed: 2026-07-29
 ---
 

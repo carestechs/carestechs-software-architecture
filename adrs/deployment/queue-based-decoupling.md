@@ -4,7 +4,8 @@ stack: dotnet
 status: Active
 requires:
   - adrs/dotnet/event-driven-reactors.md | adrs/dotnet/service-layer-logic.md
-conflicts_with: []
+conflicts_with:
+  - adrs/dotnet/in-process-background-jobs.md
 last_reviewed: 2026-08-01
 ---
 

@@ -4,7 +4,8 @@ stack: any
 status: Active
 requires:
   - adrs/deployment/docker-multi-stage-builds.md
-conflicts_with: []
+conflicts_with:
+  - adrs/deployment/spa-served-by-api.md
 last_reviewed: 2026-07-29
 ---
 
