@@ -17,7 +17,7 @@ which is which.
 | **Cognito** (`cognito-authentication`): pre-token tenant-claim enrichment | **Stand-in** — the real handler runs against a recorded trigger-event fixture and the real DynamoDB directory; the API validates the same claim contract from a test issuer. Real Cognito pools/triggers are phase-3 |
 | **IoT MQTT push** (`iot-mqtt-push`): custom-authorizer policy scoped to the caller's own topic subtree | **Stand-in** — the policy builder is a pure function, tested for scoping (wildcards only below the user segment). Real IoT wiring is phase-3 |
 | SAM stack (API fn, queue + DLQ + redrive, scheduled outbox dispatcher, DDB tables) | **Linted only** — `sam validate --lint`, `cfn-lint`, `sam build` |
-| Deployment, IAM, API Gateway authorizers, real Lambda invocation | **Not proven** — phase-3 real-AWS smoke |
+| Deployment, IAM, API Gateway authorizers, real Lambda invocation | **Not proven** — the phase-3 workflow exists dormant (`.github/workflows/aws-smoke.yml`); activation is a one-time sandbox setup (`docs/phase3-aws-smoke.md`) |
 
 ## What it demonstrates
 
