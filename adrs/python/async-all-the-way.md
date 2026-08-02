@@ -1,6 +1,7 @@
 ---
 category: python
 stack: python
+family: async-all-the-way
 status: Active
 requires:
   - adrs/python/fastapi-framework.md

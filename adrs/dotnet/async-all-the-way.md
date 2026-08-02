@@ -1,6 +1,7 @@
 ---
 category: dotnet
 stack: dotnet
+family: async-all-the-way
 status: Active
 requires: []
 conflicts_with: []

@@ -1,6 +1,7 @@
 ---
 category: dotnet
 stack: dotnet
+family: modular-monolith
 status: Active
 requires: []
 conflicts_with:

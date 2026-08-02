@@ -1,6 +1,7 @@
 ---
 category: dotnet
 stack: dotnet
+family: dto-at-boundary
 status: Active
 requires:
   - adrs/dotnet/service-layer-logic.md | adrs/dotnet/cqrs-handlers.md

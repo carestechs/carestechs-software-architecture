@@ -1,6 +1,7 @@
 ---
 category: python
 stack: python
+family: rfc7807-errors
 status: Active
 requires:
   - adrs/python/fastapi-framework.md

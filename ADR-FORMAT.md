@@ -43,6 +43,7 @@ last_reviewed: YYYY-MM-DD
 | `conflicts_with` | yes | Flat list of mutually exclusive ADR paths (`[]` when none). MUST be symmetric: if this ADR lists another, that ADR must list this one back. No alternatives. |
 | `last_reviewed` | no | `YYYY-MM-DD` — when the ADR was last verified against current framework/library versions. |
 | `superseded_by` | no | Path of the replacing ADR. Present if and only if `status: Superseded`. |
+| `family` | no | Kebab-case slug linking sibling ADRs that answer the same architectural question with per-stack or per-tool variants (e.g., `structured-logging` links the .NET and Python logging ADRs). Members must be exclusive per system — different concrete stacks or mutual `conflicts_with`. The validator enforces both, plus a review-drift warning: when one sibling is re-reviewed, re-verify the family together. |
 | `verify_against` | no | List of frameworks/packages (with major version where relevant) whose releases can invalidate this ADR's claims — e.g., `Tailwind CSS 4`, `TanStack Query 5`. Marks the ADR as version-sensitive: `python scripts/validate_adrs.py --stale [months]` lists version-sensitive ADRs whose `last_reviewed` has aged past the threshold (default 6 months). |
 
 Paths are repo-relative (`adrs/<category>/<file>.md`), plain — no backticks or quotes. The frontmatter is a strict subset of YAML enforced by `scripts/validate_adrs.py`.

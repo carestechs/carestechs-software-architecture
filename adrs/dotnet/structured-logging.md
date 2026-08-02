@@ -1,6 +1,7 @@
 ---
 category: dotnet
 stack: dotnet
+family: structured-logging
 status: Active
 requires: []
 conflicts_with:

@@ -1,6 +1,7 @@
 ---
 category: python
 stack: python
+family: service-layer-logic
 status: Active
 requires: []
 conflicts_with: []

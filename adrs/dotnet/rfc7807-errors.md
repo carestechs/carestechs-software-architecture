@@ -1,6 +1,7 @@
 ---
 category: dotnet
 stack: dotnet
+family: rfc7807-errors
 status: Active
 requires: []
 conflicts_with:
