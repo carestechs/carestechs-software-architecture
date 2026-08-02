@@ -3,6 +3,14 @@
 **Status:** Active
 **Assumes:** .NET 10+, Angular 20+, PostgreSQL, EF Core 10+ (with EF migrations), Docker Compose on one server
 
+## Golden Skeleton
+
+A buildable reference implementation lives at
+[`skeletons/dotnet-angular-simple-monolith-single-server/`](../skeletons/dotnet-angular-simple-monolith-single-server/)
+— one web project (Features folders, one `AppDbContext`), the in-process job pipeline, and the
+SPA-served-by-API Dockerfile, with CI building and testing it against real PostgreSQL on every
+push and pull request.
+
 ## Overview
 
 A curated set of ADRs for building a small product as ONE web project serving both its API and its Angular SPA from a single container, next to a PostgreSQL container, on one server. This is the catalog's entry rung: the fastest build-debug-deploy loop the catalog endorses, with the cross-cutting discipline (envelope, Problem Details, JWT auth, UUID/timestamptz, structured logging, CI) kept fully intact — stripping architecture never means stripping discipline.
