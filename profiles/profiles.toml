@@ -7,49 +7,29 @@
 # needs different wording declares [profile.<name>.override."<path>"].
 
 [adr."adrs/ai/ai-agent-module.md"]
-summary = "AI agent is a dedicated module (`MyApp.Modules.AI`) following all modular monolith conventions."
-depends_on = "`modular-monolith`, `dbcontext-per-module`, `cross-module-by-id`, `thin-api-host`, `service-layer-logic`, `dto-at-boundary`"
-
-[adr."adrs/ai/ai-module-python.md"]
-summary = "AI agent is a dedicated module (`src/app/modules/ai/`) following all modular monolith conventions."
-depends_on = "`modular-packages`, `service-layer-logic`, `pydantic-at-boundary`, `sqlalchemy-async`"
+summary = "AI agent is a dedicated feature module (own project/package, own AI-owned tables, own tools area) following all modular monolith conventions."
+depends_on = "`modular-monolith` / `modular-packages`"
 
 [adr."adrs/ai/claude-agent-sdk.md"]
 summary = "Claude Agent SDK for AI analysis. Single orchestrator component. AI responses validated as untrusted."
 depends_on = "`strict-typescript`"
 when_to_include = "Tools that use LLM-powered analysis, generation, or reasoning"
 
-[adr."adrs/ai/conversation-history-python.md"]
-summary = "Multi-turn conversation persistence with token-aware context windowing."
-alternative = "Stateless single-turn interactions (if no conversation continuity needed)"
-
 [adr."adrs/ai/conversation-history.md"]
-summary = "Multi-turn conversation persistence with token-aware context windowing."
-alternative = "Stateless single-turn interactions (if no conversation continuity needed)"
+summary = "Conversations/messages persisted in AI-module tables; token-aware pruning through a single context builder; system prompt and latest user message always survive."
+alternative = "Prune-only vs persisted-summary flagged system message"
 
-[adr."adrs/ai/llm-abstraction-python.md"]
-summary = "All LLM and embedding calls go through a provider-agnostic abstraction. Provider SDKs only in composition root."
-depends_on = "`async-all-the-way`, `service-layer-logic`"
-
-[adr."adrs/ai/meai-abstraction.md"]
-summary = "All LLM and embedding calls go through M.E.AI abstractions (`IChatClient`, `IEmbeddingGenerator`)."
-depends_on = "`modular-monolith`, `async-all-the-way`"
-
-[adr."adrs/ai/rag-pgvector-python.md"]
-summary = "RAG pipeline using pgvector for vector storage and cosine similarity search."
-alternative = "Dedicated vector DB (Pinecone, Qdrant) if scale demands it"
+[adr."adrs/ai/llm-abstraction.md"]
+summary = "All LLM/embedding calls through the stack's provider-agnostic abstraction (M.E.AI on .NET; Protocol adapters in Python). Provider SDKs only in the composition root."
+depends_on = "`async-all-the-way`"
 
 [adr."adrs/ai/rag-pgvector.md"]
-summary = "RAG pipeline using pgvector for vector storage and similarity search."
-alternative = "Dedicated vector DB (Pinecone, Qdrant) if scale demands it"
-
-[adr."adrs/ai/tool-calling-via-services-python.md"]
-summary = "AI tools are thin adapters that delegate to existing service functions. No business logic in tools."
-depends_on = "`modular-packages`, `service-layer-logic`, `llm-abstraction-python`"
+summary = "RAG with pgvector in the existing PostgreSQL: chunk, embed via the abstraction, cosine search with an IVFFlat/HNSW index, delimited context injection."
+alternative = "Dedicated vector DB (Pinecone/Qdrant) at larger scale"
 
 [adr."adrs/ai/tool-calling-via-services.md"]
-summary = "AI tools are thin adapters that delegate to existing service interfaces. No business logic in tools."
-depends_on = "`modular-monolith`, `service-layer-logic`, `meai-abstraction`"
+summary = "AI tools are thin adapters delegating to existing service interfaces via shared contracts. No business logic in tools; no destructive ops without confirmation."
+depends_on = "`llm-abstraction`"
 
 [adr."adrs/angular/separate-template-file.md"]
 summary = "Component templates in separate `.html` files via `templateUrl`. No inline templates."
@@ -391,7 +371,7 @@ required = [
   "adrs/dotnet/async-all-the-way.md",
   "adrs/angular/standalone-components.md",
   "adrs/ai/ai-agent-module.md",
-  "adrs/ai/meai-abstraction.md",
+  "adrs/ai/llm-abstraction.md",
   "adrs/ai/tool-calling-via-services.md",
   "adrs/deployment/docker-multi-stage-builds.md",
   "adrs/deployment/env-connection-urls.md",
@@ -638,9 +618,9 @@ required = [
   "adrs/python/async-all-the-way.md",
   "adrs/python/sqlalchemy-async.md",
   "adrs/react/functional-components.md",
-  "adrs/ai/ai-module-python.md",
-  "adrs/ai/llm-abstraction-python.md",
-  "adrs/ai/tool-calling-via-services-python.md",
+  "adrs/ai/ai-agent-module.md",
+  "adrs/ai/llm-abstraction.md",
+  "adrs/ai/tool-calling-via-services.md",
   "adrs/deployment/docker-multi-stage-builds.md",
   "adrs/deployment/env-connection-urls.md",
   "adrs/deployment/container-per-process.md",
@@ -659,8 +639,8 @@ recommended = [
   "adrs/api/jwt-bearer-auth.md",
   "adrs/react/tanstack-query.md",
   "adrs/react/tailwind-shadcn.md",
-  "adrs/ai/rag-pgvector-python.md",
-  "adrs/ai/conversation-history-python.md",
+  "adrs/ai/rag-pgvector.md",
+  "adrs/ai/conversation-history.md",
   "adrs/deployment/nginx-spa-proxy.md",
 ]
 optional = [

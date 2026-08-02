@@ -5,8 +5,7 @@ status: Active
 requires:
   - adrs/typescript/strict-typescript.md
 conflicts_with:
-  - adrs/ai/meai-abstraction.md
-  - adrs/ai/llm-abstraction-python.md
+  - adrs/ai/llm-abstraction.md
 last_reviewed: 2026-07-29
 verify_against:
   - @anthropic-ai/claude-agent-sdk
@@ -16,7 +15,7 @@ verify_against:
 
 ## Decision
 
-All AI-powered analysis uses the Claude Agent SDK (`@anthropic-ai/claude-agent-sdk`) for TypeScript. The SDK is used directly — no provider-agnostic abstraction layer; a single orchestrator component is the only integration point, and no other component calls the SDK directly. AI responses are treated as untrusted input and validated before use. Choose this ADR for TypeScript CLI tools and single-provider agent products; .NET and Python service stacks use `meai-abstraction` / `llm-abstraction-python` instead.
+All AI-powered analysis uses the Claude Agent SDK (`@anthropic-ai/claude-agent-sdk`) for TypeScript. The SDK is used directly — no provider-agnostic abstraction layer; a single orchestrator component is the only integration point, and no other component calls the SDK directly. AI responses are treated as untrusted input and validated before use. Choose this ADR for TypeScript CLI tools and single-provider agent products; .NET and Python service stacks use `llm-abstraction` instead.
 
 ## Rationale
 
