@@ -259,6 +259,8 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/angular/standalone-components.md` | All components standalone. No NgModules. | — |
 | `adrs/angular/signals-state.md` | Angular Signals for reactive state. RxJS only for HTTP/async. | RxJS BehaviorSubjects |
 | `adrs/angular/tailwind-no-css.md` | Tailwind utility classes only. No component CSS files. | Component-scoped SCSS |
+| `adrs/api/machine-to-machine-auth.md` | Opaque hashed API tokens for integration clients; dedicated authorizer injects tenant + scope. | OAuth client-credentials via Cognito (OIDC partners) |
+| `adrs/deployment/s3-object-storage.md` | Tenant-scoped object keys, presigned transfer, metadata mastered in the DB. | Only for platforms without binary content |
 
 ## Optional (pick based on project needs)
 
@@ -274,6 +276,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/api/offset-pagination.md` | Offset pagination with page/pageSize. Requires `rest-envelope`. | Any project with list endpoints |
 | `adrs/api/role-based-authorization.md` | Role gates at the endpoint layer + ownership checks in services. Deny by default. Requires `jwt-bearer-auth`. | Policy engine (OPA/Casbin) at larger scale |
 | `adrs/angular/separate-template-file.md` | Component templates in separate `.html` files. | Team preference for HTML tooling |
+| `adrs/dotnet/strategy-dispatch.md` | One strategy class per content-type matrix cell; registry dispatch; mandatory unknown-kind fallback. | Dispatch matrices (content x session kinds) fed by external providers |
 
 ---
 
