@@ -1,0 +1,19 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/Messaging.Tests/Messaging.Tests.csproj" />
+    <Project Path="Tests/Platform.Tests/Platform.Tests.csproj" />
+  </Folder>
+  <Project Path="Auth.PreTokenGeneration/Auth.PreTokenGeneration.csproj" />
+  <Project Path="Common.Database/Common.Database.csproj" />
+  <Project Path="Common.DatabaseCli/Common.DatabaseCli.csproj" />
+  <Project Path="Common.Lib/Common.Lib.csproj" />
+  <Project Path="Common.Providers/Common.Providers.csproj" />
+  <Project Path="Messaging.Api/Messaging.Api.csproj" />
+  <Project Path="Messaging.Application/Messaging.Application.csproj" />
+  <Project Path="Messaging.Data/Messaging.Data.csproj" />
+  <Project Path="Messaging.Domain/Messaging.Domain.csproj" />
+  <Project Path="Notification.Authorizer/Notification.Authorizer.csproj" />
+  <Project Path="Outbox.Dispatch/Outbox.Dispatch.csproj" />
+  <Project Path="Tenancy.Application/Tenancy.Application.csproj" />
+  <Project Path="Tenancy.Data/Tenancy.Data.csproj" />
+</Solution>

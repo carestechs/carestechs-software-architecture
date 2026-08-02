@@ -3,6 +3,16 @@
 **Status:** Active
 **Assumes:** .NET 10+, PostgreSQL (database per tenant), DynamoDB, EF Core 10+ (runtime-only), DbUp, AWS Lambda, API Gateway, SQS (Standard + FIFO), EventBridge, Cognito, IoT Core (MQTT), S3, SAM/CloudFormation
 
+## Golden Skeleton
+
+A buildable reference implementation lives at
+[`skeletons/dotnet-multitenant-event-driven-aws-lambda/`](../skeletons/dotnet-multitenant-event-driven-aws-lambda/).
+CI executes the flagship's storage claims for real — tenant provisioning via DbUp,
+schema-per-module, tenant isolation, the DynamoDB hot path, and the transactional outbox
+end to end — and stands in for what has no free emulator (Cognito trigger logic against
+recorded fixtures; the IoT authorizer as a pure function). Its README carries the
+proven-vs-stand-in-vs-linted table.
+
 ## Overview
 
 A curated set of ADRs for building a multi-tenant, event-driven backend platform (contact-center, messaging, or workflow class) as a distributed system of independently deployable Clean Architecture modules on AWS. Tenants are isolated at the storage layer (database-per-tenant PostgreSQL + tenant-scoped DynamoDB partition keys). Identity is delegated to Cognito with Lambda-trigger customization. Real-time client updates ride managed MQTT. Integration with third-party platform APIs is quarantined in a Bridge module. Frontends are separate projects consuming the platform's APIs — this profile is backend-only.

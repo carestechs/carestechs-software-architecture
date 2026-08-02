@@ -1,0 +1,68 @@
+name: skeleton-multitenant
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: skeleton-multitenant-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: skeletons/dotnet-multitenant-event-driven-aws-lambda
+
+jobs:
+  backend:
+    name: Backend (tenant provisioning + DDB Local + ElasticMQ)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      elasticmq:
+        image: softwaremill/elasticmq-native:latest
+        ports:
+          - 9324:9324
+      dynamodb:
+        image: amazon/dynamodb-local:latest
+        ports:
+          - 8000:8000
+    env:
+      # admin connection — the tests CREATE the tenant databases themselves
+      # (that is the point: DbUp provisioning is executed, not scripted)
+      TEST_DATABASE_URL: Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=postgres
+      AWS_ENDPOINT_URL: http://localhost:9324
+      DDB_ENDPOINT_URL: http://localhost:8000
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: dotnet build --configuration Release
+      - run: dotnet test --configuration Release --no-build
+
+  templates:
+    name: SAM template (validate + lint + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: pip install cfn-lint
+      - run: sam validate --lint -t Messaging.Infra/template.yaml
+      - run: cfn-lint Messaging.Infra/template.yaml
+      - run: sam build -t Messaging.Infra/template.yaml
