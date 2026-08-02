@@ -11,7 +11,7 @@ exactly which is which.
 |-------|------------------|
 | Clean Architecture layers, CQRS handlers, rich entities, `Result<T>` flow, reactors | **Executed** — pure unit tests (run everywhere, no infrastructure) |
 | Repositories + EF-runtime-only mapping against the Flyway-managed schema | **Executed in CI** — xUnit against PostgreSQL migrated by the real Flyway container |
-| Queue pipeline: reactor → `IQueueProvider` → SQS, correlation attribute round-trip | **Executed in CI** — the production `SqsQueueProvider` against LocalStack SQS |
+| Queue pipeline: reactor → `IQueueProvider` → SQS, correlation attribute round-trip | **Executed in CI** — the production `SqsQueueProvider` against ElasticMQ (SQS-compatible) |
 | Worker semantics: idempotent redelivery, transient-vs-permanent failure split | **Executed in CI** — the worker's real processing core, double-delivery asserted |
 | Same code runs as Kestrel and Lambda (`AddAWSLambdaHosting`) | **Executed** for the Kestrel path (WebApplicationFactory); **packaging linted** via `sam build` |
 | SAM stacks: per-module templates, queue + DLQ + redrive, `ReportBatchItemFailures` | **Linted only** — `sam validate --lint`, `cfn-lint`, `sam build`. NOT deployed: IAM, event-source wiring, and API Gateway integration are unproven here |

@@ -8,7 +8,7 @@
 A buildable reference implementation lives at
 [`skeletons/dotnet-angular-clean-architecture-aws-lambda/`](../skeletons/dotnet-angular-clean-architecture-aws-lambda/).
 CI executes what can run without AWS (unit tests everywhere; xUnit against a Flyway-migrated
-PostgreSQL and the real SQS provider against LocalStack) and lints what cannot
+PostgreSQL and the real SQS provider against an SQS-compatible broker (ElasticMQ)) and lints what cannot
 (`sam validate` / `cfn-lint` / `sam build` on the per-module templates). Its README carries
 the honest proven-vs-linted table.
 

@@ -37,8 +37,8 @@ builder.Services.AddScoped<ICommandHandler<PlaceOrderCommand, Result<Guid>>, Pla
 builder.Services.AddScoped<IQueryHandler<GetOrderByIdQuery, OrderContext?>, GetOrderByIdQueryHandler>();
 
 // Dev/prod provider split (adrs/deployment/aws-secrets-parameters.md pattern):
-// the local HTTP queue server in Development, SQS elsewhere. LocalStack works
-// through the same SQS provider via AWS_ENDPOINT_URL.
+// the local HTTP queue server in Development, SQS elsewhere. SQS-compatible
+// brokers (ElasticMQ in CI) work through the same provider via AWS_ENDPOINT_URL.
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddHttpClient("queue", client =>

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Orders.Tests;
 
-/// <summary>Round-trips the production SqsQueueProvider against LocalStack:
+/// <summary>Round-trips the production SqsQueueProvider against an SQS-compatible broker (ElasticMQ in CI):
 /// real SQS semantics, and the correlation attribute must survive the hop
 /// (adrs/deployment/correlation-propagation.md).</summary>
 public class SqsProviderIntegrationTests
@@ -20,7 +20,7 @@ public class SqsProviderIntegrationTests
     public async Task Enqueue_RoundTripsPayloadAndCorrelationAttribute()
     {
         Assert.SkipWhen(EndpointUrl is null,
-            "AWS_ENDPOINT_URL not set — SQS integration runs in CI against LocalStack.");
+            "AWS_ENDPOINT_URL not set — SQS integration runs in CI against ElasticMQ.");
 
         var ct = TestContext.Current.CancellationToken;
         using var sqs = new AmazonSQSClient(

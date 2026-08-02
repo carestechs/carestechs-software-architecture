@@ -15,7 +15,7 @@ defaults:
 
 jobs:
   backend:
-    name: Backend (xUnit vs Flyway-migrated PostgreSQL + LocalStack SQS)
+    name: Backend (xUnit vs Flyway-migrated PostgreSQL + ElasticMQ SQS)
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -30,20 +30,15 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
-      localstack:
-        image: localstack/localstack:latest
-        env:
-          SERVICES: sqs
+      # SQS-compatible broker; localstack:latest now requires a license token
+      # even for community services, so ElasticMQ serves the SQS integration tier
+      elasticmq:
+        image: softwaremill/elasticmq-native:latest
         ports:
-          - 4566:4566
-        options: >-
-          --health-cmd "curl -sf http://localhost:4566/_localstack/health"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 20
+          - 9324:9324
     env:
       TEST_DATABASE_URL: Host=localhost;Port=5432;Database=app_test;Username=postgres;Password=postgres
-      AWS_ENDPOINT_URL: http://localhost:4566
+      AWS_ENDPOINT_URL: http://localhost:9324
       AWS_ACCESS_KEY_ID: test
       AWS_SECRET_ACCESS_KEY: test
       AWS_REGION: us-east-1
