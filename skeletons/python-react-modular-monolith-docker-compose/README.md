@@ -69,6 +69,8 @@ Every endpoint's access level is explicit (adrs/api/role-based-authorization.md)
 
 ## Deliberately not demonstrated (yet)
 
+- **The rest of the production-hardening tier** (`deployment/idempotent-queue-consumers`, `deployment/correlation-propagation`, `database/transactional-outbox`, `database/schema-per-module`) — Celery itself is demonstrated; the reliability discipline around it is adopted when pain arrives (see the profile overview).
+
 - **An orders UI and a login UI** — the second module and the auth stack demonstrate backend rules; the React client only shows the public catalog. (A frontend would keep access tokens in memory only — never localStorage/sessionStorage.)
 
 Additions must follow the profile's ADRs — this skeleton is held to the same constraints it demonstrates.

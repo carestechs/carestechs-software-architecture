@@ -99,7 +99,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/deployment/aws-lambda-serverless.md` | Each module's API deploys as its own Lambda behind API Gateway. | — |
 | `adrs/deployment/aws-sam-infrastructure.md` | All infrastructure defined as SAM/CloudFormation templates. Stack-per-module. | `aws-lambda-serverless` |
 | `adrs/deployment/aws-secrets-parameters.md` | Secrets Manager for credentials, SSM for config. File-based providers for dev. | `aws-lambda-serverless` |
-| `adrs/deployment/queue-based-decoupling.md` | Cross-module async work via SQS with `IQueueProvider` abstraction. | — |
+| `adrs/deployment/queue-based-decoupling.md` | Cross-module async work via a durable queue behind `IQueueProvider` (SQS on AWS; RabbitMQ/Redis in compose deployments). | — |
 | `adrs/deployment/idempotent-queue-consumers.md` | At-least-once discipline: idempotent handlers keyed on event ID, DLQ on every queue, triage-fix-redrive. | `queue-based-decoupling` |
 
 ## Recommended (strong defaults — can be swapped with noted alternatives)

@@ -94,6 +94,7 @@ alternative = "`snake-case-naming` with naming convention package"
 [adr."adrs/database/schema-per-module.md"]
 summary = "Each module owns a PG schema; ORM default-schema per module; optional per-module DB roles."
 depends_on = "—"
+alternative = "Single shared schema with review-enforced boundaries (Pattern B — drifts under team growth)"
 
 [adr."adrs/database/snake-case-naming.md"]
 summary = "snake_case tables/columns via EF Core naming convention."
@@ -199,9 +200,9 @@ summary = "npm distribution with `bin` field, `npx` support, `engines` field, `d
 depends_on = "`strict-typescript`"
 
 [adr."adrs/deployment/queue-based-decoupling.md"]
-summary = "Cross-module async work via SQS with `IQueueProvider` abstraction."
+summary = "Cross-module async work via a durable queue behind `IQueueProvider` (SQS on AWS; RabbitMQ/Redis in compose deployments)."
 depends_on = "—"
-alternative = "Direct HTTP calls between Lambdas (tighter coupling)"
+alternative = "Direct synchronous calls between modules (tighter coupling, cascading failures)"
 
 [adr."adrs/deployment/s3-object-storage.md"]
 summary = "Tenant-scoped object keys, presigned transfer, metadata mastered in the DB."
@@ -251,6 +252,7 @@ depends_on = "—"
 [adr."adrs/dotnet/module-facade.md"]
 summary = "One public `I<Module>ModuleApi` facade per consumed module; snapshot records; everything else internal."
 depends_on = "`clean-architecture-layers`"
+alternative = "Per-purpose contract interfaces in the shared contracts project (multiplies per consumer)"
 
 [adr."adrs/dotnet/result-pattern-errors.md"]
 summary = "`Result<T>` return types from command handlers. Exceptions only for unexpected failures."
@@ -394,6 +396,12 @@ recommended = [
   "adrs/ai/rag-pgvector.md",
   "adrs/ai/conversation-history.md",
   "adrs/deployment/nginx-spa-proxy.md",
+  "adrs/deployment/queue-based-decoupling.md",
+  "adrs/deployment/idempotent-queue-consumers.md",
+  "adrs/deployment/correlation-propagation.md",
+  "adrs/database/transactional-outbox.md",
+  "adrs/database/schema-per-module.md",
+  "adrs/dotnet/module-facade.md",
 ]
 optional = [
   "adrs/database/soft-deletes.md",
@@ -510,6 +518,12 @@ recommended = [
   "adrs/angular/signals-state.md",
   "adrs/angular/tailwind-no-css.md",
   "adrs/deployment/nginx-spa-proxy.md",
+  "adrs/deployment/queue-based-decoupling.md",
+  "adrs/deployment/idempotent-queue-consumers.md",
+  "adrs/deployment/correlation-propagation.md",
+  "adrs/database/transactional-outbox.md",
+  "adrs/database/schema-per-module.md",
+  "adrs/dotnet/module-facade.md",
 ]
 optional = [
   "adrs/database/soft-deletes.md",
@@ -642,6 +656,10 @@ recommended = [
   "adrs/ai/rag-pgvector.md",
   "adrs/ai/conversation-history.md",
   "adrs/deployment/nginx-spa-proxy.md",
+  "adrs/deployment/idempotent-queue-consumers.md",
+  "adrs/deployment/correlation-propagation.md",
+  "adrs/database/transactional-outbox.md",
+  "adrs/database/schema-per-module.md",
 ]
 optional = [
   "adrs/database/soft-deletes.md",
@@ -699,6 +717,10 @@ recommended = [
   "adrs/react/tanstack-query.md",
   "adrs/react/tailwind-shadcn.md",
   "adrs/deployment/nginx-spa-proxy.md",
+  "adrs/deployment/idempotent-queue-consumers.md",
+  "adrs/deployment/correlation-propagation.md",
+  "adrs/database/transactional-outbox.md",
+  "adrs/database/schema-per-module.md",
 ]
 optional = [
   "adrs/database/soft-deletes.md",

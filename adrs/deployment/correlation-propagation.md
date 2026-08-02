@@ -3,9 +3,9 @@ category: deployment
 stack: any
 status: Active
 requires:
-  - adrs/deployment/queue-based-decoupling.md
+  - adrs/deployment/queue-based-decoupling.md | adrs/python/celery-background-jobs.md
 conflicts_with: []
-last_reviewed: 2026-07-31
+last_reviewed: 2026-08-01
 ---
 
 # Correlation ID Propagation Across Async Hops
