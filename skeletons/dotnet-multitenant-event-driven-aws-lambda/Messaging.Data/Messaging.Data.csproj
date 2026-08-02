@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.*" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common.Lib\Common.Lib.csproj" />
+    <ProjectReference Include="..\Messaging.Application\Messaging.Application.csproj" />
+    <ProjectReference Include="..\Messaging.Domain\Messaging.Domain.csproj" />
+  </ItemGroup>
+</Project>

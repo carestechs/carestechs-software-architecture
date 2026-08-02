@@ -1,0 +1,104 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Messaging module — API Lambda, message-appended queue with DLQ,
+  scheduled outbox dispatcher, DynamoDB tables (stack per module,
+  adrs/deployment/aws-sam-infrastructure.md)
+
+Parameters:
+  DbHost:
+    Type: String
+  DbPassword:
+    Type: String
+    NoEcho: true
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: dotnet10
+    Architectures: [x86_64]
+
+Resources:
+  MessagingApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: platform-messaging-api
+      Handler: Messaging.Api
+      CodeUri: ../Messaging.Api/
+      Environment:
+        Variables:
+          DB_HOST: !Ref DbHost
+          DB_PASSWORD: !Ref DbPassword
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MessageTable
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+  MessageAppendedQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: message-appended-queue
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt MessageAppendedDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  MessageAppendedDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: message-appended-dlq
+      MessageRetentionPeriod: 1209600
+
+  OutboxDispatchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: platform-outbox-dispatcher
+      Handler: Outbox.Dispatch
+      CodeUri: ../Outbox.Dispatch/
+      Environment:
+        Variables:
+          DB_HOST: !Ref DbHost
+          DB_PASSWORD: !Ref DbPassword
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt MessageAppendedQueue.QueueName
+        - DynamoDBReadPolicy:
+            TableName: !Ref OrganizationTable
+      Events:
+        Schedule:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 minute)
+
+  MessageTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Message
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+  OrganizationTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Organization
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: orgid
+          AttributeType: S
+      KeySchema:
+        - AttributeName: orgid
+          KeyType: HASH
