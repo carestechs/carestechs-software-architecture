@@ -211,6 +211,11 @@ summary = "Cross-module async work via a durable queue behind `IQueueProvider` (
 depends_on = "—"
 alternative = "Direct synchronous calls between modules (tighter coupling, cascading failures)"
 
+[adr."adrs/deployment/rabbitmq-broker.md"]
+summary = "RabbitMQ as the production broker behind the queue abstraction: direct exchanges for work queues, topic exchanges for domain-event fan-out, DLX-based retry and dead-letter topology declared in code."
+depends_on = "`queue-based-decoupling`"
+alternative = "Redis Streams (lighter when Redis is already present; retry/DLQ machinery moves into app code)"
+
 [adr."adrs/deployment/s3-object-storage.md"]
 summary = "Tenant-scoped object keys, presigned transfer, metadata mastered in the DB."
 alternative = "Only for platforms without binary content"
@@ -517,6 +522,88 @@ depends_on = "`clean-architecture-layers`"
 [profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/dotnet/dto-at-boundary.md"]
 summary = "Never expose EF entities via API. DTOs (Context models) at the boundary. Mapping in handlers."
 depends_on = "`cqrs-handlers`"
+
+[profile.dotnet-angular-event-driven-docker-compose]
+required = [
+  "adrs/dotnet/clean-architecture-layers.md",
+  "adrs/dotnet/cqrs-handlers.md",
+  "adrs/dotnet/rich-domain-entities.md",
+  "adrs/dotnet/result-pattern-errors.md",
+  "adrs/dotnet/event-driven-reactors.md",
+  "adrs/dotnet/dto-at-boundary.md",
+  "adrs/dotnet/async-all-the-way.md",
+  "adrs/dotnet/cross-module-by-id.md",
+  "adrs/dotnet/thin-api-host.md",
+  "adrs/deployment/queue-based-decoupling.md",
+  "adrs/deployment/rabbitmq-broker.md",
+  "adrs/deployment/idempotent-queue-consumers.md",
+  "adrs/deployment/container-per-process.md",
+  "adrs/deployment/docker-multi-stage-builds.md",
+  "adrs/deployment/local-dev-compose.md",
+  "adrs/deployment/env-connection-urls.md",
+  "adrs/deployment/flyway-migrations.md",
+]
+recommended = [
+  "adrs/dotnet/module-facade.md",
+  "adrs/database/transactional-outbox.md",
+  "adrs/database/schema-per-module.md",
+  "adrs/deployment/correlation-propagation.md",
+  "adrs/dotnet/xunit-per-module-tests.md",
+  "adrs/dotnet/structured-logging.md",
+  "adrs/deployment/github-actions-ci.md",
+  "adrs/database/uuid-primary-keys.md",
+  "adrs/database/lowercase-naming.md",
+  "adrs/database/timestamptz-always.md",
+  "adrs/api/jwt-bearer-auth.md",
+  "adrs/deployment/nginx-spa-proxy.md",
+  "adrs/angular/standalone-components.md",
+  "adrs/angular/signals-state.md",
+  "adrs/angular/tailwind-no-css.md",
+]
+optional = [
+  "adrs/api/rest-envelope.md",
+  "adrs/api/offset-pagination.md",
+  "adrs/api/role-based-authorization.md",
+  "adrs/database/soft-deletes.md",
+  "adrs/deployment/fifo-ordered-processing.md",
+  "adrs/angular/separate-template-file.md",
+  "adrs/dotnet/strategy-dispatch.md",
+]
+
+[profile.dotnet-angular-event-driven-docker-compose.override."adrs/api/jwt-bearer-auth.md"]
+alternative = "Keycloak or another self-hosted IdP (heavier; the managed equivalent is the lambda siblings' Cognito)"
+
+[profile.dotnet-angular-event-driven-docker-compose.override."adrs/api/offset-pagination.md"]
+summary = "Offset pagination with page/pageSize. Requires `rest-envelope`."
+
+[profile.dotnet-angular-event-driven-docker-compose.override."adrs/deployment/container-per-process.md"]
+summary = "API host, each worker, and the frontend as separate compose services; api and workers share one runtime image with different commands."
+
+[profile.dotnet-angular-event-driven-docker-compose.override."adrs/database/soft-deletes.md"]
+summary = "Soft deletion via `IsActive` flag or `DeletedAt` column."
+when_to_include = "Entities needing audit trails or undo"
+
+[profile.dotnet-angular-event-driven-docker-compose.override."adrs/database/timestamptz-always.md"]
+summary = "All datetimes are `timestamptz`. C# uses `DateTimeOffset`."
+alternative = "`timestamp` without timezone (loses context)"
+
+[profile.dotnet-angular-event-driven-docker-compose.override."adrs/database/uuid-primary-keys.md"]
+summary = "All PKs are UUIDs. Generated server-side with `Guid.NewGuid()`."
+
+[profile.dotnet-angular-event-driven-docker-compose.override."adrs/dotnet/async-all-the-way.md"]
+summary = "All I/O uses async/await. EF Core async methods throughout."
+
+[profile.dotnet-angular-event-driven-docker-compose.override."adrs/dotnet/cross-module-by-id.md"]
+summary = "Modules reference each other by `Guid` ID only. No cross-module navigation properties."
+depends_on = "`clean-architecture-layers`"
+
+[profile.dotnet-angular-event-driven-docker-compose.override."adrs/dotnet/dto-at-boundary.md"]
+summary = "Never expose EF entities via API. DTOs (Context models) at the boundary. Mapping in handlers."
+depends_on = "`cqrs-handlers`"
+
+[profile.dotnet-angular-event-driven-docker-compose.override."adrs/dotnet/thin-api-host.md"]
+summary = "One thin API host container: `Program.cs` composition root referencing every `<Module>.Api`; no logic of its own."
+depends_on = "`clean-architecture-layers`"
 
 [profile.dotnet-angular-modular-monolith-docker-compose]
 required = [

@@ -3,7 +3,7 @@ category: dotnet
 stack: dotnet
 status: Active
 requires:
-  - adrs/dotnet/modular-monolith.md
+  - adrs/dotnet/modular-monolith.md | adrs/dotnet/clean-architecture-layers.md
 conflicts_with: []
 last_reviewed: 2026-07-29
 ---
