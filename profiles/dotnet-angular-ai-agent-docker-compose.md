@@ -167,6 +167,12 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 | `adrs/ai/rag-pgvector.md` | RAG with pgvector in the existing PostgreSQL: chunk, embed via the abstraction, cosine search with an IVFFlat/HNSW index, delimited context injection. | Dedicated vector DB (Pinecone/Qdrant) at larger scale |
 | `adrs/ai/conversation-history.md` | Conversations/messages persisted in AI-module tables; token-aware pruning through a single context builder; system prompt and latest user message always survive. | Prune-only vs persisted-summary flagged system message |
 | `adrs/deployment/nginx-spa-proxy.md` | Nginx serves built SPA and reverse-proxies `/api/` to backend. `try_files` for client-side routing. | Serving SPA from backend framework or separate CDN |
+| `adrs/deployment/queue-based-decoupling.md` | Cross-module async work via a durable queue behind `IQueueProvider` (SQS on AWS; RabbitMQ/Redis in compose deployments). | Direct synchronous calls between modules (tighter coupling, cascading failures) |
+| `adrs/deployment/idempotent-queue-consumers.md` | At-least-once discipline: idempotent handlers keyed on event ID, DLQ on every queue, triage-fix-redrive. | None viable — an SQS pipeline without DLQs is an unmonitored outage |
+| `adrs/deployment/correlation-propagation.md` | One correlation ID from ingress through every queue hop and log scope. | Managed tracing only (X-Ray/OTel — complementary, sampling-limited) |
+| `adrs/database/transactional-outbox.md` | Correctness-critical events written in-transaction, drained by a scheduled dispatcher; latency-critical hints may bypass with a reconciliation path. | Direct enqueue everywhere (accepts lost events on crash) |
+| `adrs/database/schema-per-module.md` | Each module owns a PG schema; ORM default-schema per module; optional per-module DB roles. | Single shared schema with review-enforced boundaries (Pattern B — drifts under team growth) |
+| `adrs/dotnet/module-facade.md` | One public `I<Module>ModuleApi` facade per consumed module; snapshot records; everything else internal. | Per-purpose contract interfaces in the shared contracts project (multiplies per consumer) |
 
 ## Optional (pick based on project needs)
 

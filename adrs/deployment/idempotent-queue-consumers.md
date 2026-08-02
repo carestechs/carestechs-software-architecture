@@ -3,9 +3,9 @@ category: deployment
 stack: any
 status: Active
 requires:
-  - adrs/deployment/queue-based-decoupling.md
+  - adrs/deployment/queue-based-decoupling.md | adrs/python/celery-background-jobs.md
 conflicts_with: []
-last_reviewed: 2026-07-31
+last_reviewed: 2026-08-01
 ---
 
 # Idempotent Consumers, DLQs, and Redrive Discipline
@@ -21,7 +21,7 @@ Every queue consumer is written for at-least-once delivery: handlers are idempot
 
 ## Constraints (non-negotiable for AI)
 - Handlers MUST be safe under redelivery: conditional writes/upserts keyed on the event ID, or an idempotency record checked-and-set in the same transaction as the effect. NEVER assume first delivery.
-- Every queue declares a DLQ with `maxReceiveCount` (3–5 for transient-failure workloads) in infrastructure code. A queue without a DLQ fails review.
+- Every queue declares a DLQ with `maxReceiveCount` (3–5 for transient-failure workloads) in infrastructure code. A queue without a DLQ fails review. On brokers without native DLQs (e.g., Celery on Redis), the equivalent is bounded task retries plus a persisted dead-letter destination for exhausted messages — never silent drops.
 - Visibility timeout MUST exceed the handler's worst-case duration (including downstream timeouts). NEVER heartbeat-extend visibility in a loop to simulate exactly-once.
 - Batch event sources MUST use partial-batch failure reporting (`ReportBatchItemFailures` or equivalent) — failing the whole batch for one record multiplies redeliveries of healthy messages.
 - Alarm on DLQ depth > 0 and on source-queue message age. A silent DLQ is an unmonitored outage.

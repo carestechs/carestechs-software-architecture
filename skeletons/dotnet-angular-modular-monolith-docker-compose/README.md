@@ -68,6 +68,8 @@ Every endpoint's access level is explicit (adrs/api/role-based-authorization.md)
 
 ## Deliberately not demonstrated (yet)
 
+- **The production-hardening tier** (`deployment/queue-based-decoupling`, `deployment/idempotent-queue-consumers`, `deployment/correlation-propagation`, `database/transactional-outbox`, `database/schema-per-module`, `dotnet/module-facade`) — the skeleton demonstrates the Required day-one tier; the hardening rung is adopted when pain arrives (see the profile overview).
+
 - **Background workers** — the profile has no queue ADR in its Required tier; nothing to demonstrate here yet.
 - **An orders UI and a login UI** — the second module and the auth stack demonstrate backend rules;
   the Angular client only shows the public catalog. (A frontend would keep access tokens in memory

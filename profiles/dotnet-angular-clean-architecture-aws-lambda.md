@@ -242,7 +242,7 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/database/lowercase-naming.md` | Lowercase table/column names via `OnModelCreating` loop. | `snake-case-naming` with naming convention package |
 | `adrs/database/timestamptz-always.md` | All datetimes are `timestamptz`. C# uses `DateTimeOffset`. | `timestamp` without timezone (loses context) |
 | `adrs/api/jwt-bearer-auth.md` | JWT Bearer tokens. Short-lived access + rotated refresh. | Cognito / API Gateway JWT authorizer (managed alternative) |
-| `adrs/deployment/queue-based-decoupling.md` | Cross-module async work via SQS with `IQueueProvider` abstraction. | Direct HTTP calls between Lambdas (tighter coupling) |
+| `adrs/deployment/queue-based-decoupling.md` | Cross-module async work via a durable queue behind `IQueueProvider` (SQS on AWS; RabbitMQ/Redis in compose deployments). | Direct synchronous calls between modules (tighter coupling, cascading failures) |
 | `adrs/deployment/idempotent-queue-consumers.md` | At-least-once discipline: idempotent handlers keyed on event ID, DLQ on every queue, triage-fix-redrive. | None viable — an SQS pipeline without DLQs is an unmonitored outage |
 | `adrs/deployment/correlation-propagation.md` | One correlation ID from ingress through every queue hop and log scope. | Managed tracing only (X-Ray/OTel — complementary, sampling-limited) |
 | `adrs/deployment/aws-batch-workers.md` | Compute-heavy jobs run on AWS Batch (Fargate). Dual-mode Program.cs: BackgroundService polling in dev, single-shot JOB_PAYLOAD in prod. | Step Functions for orchestration, or Lambda with higher memory/timeout |

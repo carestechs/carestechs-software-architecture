@@ -3,22 +3,22 @@ category: deployment
 stack: dotnet
 status: Active
 requires:
-  - adrs/dotnet/event-driven-reactors.md
+  - adrs/dotnet/event-driven-reactors.md | adrs/dotnet/service-layer-logic.md
 conflicts_with: []
-last_reviewed: 2026-07-29
+last_reviewed: 2026-08-01
 ---
 
 # Queue-Based Module Decoupling
 
 ## Decision
 
-Modules that need to trigger work in other modules do so by enqueuing messages to a queue. An `IQueueProvider` abstraction supports multiple implementations: `HttpQueueProvider` for local development (polling a lightweight queue server) and `SqsQueueProvider` for production (Amazon SQS). Worker services dequeue messages and process them. This decouples modules at the deployment level — the producer and consumer can scale, deploy, and fail independently.
+Modules that need to trigger work in other modules do so by enqueuing messages to a queue. An `IQueueProvider` abstraction supports multiple implementations: `HttpQueueProvider` for local development (polling a lightweight queue server) and a production provider matched to the deployment: `SqsQueueProvider` on AWS, a RabbitMQ- or Redis-backed provider in containerized deployments. The abstraction is the invariant; the broker is a deployment detail. Worker services dequeue messages and process them. This decouples modules at the deployment level — the producer and consumer can scale, deploy, and fail independently.
 
 ## Rationale
 
 - Queue-based decoupling ensures that a failure in the consuming module does not affect the producing module. If the consumer is down, messages accumulate in the queue and are processed when it recovers. This is critical for reliability in distributed systems.
 - Alternatives considered: direct HTTP calls between modules (rejected — creates synchronous coupling, cascading failures, and retry complexity), shared database polling (rejected — inefficient, creates contention), in-process event bus for cross-module communication (rejected — doesn't work when modules are separate Lambda functions or services).
-- The `IQueueProvider` abstraction allows the same reactor code to work in development (HTTP queue) and production (SQS) without code changes. Only the DI registration differs.
+- The `IQueueProvider` abstraction allows the same enqueueing code (reactors in the CQRS family, services in the service-layer family) to work in development (HTTP queue) and production (SQS/RabbitMQ/Redis) without code changes. Only the DI registration differs.
 - Dead Letter Queues (DLQ) capture failed messages after a configurable retry count (default: 3), preventing poison messages from blocking the queue.
 - The interface names here (`IQueueProvider`, `IJsonSerializer`) are the .NET reference implementation; the pattern itself (queue abstraction, DLQ, idempotent consumers, dev/prod provider swap) applies unchanged to other stacks.
 

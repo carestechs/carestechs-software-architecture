@@ -14,6 +14,8 @@ every push and pull request, so a catalog change that breaks this profile fails 
 
 A curated set of ADRs for building a modular monolith backend with Python/FastAPI and a React SPA frontend, deployed via Docker Compose. This is the industry-standard stack for AI-powered API products, developer tools, and data-intensive applications where the Python ecosystem's AI/ML libraries provide a decisive advantage. ADRs are categorized by how essential they are to the stack's coherence.
 
+The tiers encode a growth path, not just importance: the **Required** tier is the day-one modular monolith (one deployable, one database, service layer, boundaries enforced at compile time). The **Recommended** tier carries the production-hardening rung — Celery-queued side effects with at-least-once discipline (DLQs, idempotency, correlation IDs), a transactional outbox for must-not-be-lost events, and mechanically enforced module boundaries (a PostgreSQL schema per module). Adopt those as the pain arrives — slow work inside requests, side effects lost on crashes, boundary drift under team growth — without changing profile or deployment model.
+
 ---
 
 ## Solution Structure
@@ -149,6 +151,10 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 | `adrs/react/tanstack-query.md` | TanStack Query for all server state. Caching, refetching, cache invalidation. | SWR (fewer features) or raw useEffect (not recommended) |
 | `adrs/react/tailwind-shadcn.md` | Tailwind CSS + shadcn/ui components. Full ownership, no runtime dependency. | Material UI or Chakra UI (heavier, opinionated) |
 | `adrs/deployment/nginx-spa-proxy.md` | Nginx serves built SPA and reverse-proxies `/api/` to backend. `try_files` for client-side routing. | Serving SPA from backend framework or separate CDN |
+| `adrs/deployment/idempotent-queue-consumers.md` | At-least-once discipline: idempotent handlers keyed on event ID, DLQ on every queue, triage-fix-redrive. | None viable — an SQS pipeline without DLQs is an unmonitored outage |
+| `adrs/deployment/correlation-propagation.md` | One correlation ID from ingress through every queue hop and log scope. | Managed tracing only (X-Ray/OTel — complementary, sampling-limited) |
+| `adrs/database/transactional-outbox.md` | Correctness-critical events written in-transaction, drained by a scheduled dispatcher; latency-critical hints may bypass with a reconciliation path. | Direct enqueue everywhere (accepts lost events on crash) |
+| `adrs/database/schema-per-module.md` | Each module owns a PG schema; ORM default-schema per module; optional per-module DB roles. | Single shared schema with review-enforced boundaries (Pattern B — drifts under team growth) |
 
 ## Optional (pick based on project needs)
 
