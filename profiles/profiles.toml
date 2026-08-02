@@ -455,6 +455,8 @@ recommended = [
   "adrs/angular/standalone-components.md",
   "adrs/angular/signals-state.md",
   "adrs/angular/tailwind-no-css.md",
+  "adrs/api/machine-to-machine-auth.md",
+  "adrs/deployment/s3-object-storage.md",
 ]
 optional = [
   "adrs/deployment/tauri-desktop-shell.md",
@@ -466,6 +468,7 @@ optional = [
   "adrs/api/offset-pagination.md",
   "adrs/api/role-based-authorization.md",
   "adrs/angular/separate-template-file.md",
+  "adrs/dotnet/strategy-dispatch.md",
 ]
 
 [profile.dotnet-angular-clean-architecture-aws-lambda.override."adrs/angular/separate-template-file.md"]
