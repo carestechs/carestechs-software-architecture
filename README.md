@@ -160,6 +160,7 @@ Profiles are curated sets of ADRs organized into Required, Recommended, and Opti
 | **dotnet-angular-simple-monolith-single-server** | .NET + Angular + PostgreSQL, one deployable | Single server (compose) |
 | **dotnet-angular-modular-monolith-docker-compose** | .NET + Angular + PostgreSQL | Docker Compose |
 | **dotnet-angular-ai-agent-docker-compose** | .NET + Angular + PostgreSQL + AI | Docker Compose |
+| **dotnet-angular-event-driven-docker-compose** | .NET + Angular + PostgreSQL + RabbitMQ | Docker Compose |
 | **dotnet-angular-clean-architecture-aws-lambda** | .NET + Angular + PostgreSQL | AWS Lambda |
 | **dotnet-multitenant-event-driven-aws-lambda** | .NET + PostgreSQL (per tenant) + DynamoDB, backend-only | AWS Lambda |
 | **typescript-cli-tool-npm** | TypeScript CLI / dev tool | npm |
@@ -203,7 +204,7 @@ After compiling, you still need to fill in:
 | database | 9 | UUID PKs, naming conventions, soft deletes, timestamptz, database-per-tenant, schema-per-module, DynamoDB hot path, transactional outbox |
 | api | 7 | REST envelope, JWT auth, Cognito auth, machine-to-machine auth, role-based authorization, offset pagination, external provider bridge |
 | ai | 6 | AI agent modules, LLM abstraction, tool calling, RAG, conversation history, Claude Agent SDK |
-| deployment | 27 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions CI + composite action, Zod config, maintenance scheduler, local AWS substitution, staging cost downgrades |
+| deployment | 28 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions CI + composite action, Zod config, maintenance scheduler, local AWS substitution, staging cost downgrades, RabbitMQ broker |
 
 ## ADR Format
 

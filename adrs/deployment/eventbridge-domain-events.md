@@ -4,7 +4,8 @@ stack: any
 status: Active
 requires:
   - adrs/deployment/queue-based-decoupling.md
-conflicts_with: []
+conflicts_with:
+  - adrs/deployment/rabbitmq-broker.md
 last_reviewed: 2026-07-31
 ---
 
