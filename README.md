@@ -252,7 +252,8 @@ Machine-checkable constraints ship as ready-to-copy lint and analyzer configurat
 ## Golden Skeletons
 
 `skeletons/` holds buildable reference projects, one per profile (currently:
-`python-react-modular-monolith-docker-compose` and `dotnet-angular-modular-monolith-docker-compose`). Each skeleton follows its profile's
+`python-react-modular-monolith-docker-compose`, `dotnet-angular-modular-monolith-docker-compose`,
+and `dotnet-angular-simple-monolith-single-server`). Each skeleton follows its profile's
 Required and Recommended ADRs and is built by CI on every push/PR — backend lint+tests
 against a real PostgreSQL, frontend typecheck+build, and Docker image builds. A skeleton
 is the semantic test of the catalog: structural checks prove the graph is coherent; a
