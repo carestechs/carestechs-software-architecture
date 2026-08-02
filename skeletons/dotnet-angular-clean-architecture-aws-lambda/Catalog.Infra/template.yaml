@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Catalog module — API Lambda behind API Gateway (stack per module,
+  adrs/deployment/aws-sam-infrastructure.md)
+
+Parameters:
+  DatabaseUrl:
+    Type: String
+    Description: PostgreSQL connection string (from Secrets Manager in real deployments)
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: dotnet10
+    Architectures: [x86_64]
+
+Resources:
+  CatalogApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: skeleton-catalog-api
+      Handler: Catalog.Api
+      CodeUri: ../Catalog.Api/
+      Environment:
+        Variables:
+          DATABASE_URL: !Ref DatabaseUrl
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"

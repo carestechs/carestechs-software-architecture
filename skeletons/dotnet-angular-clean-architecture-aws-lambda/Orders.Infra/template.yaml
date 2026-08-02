@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Orders module — API Lambda, order-placed queue with DLQ + redrive
+  (adrs/deployment/aws-sam-infrastructure.md, adrs/deployment/idempotent-queue-consumers.md),
+  SQS-triggered worker with partial-batch failures
+
+Parameters:
+  DatabaseUrl:
+    Type: String
+    Description: PostgreSQL connection string (from Secrets Manager in real deployments)
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: dotnet10
+    Architectures: [x86_64]
+
+Resources:
+  OrdersApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: skeleton-orders-api
+      Handler: Orders.Api
+      CodeUri: ../Orders.Api/
+      Environment:
+        Variables:
+          DATABASE_URL: !Ref DatabaseUrl
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt OrderPlacedQueue.QueueName
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+  # every queue declares a DLQ with bounded redrive — a queue without a DLQ
+  # fails review (adrs/deployment/idempotent-queue-consumers.md)
+  OrderPlacedQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: order-placed-queue
+      VisibilityTimeout: 60
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt OrderPlacedDeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  OrderPlacedDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: order-placed-dlq
+      MessageRetentionPeriod: 1209600 # 14 days for triage-fix-redrive
+
+  OrderPlacedWorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: skeleton-orders-worker
+      Handler: Orders.Worker::Orders.Worker.Function::HandleAsync
+      CodeUri: ../Orders.Worker/
+      Environment:
+        Variables:
+          DATABASE_URL: !Ref DatabaseUrl
+      Events:
+        OrderPlaced:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt OrderPlacedQueue.Arn
+            BatchSize: 10
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
+
+Outputs:
+  QueueUrl:
+    Value: !Ref OrderPlacedQueue

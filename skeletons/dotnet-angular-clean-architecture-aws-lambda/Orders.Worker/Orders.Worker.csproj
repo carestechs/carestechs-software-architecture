@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AWSProjectType>Lambda</AWSProjectType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.Core" Version="2.*" />
+    <PackageReference Include="Amazon.Lambda.RuntimeSupport" Version="1.*" />
+    <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.*" />
+    <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.*" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.*" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Orders.Application\Orders.Application.csproj" />
+    <ProjectReference Include="..\Orders.Data\Orders.Data.csproj" />
+    <ProjectReference Include="..\Common.Providers\Common.Providers.csproj" />
+  </ItemGroup>
+</Project>
