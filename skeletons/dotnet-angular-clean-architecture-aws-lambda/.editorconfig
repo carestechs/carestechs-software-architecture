@@ -1,0 +1,6 @@
+root = true
+
+[*.cs]
+dotnet_diagnostic.CS4014.severity = error   # unawaited task (adrs/dotnet/async-all-the-way.md)
+dotnet_diagnostic.CA1849.severity = error   # sync API in async context
+dotnet_diagnostic.RS0030.severity = error   # banned symbols

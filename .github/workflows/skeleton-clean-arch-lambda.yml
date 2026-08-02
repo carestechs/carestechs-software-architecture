@@ -1,0 +1,73 @@
+name: skeleton-clean-arch-lambda
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: skeleton-clean-arch-lambda-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: skeletons/dotnet-angular-clean-architecture-aws-lambda
+
+jobs:
+  backend:
+    name: Backend (xUnit vs Flyway-migrated PostgreSQL + ElasticMQ SQS)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      # SQS-compatible broker; localstack:latest now requires a license token
+      # even for community services, so ElasticMQ serves the SQS integration tier
+      elasticmq:
+        image: softwaremill/elasticmq-native:latest
+        ports:
+          - 9324:9324
+    env:
+      TEST_DATABASE_URL: Host=localhost;Port=5432;Database=app_test;Username=postgres;Password=postgres
+      AWS_ENDPOINT_URL: http://localhost:9324
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_REGION: us-east-1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - name: Apply Flyway migrations (the schema story of this profile)
+        run: >
+          docker run --rm --network host
+          -v $PWD/Common.Database/db:/flyway/sql
+          flyway/flyway:10
+          -url=jdbc:postgresql://localhost:5432/app_test
+          -user=postgres -password=postgres migrate
+      - run: dotnet build --configuration Release
+      - run: dotnet test --configuration Release --no-build
+
+  templates:
+    name: SAM templates (validate + lint + build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - run: pip install cfn-lint
+      - run: sam validate --lint -t Catalog.Infra/template.yaml
+      - run: sam validate --lint -t Orders.Infra/template.yaml
+      - run: cfn-lint Catalog.Infra/template.yaml Orders.Infra/template.yaml
+      - run: sam build -t Catalog.Infra/template.yaml
+      - run: sam build -t Orders.Infra/template.yaml
