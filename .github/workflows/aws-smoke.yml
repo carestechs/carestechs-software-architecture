@@ -1,0 +1,134 @@
+name: aws-smoke
+
+# PHASE 3 — deploy-smoke-teardown against a real sandbox AWS account.
+# SHIPPED DORMANT: manual dispatch only, and the preflight fails with setup
+# instructions until the repo variables exist (docs/phase3-aws-smoke.md).
+# ACTIVATION (deliberately deferred):
+#   1. complete the one-time setup in docs/phase3-aws-smoke.md
+#   2. set the repo variables AWS_SMOKE_ROLE_ARN (and optionally AWS_SMOKE_REGION)
+#   3. uncomment the schedule block below for the weekly run
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "full = deploy+smoke+teardown; janitor = only clean leftover smoke stacks"
+        type: choice
+        options: [full, janitor]
+        default: full
+  # schedule:
+  #   - cron: "0 6 * * 1" # weekly, Mondays 06:00 UTC — uncomment to activate
+
+permissions:
+  id-token: write # GitHub OIDC -> the sandbox role; no long-lived keys
+  contents: read
+
+concurrency:
+  group: aws-smoke
+  cancel-in-progress: false # never cancel mid-run — teardown must finish
+
+env:
+  AWS_REGION: ${{ vars.AWS_SMOKE_REGION || 'us-east-1' }}
+
+jobs:
+  preflight:
+    name: Preflight (sandbox configured?)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require the sandbox role variable
+        run: |
+          if [ -z "${{ vars.AWS_SMOKE_ROLE_ARN }}" ]; then
+            echo "::error::AWS_SMOKE_ROLE_ARN is not configured. Phase 3 is dormant by design —"
+            echo "::error::complete the one-time setup in docs/phase3-aws-smoke.md, then set the repo variable."
+            exit 1
+          fi
+          echo "sandbox role configured"
+
+  smoke:
+    name: Deploy + smoke + teardown (${{ matrix.skeleton.name }})
+    needs: preflight
+    if: inputs.mode != 'janitor'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        skeleton:
+          - name: clean-arch-lambda
+            dir: skeletons/dotnet-angular-clean-architecture-aws-lambda
+            stacks: "Catalog.Infra/template.yaml Orders.Infra/template.yaml"
+            params: "DatabaseUrl=Host=placeholder;Database=smoke"
+          - name: multitenant
+            dir: skeletons/dotnet-multitenant-event-driven-aws-lambda
+            stacks: "Messaging.Infra/template.yaml"
+            params: "DbHost=placeholder DbPassword=smoke-placeholder"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_SMOKE_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy stacks
+        working-directory: ${{ matrix.skeleton.dir }}
+        run: |
+          set -euo pipefail
+          for template in ${{ matrix.skeleton.stacks }}; do
+            stack="smoke-${{ matrix.skeleton.name }}-$(basename $(dirname $template) | tr 'A-Z.' 'a-z-')"
+            sam build -t "$template"
+            sam deploy -t "$template" \
+              --stack-name "$stack" --resolve-s3 --no-confirm-changeset \
+              --no-fail-on-empty-changeset --capabilities CAPABILITY_IAM \
+              --parameter-overrides ${{ matrix.skeleton.params }} \
+              --tags purpose=skeleton-smoke
+          done
+
+      - name: Smoke — health endpoints answer through real API Gateway + Lambda
+        run: |
+          set -euo pipefail
+          for stack in $(aws cloudformation list-stacks \
+              --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \
+              --query "StackSummaries[?starts_with(StackName, 'smoke-${{ matrix.skeleton.name }}')].StackName" \
+              --output text); do
+            url=$(aws cloudformation describe-stacks --stack-name "$stack" \
+              --query "Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue" --output text)
+            if [ -n "$url" ] && [ "$url" != "None" ]; then
+              echo "smoking $stack at $url"
+              for attempt in $(seq 1 10); do
+                if curl -sf "${url}v1/health"; then echo " — OK"; break; fi
+                if [ "$attempt" = "10" ]; then echo "::error::$stack health never answered"; exit 1; fi
+                sleep 15 # cold start / DNS propagation
+              done
+            fi
+          done
+
+      - name: Teardown (always — leaked stacks are the cost risk)
+        if: always()
+        run: |
+          for stack in $(aws cloudformation list-stacks \
+              --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE ROLLBACK_COMPLETE CREATE_FAILED \
+              --query "StackSummaries[?starts_with(StackName, 'smoke-${{ matrix.skeleton.name }}')].StackName" \
+              --output text); do
+            echo "deleting $stack"
+            sam delete --stack-name "$stack" --no-prompts --region "$AWS_REGION" || true
+          done
+
+  janitor:
+    name: Janitor (delete any leftover smoke stacks)
+    needs: preflight
+    if: always() && needs.preflight.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_SMOKE_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Sweep smoke-* stacks
+        run: |
+          for stack in $(aws cloudformation list-stacks \
+              --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE ROLLBACK_COMPLETE CREATE_FAILED DELETE_FAILED \
+              --query "StackSummaries[?starts_with(StackName, 'smoke-')].StackName" --output text); do
+            echo "janitor deleting $stack"
+            aws cloudformation delete-stack --stack-name "$stack" || true
+          done

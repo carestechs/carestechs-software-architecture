@@ -17,7 +17,7 @@ exactly which is which.
 | SAM stacks: per-module templates, queue + DLQ + redrive, `ReportBatchItemFailures` | **Linted only** — `sam validate --lint`, `cfn-lint`, `sam build`. NOT deployed: IAM, event-source wiring, and API Gateway integration are unproven here |
 | Angular production build with environment file replacement; the `__API_BASE_URL__` placeholder survives into the bundle | **Executed in CI** — build + grep assertion |
 | S3 upload, placeholder injection, CloudFront invalidation, `sam deploy` orchestration | **Scripted, not proven** — `Web/deploy/deploy.py`, root `build.py`/`deploy.py`; require AWS credentials |
-| Cold starts, real Lambda invocation, IAM in anger | **Not proven** — requires a real AWS account (the deferred phase-3 smoke workflow) |
+| Cold starts, real Lambda invocation, IAM in anger | **Not proven** — the phase-3 workflow exists dormant (`.github/workflows/aws-smoke.yml`); activation is a one-time sandbox setup (`docs/phase3-aws-smoke.md`) |
 
 ## What it demonstrates
 
