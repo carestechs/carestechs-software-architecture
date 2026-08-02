@@ -40,11 +40,17 @@ public class WorkerIntegrationTests
 
         var body = JsonSerializer.Serialize(new OrderPlacedMessage(orderId, Guid.CreateVersion7(), 2));
 
-        DateTimeOffset? firstConfirmation;
         using (var scope = services.CreateScope())
         {
             var processor = scope.ServiceProvider.GetRequiredService<OrderPlacedProcessor>();
             Assert.True(await processor.ProcessAsync(body, "corr-1", TestContext.Current.CancellationToken));
+        }
+
+        // read back through a FRESH context: timestamptz stores microseconds, so a
+        // tracked in-memory value (100ns ticks) would differ from its own round-trip
+        DateTimeOffset? firstConfirmation;
+        using (var scope = services.CreateScope())
+        {
             var db = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
             var confirmed = await db.Orders.FindAsync([orderId], TestContext.Current.CancellationToken);
             Assert.Equal(OrderStatus.Confirmed, confirmed!.Status);
