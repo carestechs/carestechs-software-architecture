@@ -1,0 +1,17 @@
+@if (loading()) {
+  <p class="text-gray-500">Loading products…</p>
+} @else if (error()) {
+  <p class="text-red-600">{{ error() }}</p>
+} @else {
+  <ul class="divide-y rounded-lg border">
+    @for (product of products(); track product.id) {
+      <li class="flex items-center justify-between p-4">
+        <span>{{ product.name }}</span>
+        <span class="font-mono text-sm text-gray-500">{{ product.sku }}</span>
+      </li>
+    } @empty {
+      <li class="p-4 text-gray-500">No products yet.</li>
+    }
+  </ul>
+  <p class="mt-2 text-sm text-gray-500">{{ products().length }} product(s)</p>
+}

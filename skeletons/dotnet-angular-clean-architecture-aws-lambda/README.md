@@ -15,7 +15,9 @@ exactly which is which.
 | Worker semantics: idempotent redelivery, transient-vs-permanent failure split | **Executed in CI** — the worker's real processing core, double-delivery asserted |
 | Same code runs as Kestrel and Lambda (`AddAWSLambdaHosting`) | **Executed** for the Kestrel path (WebApplicationFactory); **packaging linted** via `sam build` |
 | SAM stacks: per-module templates, queue + DLQ + redrive, `ReportBatchItemFailures` | **Linted only** — `sam validate --lint`, `cfn-lint`, `sam build`. NOT deployed: IAM, event-source wiring, and API Gateway integration are unproven here |
-| Cold starts, real Lambda invocation, CloudFront/S3 frontend delivery | **Not proven** — requires a real AWS account (the deferred phase-3 smoke workflow) |
+| Angular production build with environment file replacement; the `__API_BASE_URL__` placeholder survives into the bundle | **Executed in CI** — build + grep assertion |
+| S3 upload, placeholder injection, CloudFront invalidation, `sam deploy` orchestration | **Scripted, not proven** — `Web/deploy/deploy.py`, root `build.py`/`deploy.py`; require AWS credentials |
+| Cold starts, real Lambda invocation, IAM in anger | **Not proven** — requires a real AWS account (the deferred phase-3 smoke workflow) |
 
 ## What it demonstrates
 
@@ -33,6 +35,15 @@ exactly which is which.
 | Dev/prod provider split: file secrets/parameters + local HTTP queue server in Development; SSM/Secrets Manager/SQS otherwise | `deployment/aws-secrets-parameters` |
 | Stack-per-module SAM templates | `deployment/aws-sam-infrastructure`, `deployment/aws-lambda-serverless` |
 | BannedApiAnalyzers as errors — the 0-warning build includes the Lambda projects | enforcement layer |
+
+## The Web frontend
+
+`Web/` is the Angular 20 SPA (standalone components, signals, Tailwind v4) consuming the
+bare-DTO API (`GET /v1/products` — no envelope; this profile deliberately does not adopt
+`rest-envelope`). Dev: `npm start` proxies `/v1` to `Catalog.Api` on :5000. Production:
+`ng build` bakes the `__API_BASE_URL__` placeholder into the bundle; `Web/deploy/deploy.py`
+injects the real URL, syncs to S3, and invalidates CloudFront — the profile's delivery
+model. Root `build.py`/`deploy.py` orchestrate all module stacks plus the Web bundle.
 
 ## Run it locally
 
@@ -62,14 +73,15 @@ dotnet run --project Orders.Worker # dev mode: polls the local queue server
 # tests: pure domain/handler tests always run; integration tests skip unless
 # TEST_DATABASE_URL / AWS_ENDPOINT_URL are set (CI sets both)
 dotnet test
+
+# frontend dev server (separate terminal; proxies /v1 to Catalog.Api on :5000)
+cd Web && npm install && npm start
 ```
 
 ## Deliberately not demonstrated (yet)
 
 - **Real deployment** — `sam deploy`, IAM in anger, API Gateway wiring, cold starts: the
   phase-3 real-AWS smoke workflow, when a sandbox account exists.
-- **The Angular SPA + S3/CloudFront delivery and the build/deploy orchestrators** — planned
-  as the follow-up slice; the backend is the semantic core of this profile.
 - **JWT auth** (Recommended tier) — proven three times in the sibling skeletons; elided here
   to keep the first AWS skeleton focused on what is new (queues, workers, SAM).
 - **aws-batch-workers / maintenance-cli / tauri** — Optional-tier, out of skeleton scope.
