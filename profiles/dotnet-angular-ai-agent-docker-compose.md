@@ -137,9 +137,9 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/dotnet/dto-at-boundary.md` | Never expose EF entities via API. Mapping happens in service layer. | `service-layer-logic` |
 | `adrs/dotnet/async-all-the-way.md` | All I/O uses async/await. Async suffix on service methods. | — |
 | `adrs/angular/standalone-components.md` | All components standalone. No NgModules. | — |
-| `adrs/ai/ai-agent-module.md` | AI agent is a dedicated module (`MyApp.Modules.AI`) following all modular monolith conventions. | `modular-monolith`, `dbcontext-per-module`, `cross-module-by-id`, `thin-api-host`, `service-layer-logic`, `dto-at-boundary` |
-| `adrs/ai/meai-abstraction.md` | All LLM and embedding calls go through M.E.AI abstractions (`IChatClient`, `IEmbeddingGenerator`). | `modular-monolith`, `async-all-the-way` |
-| `adrs/ai/tool-calling-via-services.md` | AI tools are thin adapters that delegate to existing service interfaces. No business logic in tools. | `modular-monolith`, `service-layer-logic`, `meai-abstraction` |
+| `adrs/ai/ai-agent-module.md` | AI agent is a dedicated feature module (own project/package, own AI-owned tables, own tools area) following all modular monolith conventions. | `modular-monolith` / `modular-packages` |
+| `adrs/ai/llm-abstraction.md` | All LLM/embedding calls through the stack's provider-agnostic abstraction (M.E.AI on .NET; Protocol adapters in Python). Provider SDKs only in the composition root. | `async-all-the-way` |
+| `adrs/ai/tool-calling-via-services.md` | AI tools are thin adapters delegating to existing service interfaces via shared contracts. No business logic in tools; no destructive ops without confirmation. | `llm-abstraction` |
 | `adrs/deployment/docker-multi-stage-builds.md` | All components packaged as Docker images with multi-stage builds. `dotnet/aspnet` final stage for backend. | — |
 | `adrs/deployment/env-connection-urls.md` | All config via env vars. External services via connection URLs. Strongly-typed `IConfiguration` sections validate at startup. | — |
 | `adrs/deployment/container-per-process.md` | API and frontend as separate containers. | `docker-multi-stage-builds` |
@@ -164,8 +164,8 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 | `adrs/angular/separate-template-file.md` | Component templates in separate `.html` files via `templateUrl`. No inline templates. | Inline `template` strings (loses HTML tooling and readability) |
 | `adrs/angular/signals-state.md` | Angular Signals for reactive state. RxJS only for HTTP/async. | RxJS BehaviorSubjects (more boilerplate) |
 | `adrs/angular/tailwind-no-css.md` | Tailwind utility classes only. No component CSS files. | Component-scoped SCSS (if team prefers) |
-| `adrs/ai/rag-pgvector.md` | RAG pipeline using pgvector for vector storage and similarity search. | Dedicated vector DB (Pinecone, Qdrant) if scale demands it |
-| `adrs/ai/conversation-history.md` | Multi-turn conversation persistence with token-aware context windowing. | Stateless single-turn interactions (if no conversation continuity needed) |
+| `adrs/ai/rag-pgvector.md` | RAG with pgvector in the existing PostgreSQL: chunk, embed via the abstraction, cosine search with an IVFFlat/HNSW index, delimited context injection. | Dedicated vector DB (Pinecone/Qdrant) at larger scale |
+| `adrs/ai/conversation-history.md` | Conversations/messages persisted in AI-module tables; token-aware pruning through a single context builder; system prompt and latest user message always survive. | Prune-only vs persisted-summary flagged system message |
 | `adrs/deployment/nginx-spa-proxy.md` | Nginx serves built SPA and reverse-proxies `/api/` to backend. `try_files` for client-side routing. | Serving SPA from backend framework or separate CDN |
 
 ## Optional (pick based on project needs)

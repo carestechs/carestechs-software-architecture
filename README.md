@@ -95,18 +95,14 @@ carestechs-software-architecture/
 │   │   ├── external-provider-bridge.md
 │   │   └── machine-to-machine-auth.md
 │   │
-│   ├── ai/                        # AI agent decisions
-│   │   ├── ai-agent-module.md           # .NET variant
-│   │   ├── ai-module-python.md          # Python variant
-│   │   ├── meai-abstraction.md          # .NET (M.E.AI)
-│   │   ├── llm-abstraction-python.md    # Python (provider-agnostic)
-│   │   ├── tool-calling-via-services.md         # .NET variant
-│   │   ├── tool-calling-via-services-python.md  # Python variant
-│   │   ├── rag-pgvector.md              # .NET variant
-│   │   ├── rag-pgvector-python.md       # Python variant
-│   │   ├── conversation-history.md      # .NET variant
-│   │   ├── conversation-history-python.md       # Python variant
-│   │   └── claude-agent-sdk.md          # TypeScript (direct SDK, no abstraction)
+│   ├── ai/                        # AI agent decisions (stack-neutral, .NET + Python mechanics inside)
+│   │   ├── ai-agent-module.md
+│   │   ├── llm-abstraction.md
+│   │   ├── tool-calling-via-services.md
+│   │   ├── rag-pgvector.md
+│   │   ├── conversation-history.md
+│   │   ├── claude-agent-sdk.md          # TypeScript (direct SDK, no abstraction)
+│   │   └── (+6 superseded tombstones from the pre-merge per-stack variants)
 │   │
 │   └── deployment/                # Containerization, config, and infrastructure
 │       ├── docker-multi-stage-builds.md
@@ -145,7 +141,7 @@ carestechs-software-architecture/
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**91 ADRs** across 9 categories, **8 stack profiles**.
+**86 active ADRs** (plus 6 superseded tombstones) across 9 categories, **8 stack profiles**.
 
 ## How to Use
 

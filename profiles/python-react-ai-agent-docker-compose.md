@@ -131,9 +131,9 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/python/async-all-the-way.md` | All I/O uses async/await. AsyncSession for DB. Uvicorn as ASGI server. | `fastapi-framework` |
 | `adrs/python/sqlalchemy-async.md` | SQLAlchemy 2.0 async ORM with Alembic migrations. asyncpg driver. | `async-all-the-way` |
 | `adrs/react/functional-components.md` | Functional components with hooks only. Feature-based folder organization. | — |
-| `adrs/ai/ai-module-python.md` | AI agent is a dedicated module (`src/app/modules/ai/`) following all modular monolith conventions. | `modular-packages`, `service-layer-logic`, `pydantic-at-boundary`, `sqlalchemy-async` |
-| `adrs/ai/llm-abstraction-python.md` | All LLM and embedding calls go through a provider-agnostic abstraction. Provider SDKs only in composition root. | `async-all-the-way`, `service-layer-logic` |
-| `adrs/ai/tool-calling-via-services-python.md` | AI tools are thin adapters that delegate to existing service functions. No business logic in tools. | `modular-packages`, `service-layer-logic`, `llm-abstraction-python` |
+| `adrs/ai/ai-agent-module.md` | AI agent is a dedicated feature module (own project/package, own AI-owned tables, own tools area) following all modular monolith conventions. | `modular-monolith` / `modular-packages` |
+| `adrs/ai/llm-abstraction.md` | All LLM/embedding calls through the stack's provider-agnostic abstraction (M.E.AI on .NET; Protocol adapters in Python). Provider SDKs only in the composition root. | `async-all-the-way` |
+| `adrs/ai/tool-calling-via-services.md` | AI tools are thin adapters delegating to existing service interfaces via shared contracts. No business logic in tools; no destructive ops without confirmation. | `llm-abstraction` |
 | `adrs/deployment/docker-multi-stage-builds.md` | All components packaged as Docker images with multi-stage builds. Slim final stages. | — |
 | `adrs/deployment/env-connection-urls.md` | All config via env vars. External services via connection URLs. Pydantic BaseSettings validates at startup. | — |
 | `adrs/deployment/container-per-process.md` | API, worker, and frontend as separate containers. Same image + different command for backend services. | `docker-multi-stage-builds` |
@@ -158,8 +158,8 @@ These are battle-tested defaults. You can swap them, but you should have a good 
 | `adrs/api/jwt-bearer-auth.md` | JWT Bearer tokens. Short-lived access + rotated refresh. | API key auth (simpler for developer-facing APIs) |
 | `adrs/react/tanstack-query.md` | TanStack Query for all server state. Caching, refetching, cache invalidation. | SWR (fewer features) or raw useEffect (not recommended) |
 | `adrs/react/tailwind-shadcn.md` | Tailwind CSS + shadcn/ui components. Full ownership, no runtime dependency. | Material UI or Chakra UI (heavier, opinionated) |
-| `adrs/ai/rag-pgvector-python.md` | RAG pipeline using pgvector for vector storage and cosine similarity search. | Dedicated vector DB (Pinecone, Qdrant) if scale demands it |
-| `adrs/ai/conversation-history-python.md` | Multi-turn conversation persistence with token-aware context windowing. | Stateless single-turn interactions (if no conversation continuity needed) |
+| `adrs/ai/rag-pgvector.md` | RAG with pgvector in the existing PostgreSQL: chunk, embed via the abstraction, cosine search with an IVFFlat/HNSW index, delimited context injection. | Dedicated vector DB (Pinecone/Qdrant) at larger scale |
+| `adrs/ai/conversation-history.md` | Conversations/messages persisted in AI-module tables; token-aware pruning through a single context builder; system prompt and latest user message always survive. | Prune-only vs persisted-summary flagged system message |
 | `adrs/deployment/nginx-spa-proxy.md` | Nginx serves built SPA and reverse-proxies `/api/` to backend. `try_files` for client-side routing. | Serving SPA from backend framework or separate CDN |
 
 ## Optional (pick based on project needs)
