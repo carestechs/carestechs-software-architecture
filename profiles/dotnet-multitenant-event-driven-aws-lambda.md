@@ -132,6 +132,8 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/database/timestamptz-always.md` | All datetimes are `timestamptz`. C# uses `DateTimeOffset`. | `timestamp` without timezone (loses context) |
 | `adrs/api/rest-envelope.md` | All 2xx responses wrapped in `{ data, meta }` envelope. | Bare payloads (loses uniform meta) |
 | `adrs/deployment/maintenance-cli-scheduler.md` | Maintenance routines runnable via operator CLI and scheduled worker (EventBridge rule per routine). | Ad-hoc scripts (unauditable) |
+| `adrs/deployment/local-aws-substitution.md` | Local dev and CI never need AWS credentials: each managed service gets a designated substitute behind the production seam (endpoint override or DI). No faithful emulator means pure-function extraction + recorded fixtures, with the gap named. | LocalStack all-in-one (heavyweight, license-gated startup) or a shared dev AWS account (credentials, cost, contention) |
+| `adrs/deployment/staging-cost-tradeoffs.md` | Staging is real AWS from the same templates; cost is cut by parameterized operational downgrades (NAT instance, single-AZ, shorter retention) — never by changing service types, wiring, or auth. Defaults stay production-valued. | A full production-mirror staging when budget allows |
 
 ## Optional (pick based on project needs)
 
@@ -158,7 +160,7 @@ When using this stack, these patterns emerge from the combination of ADRs:
 - **Module boundary enforcement stack:** cross-module-by-id (data model) + schema-per-module (storage) + module-facade (code) reinforce each other — a boundary violation has to defeat all three to ship.
 - **Naming translation:** C# PascalCase properties → lowercase database columns → camelCase JSON. DynamoDB table names are plain constants in owning repositories.
 - **Resource naming:** `{platform}-{module}-{role}` for Lambdas and queues (e.g., `myplatform-messaging-api`, `myplatform-outbox-dispatcher`). Environment separation is at the account/stack level, not name suffixes in runtime code.
-- **Dev/prod parity:** the same code runs locally (Kestrel + local PostgreSQL + file-based secrets/parameters + HTTP queue server) and in production (Lambda + RDS + AWS providers). Only DI registrations differ by environment.
+- **Dev/prod parity:** the same code runs locally (Kestrel + local PostgreSQL + file-based secrets/parameters + HTTP queue server) and in production (Lambda + RDS + AWS providers). Only DI registrations differ by environment. What substitutes for each AWS service locally — and what has no faithful emulator — is codified in `adrs/deployment/local-aws-substitution.md`; sanctioned staging cost downgrades in `adrs/deployment/staging-cost-tradeoffs.md`.
 - **No secrets in code:** gitignored `.secrets`/`.parameters` files in dev; Secrets Manager + SSM in production, always behind the provider abstractions. Internal AWS endpoints (IoT data endpoint, etc.) are discovered at deploy time and passed as stack parameters.
 
 ## Development Workflow

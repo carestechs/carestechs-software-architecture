@@ -195,15 +195,15 @@ After compiling, you still need to fill in:
 
 | Category | Count | What It Covers |
 |----------|-------|----------------|
-| dotnet | 15 | Modular monolith, Clean Architecture, CQRS, rich entities, Result pattern, events, DbContext, DTOs, async, xUnit testing, structured logging |
+| dotnet | 19 | Modular monolith, Clean Architecture, CQRS, rich entities, Result pattern, events, DbContext, DTOs, async, xUnit testing, structured logging |
 | python | 10 | FastAPI, modular packages, Pydantic, SQLAlchemy, Celery, Problem Details errors, pytest testing, structured logging |
 | angular | 4 | Standalone components, templates, Signals, Tailwind |
 | react | 3 | Functional components, TanStack Query, Tailwind + shadcn |
 | typescript | 6 | Strict TS, named exports, functional composition, boundary types, core/adapter, Vitest |
-| database | 5 | UUID PKs, snake_case naming, lowercase naming, soft deletes, timestamptz |
-| api | 4 | REST envelope, JWT auth, role-based authorization, offset pagination |
-| ai | 11 | AI agent modules, LLM abstraction, tool calling, RAG, conversation history, Claude Agent SDK |
-| deployment | 17 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions CI + composite action, Zod config, maintenance scheduler |
+| database | 9 | UUID PKs, naming conventions, soft deletes, timestamptz, database-per-tenant, schema-per-module, DynamoDB hot path, transactional outbox |
+| api | 7 | REST envelope, JWT auth, Cognito auth, machine-to-machine auth, role-based authorization, offset pagination, external provider bridge |
+| ai | 6 | AI agent modules, LLM abstraction, tool calling, RAG, conversation history, Claude Agent SDK |
+| deployment | 27 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions CI + composite action, Zod config, maintenance scheduler, local AWS substitution, staging cost downgrades |
 
 ## ADR Format
 

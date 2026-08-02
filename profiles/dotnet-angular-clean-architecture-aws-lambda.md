@@ -261,6 +261,8 @@ These ADRs define the fundamental architecture. Removing any of them breaks the 
 | `adrs/angular/tailwind-no-css.md` | Tailwind utility classes only. No component CSS files. | Component-scoped SCSS |
 | `adrs/api/machine-to-machine-auth.md` | Opaque hashed API tokens for integration clients; dedicated authorizer injects tenant + scope. | OAuth client-credentials via Cognito (OIDC partners) |
 | `adrs/deployment/s3-object-storage.md` | Tenant-scoped object keys, presigned transfer, metadata mastered in the DB. | Only for platforms without binary content |
+| `adrs/deployment/local-aws-substitution.md` | Local dev and CI never need AWS credentials: each managed service gets a designated substitute behind the production seam (endpoint override or DI). No faithful emulator means pure-function extraction + recorded fixtures, with the gap named. | LocalStack all-in-one (heavyweight, license-gated startup) or a shared dev AWS account (credentials, cost, contention) |
+| `adrs/deployment/staging-cost-tradeoffs.md` | Staging is real AWS from the same templates; cost is cut by parameterized operational downgrades (NAT instance, single-AZ, shorter retention) — never by changing service types, wiring, or auth. Defaults stay production-valued. | A full production-mirror staging when budget allows |
 
 ## Optional (pick based on project needs)
 
@@ -288,7 +290,7 @@ When using this stack, these patterns emerge from the combination of ADRs:
 - **Time handling:** Backend stores UTC `DateTimeOffset`, database uses `timestamptz`, frontend converts to local display time.
 - **ID strategy:** UUIDs flow end-to-end: generated in C# with `Guid.NewGuid()`, stored as `uuid` in PostgreSQL, serialized as strings in JSON.
 - **Module isolation:** Each module has four projects (Domain/Application/Data/Api) with its own DbContext, Lambda, and SAM stack. Cross-module communication is by ID + shared event via queue.
-- **Dev/Prod parity:** The same `Program.cs` runs both locally (Kestrel + local PostgreSQL + file-based config) and in production (Lambda + RDS PostgreSQL + AWS SDK providers). Only the DI registrations differ based on `ASPNETCORE_ENVIRONMENT`.
+- **Dev/Prod parity:** The same `Program.cs` runs both locally (Kestrel + local PostgreSQL + file-based config) and in production (Lambda + RDS PostgreSQL + AWS SDK providers). Only the DI registrations differ based on `ASPNETCORE_ENVIRONMENT`. What substitutes for each AWS service locally — and what has no faithful emulator — is codified in `adrs/deployment/local-aws-substitution.md`; sanctioned staging cost downgrades in `adrs/deployment/staging-cost-tradeoffs.md`.
 - **Local database:** PostgreSQL runs locally as a single Docker container — infrastructure only. The application itself is never containerized in this profile (that is what `aws-lambda-serverless.md`'s conflicts with the Docker ADRs are about). Flyway applies the same `Common.Database/db/` migrations locally and in production, so the schema (uuid, timestamptz) is identical in both environments.
 - **No secrets in code:** Development uses gitignored `.secrets`/`.parameters` files. Production reads from AWS Secrets Manager and SSM Parameter Store. Application code uses the abstraction layer only.
 - **Migration strategy:** Flyway runs against the shared PostgreSQL database. All modules share one migration history. Each module's DbContext maps only its own tables.
