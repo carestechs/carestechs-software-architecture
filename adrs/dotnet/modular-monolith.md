@@ -5,6 +5,7 @@ status: Active
 requires: []
 conflicts_with:
   - adrs/dotnet/clean-architecture-layers.md
+  - adrs/dotnet/single-project-monolith.md
   - adrs/python/modular-packages.md
 last_reviewed: 2026-07-29
 ---
