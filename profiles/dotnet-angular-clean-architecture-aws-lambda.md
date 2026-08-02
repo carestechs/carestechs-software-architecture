@@ -9,7 +9,8 @@ A buildable reference implementation lives at
 [`skeletons/dotnet-angular-clean-architecture-aws-lambda/`](../skeletons/dotnet-angular-clean-architecture-aws-lambda/).
 CI executes what can run without AWS (unit tests everywhere; xUnit against a Flyway-migrated
 PostgreSQL and the real SQS provider against an SQS-compatible broker (ElasticMQ)) and lints what cannot
-(`sam validate` / `cfn-lint` / `sam build` on the per-module templates). Its README carries
+(`sam validate` / `cfn-lint` / `sam build` on the per-module templates). The Angular SPA builds in CI with the `__API_BASE_URL__` deploy-time placeholder asserted
+to survive the bundle; S3/CloudFront delivery is scripted but unproven. Its README carries
 the honest proven-vs-linted table.
 
 ## Overview
