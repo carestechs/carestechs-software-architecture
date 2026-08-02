@@ -185,6 +185,10 @@ alternative = "None viable — an SQS pipeline without DLQs is an unmonitored ou
 summary = "Real-time client push via IoT Core MQTT; per-user topics; custom authorizer scopes policy to caller's subtree."
 alternative = "Polling (degraded), API GW WebSockets (self-managed fan-out)"
 
+[adr."adrs/deployment/local-aws-substitution.md"]
+summary = "Local dev and CI never need AWS credentials: each managed service gets a designated substitute behind the production seam (endpoint override or DI). No faithful emulator means pure-function extraction + recorded fixtures, with the gap named."
+alternative = "LocalStack all-in-one (heavyweight, license-gated startup) or a shared dev AWS account (credentials, cost, contention)"
+
 [adr."adrs/deployment/local-dev-compose.md"]
 summary = "`docker-compose.yml` for local infra, `docker-compose.prod.yml` for app services on shared network."
 depends_on = "`docker-multi-stage-builds`, `env-connection-urls`"
@@ -214,6 +218,10 @@ alternative = "Only for platforms without binary content"
 [adr."adrs/deployment/spa-served-by-api.md"]
 summary = "SPA bundle built in the Dockerfile's Node stage, served from the API's `wwwroot` with an `index.html` fallback after API routes. One container, one origin, no CORS."
 depends_on = "`docker-multi-stage-builds`"
+
+[adr."adrs/deployment/staging-cost-tradeoffs.md"]
+summary = "Staging is real AWS from the same templates; cost is cut by parameterized operational downgrades (NAT instance, single-AZ, shorter retention) — never by changing service types, wiring, or auth. Defaults stay production-valued."
+alternative = "A full production-mirror staging when budget allows"
 
 [adr."adrs/deployment/tauri-desktop-shell.md"]
 summary = "Tauri 2 desktop shell wrapping the Angular frontend. Rust backend for native OS access."
@@ -457,6 +465,8 @@ recommended = [
   "adrs/angular/tailwind-no-css.md",
   "adrs/api/machine-to-machine-auth.md",
   "adrs/deployment/s3-object-storage.md",
+  "adrs/deployment/local-aws-substitution.md",
+  "adrs/deployment/staging-cost-tradeoffs.md",
 ]
 optional = [
   "adrs/deployment/tauri-desktop-shell.md",
@@ -588,6 +598,8 @@ recommended = [
   "adrs/database/timestamptz-always.md",
   "adrs/api/rest-envelope.md",
   "adrs/deployment/maintenance-cli-scheduler.md",
+  "adrs/deployment/local-aws-substitution.md",
+  "adrs/deployment/staging-cost-tradeoffs.md",
 ]
 optional = [
   "adrs/api/offset-pagination.md",
