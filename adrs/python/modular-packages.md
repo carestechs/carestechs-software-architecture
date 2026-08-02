@@ -1,6 +1,7 @@
 ---
 category: python
 stack: python
+family: modular-monolith
 status: Active
 requires:
   - adrs/python/fastapi-framework.md

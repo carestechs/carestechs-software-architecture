@@ -30,6 +30,10 @@ Per ADR file (adrs/**/*.md):
   A1  Frontmatter present, closed, no duplicate keys, required keys present
   A2  category matches the folder name; in language folders
       (dotnet/python/typescript/angular/react) stack must equal the folder
+  A2b family (optional): kebab-case slug shared by sibling ADRs answering the
+      same architectural question; two or more Active members required; members
+      must be pairwise stack-separated or mutually conflicting; review dates
+      spanning more than 90 days inside a family warn
   A3  status/stack values valid; last_reviewed is a YYYY-MM-DD date
   A4  requires/conflicts entries are adrs/<cat>/<file>.md paths;
       "|" alternatives only in requires
@@ -67,7 +71,7 @@ ADR_DIR = ROOT / "adrs"
 PROFILE_DIR = ROOT / "profiles"
 
 REQUIRED_KEYS = ("category", "stack", "status", "requires", "conflicts_with")
-OPTIONAL_KEYS = ("last_reviewed", "superseded_by", "verify_against")
+OPTIONAL_KEYS = ("last_reviewed", "superseded_by", "verify_against", "family")
 KNOWN_KEYS = set(REQUIRED_KEYS) | set(OPTIONAL_KEYS)
 LIST_KEYS = {"requires", "conflicts_with"}
 
@@ -76,6 +80,7 @@ ITEM_RE = re.compile(r"^  - (\S.*?)\s*$")
 PATH_RE = re.compile(r"^adrs/[A-Za-z0-9._/-]+\.md$")
 LOOSE_PATH_RE = re.compile(r"adrs/[A-Za-z0-9._/-]+\.md")
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+FAMILY_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 LEGACY_RE = re.compile(
     r"^\*\*(Category|Stack|Status|Requires|Conflicts with|Last reviewed|Superseded by):\*\*")
 
@@ -192,6 +197,14 @@ def load_adrs() -> dict[str, dict]:
                 err(f"{rel}: has 'superseded_by' but status is '{meta.get('status')}' (must be Superseded)")
         elif meta.get("status") == "Superseded":
             err(f"{rel}: status is Superseded but no 'superseded_by' key points at the replacement")
+        family = meta.get("family")
+        if family is not None:
+            if not isinstance(family, str) or not FAMILY_RE.match(family):
+                err(f"{rel}: family '{family}' is not a kebab-case slug")
+                family = None
+            elif meta.get("status") == "Superseded":
+                err(f"{rel}: family '{family}' on a Superseded ADR — tombstones leave their family")
+                family = None
         verify_against = meta.get("verify_against")
         if verify_against is not None and not isinstance(verify_against, list):
             err(f"{rel}: verify_against must be a list of framework/version strings")
@@ -203,12 +216,51 @@ def load_adrs() -> dict[str, dict]:
         conflicts = [g[0] for g in conflict_groups if g]
         adrs[rel] = {"requires": requires, "conflicts": conflicts,
                      "stack": stack, "superseded_by": superseded_by,
-                     "last_reviewed": reviewed, "verify_against": verify_against or []}
+                     "last_reviewed": reviewed, "verify_against": verify_against or [],
+                     "family": family}
     return adrs
 
 
 def all_required_members(data: dict) -> list[str]:
     return [m for group in data["requires"] for m in group]
+
+
+def check_families(adrs: dict[str, dict]) -> None:
+    """Family = sibling ADRs answering the same architectural question with
+    per-stack (or per-tool) variants. Members must be exclusive per system:
+    different concrete stacks, or mutually declared conflicts."""
+    import datetime
+
+    families: dict[str, list[str]] = {}
+    for rel in sorted(adrs):
+        family = adrs[rel].get("family")
+        if family:
+            families.setdefault(family, []).append(rel)
+
+    for family, members in sorted(families.items()):
+        if len(members) < 2:
+            err(f"family '{family}': only one member ({members[0]}) — "
+                "a family links two or more sibling ADRs")
+            continue
+
+        for i in range(len(members)):
+            for j in range(i + 1, len(members)):
+                a, b = members[i], members[j]
+                stack_a, stack_b = adrs[a]["stack"], adrs[b]["stack"]
+                stack_split = stack_a != stack_b and "any" not in (stack_a, stack_b)
+                mutual_conflict = (b in adrs[a]["conflicts"] and a in adrs[b]["conflicts"])
+                if not (stack_split or mutual_conflict):
+                    err(f"family '{family}': {a} and {b} are neither stack-separated "
+                        "nor mutually conflicting — family members must be exclusive per system")
+
+        dates = []
+        for member in members:
+            reviewed = adrs[member].get("last_reviewed")
+            if reviewed and DATE_RE.match(str(reviewed)):
+                dates.append(datetime.date.fromisoformat(str(reviewed)))
+        if len(dates) == len(members) and (max(dates) - min(dates)).days > 90:
+            warn(f"family '{family}': member review dates span more than 90 days — "
+                 "siblings drift apart; re-verify them together")
 
 
 def check_references(adrs: dict[str, dict]) -> None:
@@ -408,6 +460,7 @@ def main() -> int:
         return 0
     check_references(adrs)
     check_graph(adrs)
+    check_families(adrs)
     if PROFILE_DIR.is_dir():
         check_profiles(adrs)
     enforcement_dir = ROOT / "enforcement"

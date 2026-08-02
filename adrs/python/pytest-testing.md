@@ -1,6 +1,7 @@
 ---
 category: python
 stack: python
+family: per-module-testing
 status: Active
 requires:
   - adrs/python/fastapi-framework.md

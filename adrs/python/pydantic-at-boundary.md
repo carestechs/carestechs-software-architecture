@@ -1,6 +1,7 @@
 ---
 category: python
 stack: python
+family: dto-at-boundary
 status: Active
 requires:
   - adrs/python/service-layer-logic.md

@@ -1,6 +1,7 @@
 ---
 category: dotnet
 stack: dotnet
+family: per-module-testing
 status: Active
 requires: []
 conflicts_with:

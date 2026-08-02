@@ -1,6 +1,7 @@
 ---
 category: dotnet
 stack: dotnet
+family: service-layer-logic
 status: Active
 requires: []
 conflicts_with:

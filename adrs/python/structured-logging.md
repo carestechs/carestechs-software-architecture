@@ -1,6 +1,7 @@
 ---
 category: python
 stack: python
+family: structured-logging
 status: Active
 requires: []
 conflicts_with:
