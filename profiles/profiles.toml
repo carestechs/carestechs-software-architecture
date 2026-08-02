@@ -60,6 +60,7 @@ alternative = "Only for platforms without external provider integration"
 [adr."adrs/api/jwt-bearer-auth.md"]
 summary = "JWT Bearer tokens. Short-lived access + rotated refresh."
 alternative = "Session cookies (if not SPA architecture)"
+depends_on = "—"
 
 [adr."adrs/api/machine-to-machine-auth.md"]
 summary = "Opaque hashed API tokens for integration clients; dedicated authorizer injects tenant + scope."
@@ -73,6 +74,7 @@ when_to_include = "Any project with list endpoints"
 summary = "All responses wrapped in `{ data, meta }` envelope."
 alternative = "Flat responses with pagination in headers"
 when_to_include = "Projects wanting a uniform response contract — required if `offset-pagination` is included"
+depends_on = "—"
 
 [adr."adrs/api/role-based-authorization.md"]
 summary = "Role gates at the endpoint layer + ownership checks in services. Deny by default. Requires `jwt-bearer-auth`."
@@ -136,6 +138,7 @@ depends_on = "`aws-lambda-serverless`"
 [adr."adrs/deployment/container-per-process.md"]
 summary = "API and frontend as separate containers."
 depends_on = "`docker-multi-stage-builds`"
+alternative = "Several processes in one container (harder to scale, restart, and reason about)"
 
 [adr."adrs/deployment/correlation-propagation.md"]
 summary = "One correlation ID from ingress through every queue hop and log scope."
@@ -208,6 +211,10 @@ alternative = "Direct synchronous calls between modules (tighter coupling, casca
 summary = "Tenant-scoped object keys, presigned transfer, metadata mastered in the DB."
 alternative = "Only for platforms without binary content"
 
+[adr."adrs/deployment/spa-served-by-api.md"]
+summary = "SPA bundle built in the Dockerfile's Node stage, served from the API's `wwwroot` with an `index.html` fallback after API routes. One container, one origin, no CORS."
+depends_on = "`docker-multi-stage-builds`"
+
 [adr."adrs/deployment/tauri-desktop-shell.md"]
 summary = "Tauri 2 desktop shell wrapping the Angular frontend. Rust backend for native OS access."
 when_to_include = "Modules needing a native desktop client (image inspection, offline access)"
@@ -245,6 +252,10 @@ depends_on = "`service-layer-logic`"
 summary = "In-process EventBus + Reactors for side effects. Cross-module work goes through queues."
 depends_on = "`cqrs-handlers`"
 
+[adr."adrs/dotnet/in-process-background-jobs.md"]
+summary = "Bounded `Channel<T>` + `BackgroundService` for tolerable-loss work; Hangfire on PostgreSQL when jobs must survive restarts. One background-work model per system — a broker means graduating."
+alternative = "`queue-based-decoupling` with a real broker (the next rung)"
+
 [adr."adrs/dotnet/modular-monolith.md"]
 summary = "Single deployable, feature modules as separate .csproj with clear boundaries"
 depends_on = "—"
@@ -261,6 +272,7 @@ depends_on = "`cqrs-handlers`"
 [adr."adrs/dotnet/rfc7807-errors.md"]
 summary = "RFC 7807 Problem Details for all errors. Global exception handler."
 alternative = "Custom error envelope (not recommended)"
+depends_on = "—"
 
 [adr."adrs/dotnet/rich-domain-entities.md"]
 summary = "Private setters, static `Create()` factory, business logic in entities."
@@ -268,6 +280,10 @@ depends_on = "`clean-architecture-layers`"
 
 [adr."adrs/dotnet/service-layer-logic.md"]
 summary = "Controllers are thin. All business logic lives in service classes."
+depends_on = "—"
+
+[adr."adrs/dotnet/single-project-monolith.md"]
+summary = "ONE web project, folder per feature, one `AppDbContext` with EF migrations. Service-layer + DTO rules apply in full — graduation to modules stays a restructuring PR."
 depends_on = "—"
 
 [adr."adrs/dotnet/strategy-dispatch.md"]
@@ -622,6 +638,49 @@ depends_on = "`cqrs-handlers`"
 
 [profile.dotnet-multitenant-event-driven-aws-lambda.override."adrs/dotnet/xunit-per-module-tests.md"]
 summary = "xUnit test projects mirroring modules/layers. Real PostgreSQL for data-access tests."
+
+[profile.dotnet-angular-simple-monolith-single-server]
+required = [
+  "adrs/dotnet/single-project-monolith.md",
+  "adrs/dotnet/service-layer-logic.md",
+  "adrs/dotnet/dto-at-boundary.md",
+  "adrs/dotnet/async-all-the-way.md",
+  "adrs/dotnet/rfc7807-errors.md",
+  "adrs/api/rest-envelope.md",
+  "adrs/api/jwt-bearer-auth.md",
+  "adrs/deployment/docker-multi-stage-builds.md",
+  "adrs/deployment/env-connection-urls.md",
+  "adrs/deployment/local-dev-compose.md",
+  "adrs/deployment/spa-served-by-api.md",
+]
+recommended = [
+  "adrs/dotnet/in-process-background-jobs.md",
+  "adrs/dotnet/structured-logging.md",
+  "adrs/dotnet/xunit-per-module-tests.md",
+  "adrs/api/role-based-authorization.md",
+  "adrs/database/uuid-primary-keys.md",
+  "adrs/database/snake-case-naming.md",
+  "adrs/database/timestamptz-always.md",
+  "adrs/deployment/container-per-process.md",
+  "adrs/deployment/github-actions-ci.md",
+  "adrs/angular/standalone-components.md",
+  "adrs/angular/signals-state.md",
+  "adrs/angular/tailwind-no-css.md",
+]
+optional = [
+  "adrs/api/offset-pagination.md",
+  "adrs/database/soft-deletes.md",
+  "adrs/angular/separate-template-file.md",
+]
+
+[profile.dotnet-angular-simple-monolith-single-server.override."adrs/deployment/container-per-process.md"]
+summary = "The app (API + SPA bundle, one process) and PostgreSQL as separate containers."
+
+[profile.dotnet-angular-simple-monolith-single-server.override."adrs/dotnet/xunit-per-module-tests.md"]
+summary = "One xUnit test project mirroring the app; WebApplicationFactory against real PostgreSQL for data-access tests."
+
+[profile.dotnet-angular-simple-monolith-single-server.override."adrs/dotnet/service-layer-logic.md"]
+depends_on = "`single-project-monolith`"
 
 [profile.python-react-ai-agent-docker-compose]
 required = [

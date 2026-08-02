@@ -42,7 +42,9 @@ carestechs-software-architecture/
 │   │   ├── xunit-per-module-tests.md
 │   │   ├── structured-logging.md
 │   │   ├── module-facade.md
-│   │   └── strategy-dispatch.md
+│   │   ├── strategy-dispatch.md
+│   │   ├── single-project-monolith.md
+│   │   └── in-process-background-jobs.md
 │   │
 │   ├── python/                    # Python / FastAPI decisions
 │   │   ├── fastapi-framework.md
@@ -110,6 +112,7 @@ carestechs-software-architecture/
 │       ├── container-per-process.md
 │       ├── local-dev-compose.md
 │       ├── nginx-spa-proxy.md
+│       ├── spa-served-by-api.md
 │       ├── aws-lambda-serverless.md
 │       ├── aws-sam-infrastructure.md
 │       ├── aws-secrets-parameters.md
@@ -131,6 +134,7 @@ carestechs-software-architecture/
 │       └── github-actions-ci.md
 │
 └── profiles/                  # Pre-built ADR sets (stack + deployment mode)
+    ├── dotnet-angular-simple-monolith-single-server.md
     ├── dotnet-angular-modular-monolith-docker-compose.md
     ├── dotnet-angular-ai-agent-docker-compose.md
     ├── python-react-modular-monolith-docker-compose.md
@@ -141,7 +145,7 @@ carestechs-software-architecture/
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**86 active ADRs** (plus 6 superseded tombstones) across 9 categories, **8 stack profiles**.
+**89 active ADRs** (plus 6 superseded tombstones) across 9 categories, **9 stack profiles**.
 
 ## How to Use
 
@@ -153,6 +157,7 @@ Profiles are curated sets of ADRs organized into Required, Recommended, and Opti
 |---------|-------|-------------|
 | **python-react-modular-monolith-docker-compose** | Python + React + PostgreSQL | Docker Compose |
 | **python-react-ai-agent-docker-compose** | Python + React + PostgreSQL + AI | Docker Compose |
+| **dotnet-angular-simple-monolith-single-server** | .NET + Angular + PostgreSQL, one deployable | Single server (compose) |
 | **dotnet-angular-modular-monolith-docker-compose** | .NET + Angular + PostgreSQL | Docker Compose |
 | **dotnet-angular-ai-agent-docker-compose** | .NET + Angular + PostgreSQL + AI | Docker Compose |
 | **dotnet-angular-clean-architecture-aws-lambda** | .NET + Angular + PostgreSQL | AWS Lambda |
