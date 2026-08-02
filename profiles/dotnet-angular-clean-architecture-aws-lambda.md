@@ -3,6 +3,15 @@
 **Status:** Active
 **Assumes:** .NET 10+, Angular 20+, PostgreSQL, EF Core 10+, Flyway, AWS Lambda, API Gateway, SQS, SAM/CloudFormation, Tailwind CSS 4+, Tauri 2 + Rust (desktop)
 
+## Golden Skeleton
+
+A buildable reference implementation lives at
+[`skeletons/dotnet-angular-clean-architecture-aws-lambda/`](../skeletons/dotnet-angular-clean-architecture-aws-lambda/).
+CI executes what can run without AWS (unit tests everywhere; xUnit against a Flyway-migrated
+PostgreSQL and the real SQS provider against LocalStack) and lints what cannot
+(`sam validate` / `cfn-lint` / `sam build` on the per-module templates). Its README carries
+the honest proven-vs-linted table.
+
 ## Overview
 
 A curated set of ADRs for building a distributed system of independently deployable modules, each following Clean Architecture (Domain/Application/Data/Api layers). Backend modules deploy as AWS Lambda functions behind API Gateway. Modules communicate asynchronously via SQS queues. The Angular SPA is deployed to S3 + CloudFront. Database schema is managed by Flyway SQL migrations, not EF Core migrations.
