@@ -41,12 +41,19 @@ public static class TestEnv
             attributes.Add(new AttributeDefinition(rangeKey, ScalarAttributeType.S));
         }
 
-        await dynamo.CreateTableAsync(new CreateTableRequest
+        try
         {
-            TableName = table,
-            KeySchema = schema,
-            AttributeDefinitions = attributes,
-            BillingMode = BillingMode.PAY_PER_REQUEST,
-        }, cancellationToken);
+            await dynamo.CreateTableAsync(new CreateTableRequest
+            {
+                TableName = table,
+                KeySchema = schema,
+                AttributeDefinitions = attributes,
+                BillingMode = BillingMode.PAY_PER_REQUEST,
+            }, cancellationToken);
+        }
+        catch (ResourceInUseException)
+        {
+            // test classes run in parallel — another one won the create race
+        }
     }
 }
