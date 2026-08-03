@@ -254,10 +254,12 @@ Machine-checkable constraints ship as ready-to-copy lint and analyzer configurat
 
 `skeletons/` holds buildable reference projects, one per profile (currently:
 `python-react-modular-monolith-docker-compose`, `dotnet-angular-modular-monolith-docker-compose`,
-`dotnet-angular-simple-monolith-single-server`, `dotnet-angular-clean-architecture-aws-lambda`,
+`dotnet-angular-simple-monolith-single-server`, `dotnet-angular-event-driven-docker-compose`,
+`dotnet-angular-clean-architecture-aws-lambda`,
 and `dotnet-multitenant-event-driven-aws-lambda` — the AWS two with an explicit
 proven-vs-linted boundary, since parts of an AWS profile can only be emulated or stood in
-for in CI). Each skeleton follows its profile's
+for in CI; the event-driven compose skeleton is the opposite extreme, proving against the
+production engines themselves). Each skeleton follows its profile's
 Required and Recommended ADRs and is built by CI on every push/PR — backend lint+tests
 against a real PostgreSQL, frontend typecheck+build, and Docker image builds. A skeleton
 is the semantic test of the catalog: structural checks prove the graph is coherent; a
