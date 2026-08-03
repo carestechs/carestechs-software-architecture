@@ -3,6 +3,17 @@
 **Status:** Active
 **Assumes:** .NET 10+, PostgreSQL, EF Core 10+, Flyway, RabbitMQ, Angular 20+, Docker Compose v2, one VPS or a small VM fleet
 
+## Golden Skeleton
+
+A buildable reference implementation lives at
+[`skeletons/dotnet-angular-event-driven-docker-compose/`](../skeletons/dotnet-angular-event-driven-docker-compose/).
+CI executes this profile's claims against the production engines themselves — the same
+PostgreSQL and RabbitMQ containers a laptop runs: the Flyway-migrated schema-per-module
+storage, the RabbitMQ provider with its DLX retry topology declared in code, the
+per-concern consumer (manual acks, explicit prefetch, poison parking observed in the DLQ),
+and both halves of the transactional outbox. No emulator tier exists on this substrate;
+its README carries the proven-vs-not table.
+
 ## Overview
 
 The intermediate rung between the modular monolith and the serverless profiles: the lambda siblings' architecture on a substrate you own entirely. Modules follow the same Clean Architecture grammar as `dotnet-angular-clean-architecture-aws-lambda` — `<Module>.Domain/Application/Data/Api` projects, CQRS handlers, rich entities, reactors, module facades — and the async plane is first-class: a real broker, one always-on worker container per queue-triggered concern, and an optional transactional outbox. Nothing requires a cloud account: RabbitMQ stands where SQS/EventBridge stand, worker containers where Lambdas, nginx where API Gateway, env files where Secrets Manager.

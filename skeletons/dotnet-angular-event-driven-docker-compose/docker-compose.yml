@@ -1,0 +1,33 @@
+# Dev: infrastructure only — the app runs on the host (adrs/deployment/local-dev-compose.md).
+# These ARE the production engines: nothing is emulated on this substrate.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    # pinned version + persistent volume (adrs/deployment/rabbitmq-broker.md);
+    # management UI on http://localhost:15672 (guest/guest)
+    image: rabbitmq:4.1-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+volumes:
+  rabbitmq-data:

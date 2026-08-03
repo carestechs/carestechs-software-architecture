@@ -1,0 +1,52 @@
+# Prod: application services only, attached to a pre-existing infra network
+# where infra-postgres and infra-rabbitmq already run
+# (adrs/deployment/local-dev-compose.md, adrs/deployment/container-per-process.md).
+# api and the workers share one image; only the command differs.
+services:
+  api:
+    build: .
+    environment: &appenv
+      DATABASE_URL: Host=infra-postgres;Port=5432;Database=app;Username=postgres;Password=postgres
+      RABBITMQ_URL: amqp://guest:guest@infra-rabbitmq:5672
+      ASPNETCORE_ENVIRONMENT: Production
+    restart: unless-stopped
+    healthcheck:
+      # the aspnet runtime image has bash but no curl/wget; use bash's /dev/tcp
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/localhost/8080 && printf 'GET /v1/health HTTP/1.0\r\n\r\n' >&3 && head -n1 <&3 | grep -q 200"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [infra]
+
+  orders-worker:
+    build: .
+    command: ["dotnet", "/srv/workers/orders/Orders.Worker.dll"]
+    environment: *appenv
+    restart: unless-stopped
+    networks: [infra]
+
+  outbox-dispatch:
+    build: .
+    command: ["dotnet", "/srv/workers/outbox/Outbox.Dispatch.dll"]
+    environment: *appenv
+    restart: unless-stopped
+    networks: [infra]
+
+  frontend:
+    build: ./Web
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ > /dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [infra]
+
+networks:
+  infra:
+    external: true
