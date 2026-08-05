@@ -145,7 +145,7 @@ carestechs-software-architecture/
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**89 active ADRs** (plus 6 superseded tombstones) across 9 categories, **9 stack profiles**.
+**92 active ADRs** (plus 6 superseded tombstones) across 9 categories, **9 stack profiles**.
 
 ## How to Use
 
