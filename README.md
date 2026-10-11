@@ -56,7 +56,11 @@ carestechs-software-architecture/
 │   │   ├── celery-background-jobs.md
 │   │   ├── rfc7807-errors.md
 │   │   ├── pytest-testing.md
-│   │   └── structured-logging.md
+│   │   ├── structured-logging.md
+│   │   ├── single-package-app.md
+│   │   ├── in-process-background-tasks.md
+│   │   ├── stdlib-only-distribution.md
+│   │   └── core-adapter-pattern.md
 │   │
 │   ├── angular/                   # Angular decisions
 │   │   ├── standalone-components.md
@@ -67,7 +71,8 @@ carestechs-software-architecture/
 │   ├── react/                     # React decisions
 │   │   ├── functional-components.md
 │   │   ├── tanstack-query.md
-│   │   └── tailwind-shadcn.md
+│   │   ├── tailwind-shadcn.md
+│   │   └── pwa-installable-client.md
 │   │
 │   ├── typescript/                # TypeScript / Node.js decisions
 │   │   ├── strict-typescript.md
@@ -95,7 +100,8 @@ carestechs-software-architecture/
 │   │   ├── offset-pagination.md
 │   │   ├── cognito-authentication.md
 │   │   ├── external-provider-bridge.md
-│   │   └── machine-to-machine-auth.md
+│   │   ├── machine-to-machine-auth.md
+│   │   └── realtime-push-sse.md
 │   │
 │   ├── ai/                        # AI agent decisions (stack-neutral, .NET + Python mechanics inside)
 │   │   ├── ai-agent-module.md
@@ -131,9 +137,15 @@ carestechs-software-architecture/
 │       ├── npm-cli-package.md
 │       ├── zod-config-validation.md
 │       ├── github-action-composite.md
-│       └── github-actions-ci.md
+│       ├── github-actions-ci.md
+│       ├── outbound-only-agent.md
+│       ├── file-state-atomic-writes.md
+│       ├── os-service-install.md
+│       └── private-network-exposure.md
 │
 └── profiles/                  # Pre-built ADR sets (stack + deployment mode)
+    ├── python-fastapi-simple-monolith-single-server.md
+    ├── python-stdlib-agent.md
     ├── dotnet-angular-simple-monolith-single-server.md
     ├── dotnet-angular-modular-monolith-docker-compose.md
     ├── dotnet-angular-ai-agent-docker-compose.md
@@ -145,7 +157,7 @@ carestechs-software-architecture/
     └── typescript-ai-agent-cli-npm.md
 ```
 
-**92 active ADRs** (plus 6 superseded tombstones) across 9 categories, **9 stack profiles**.
+**102 active ADRs** (plus 6 superseded tombstones) across 9 categories, **12 stack profiles**.
 
 ## How to Use
 
@@ -155,8 +167,10 @@ Profiles are curated sets of ADRs organized into Required, Recommended, and Opti
 
 | Profile | Stack | Deploy Mode |
 |---------|-------|-------------|
+| **python-fastapi-simple-monolith-single-server** | Python + React + PostgreSQL, one package, one deployable (the Python entry rung) | Single server (compose) |
 | **python-react-modular-monolith-docker-compose** | Python + React + PostgreSQL | Docker Compose |
 | **python-react-ai-agent-docker-compose** | Python + React + PostgreSQL + AI | Docker Compose |
+| **python-stdlib-agent** | Python standard library only: a dependency-free agent or sidecar that dials out to a hub | zipapp installed as an OS service |
 | **dotnet-angular-simple-monolith-single-server** | .NET + Angular + PostgreSQL, one deployable | Single server (compose) |
 | **dotnet-angular-modular-monolith-docker-compose** | .NET + Angular + PostgreSQL | Docker Compose |
 | **dotnet-angular-ai-agent-docker-compose** | .NET + Angular + PostgreSQL + AI | Docker Compose |
@@ -197,14 +211,14 @@ After compiling, you still need to fill in:
 | Category | Count | What It Covers |
 |----------|-------|----------------|
 | dotnet | 19 | Modular monolith, Clean Architecture, CQRS, rich entities, Result pattern, events, DbContext, DTOs, async, xUnit testing, structured logging |
-| python | 10 | FastAPI, modular packages, Pydantic, SQLAlchemy, Celery, Problem Details errors, pytest testing, structured logging |
+| python | 14 | FastAPI, single-package app, modular packages, Pydantic, SQLAlchemy, Celery, in-process background tasks, Problem Details errors, pytest testing, structured logging, stdlib-only distribution, core/adapter |
 | angular | 4 | Standalone components, templates, Signals, Tailwind |
-| react | 3 | Functional components, TanStack Query, Tailwind + shadcn |
+| react | 4 | Functional components, TanStack Query, Tailwind + shadcn, installable PWA |
 | typescript | 6 | Strict TS, named exports, functional composition, boundary types, core/adapter, Vitest |
 | database | 9 | UUID PKs, naming conventions, soft deletes, timestamptz, database-per-tenant, schema-per-module, DynamoDB hot path, transactional outbox |
-| api | 7 | REST envelope, JWT auth, Cognito auth, machine-to-machine auth, role-based authorization, offset pagination, external provider bridge |
+| api | 8 | REST envelope, JWT auth, Cognito auth, machine-to-machine auth, role-based authorization, offset pagination, external provider bridge, real-time push (SSE + Web Push) |
 | ai | 6 | AI agent modules, LLM abstraction, tool calling, RAG, conversation history, Claude Agent SDK |
-| deployment | 28 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions CI + composite action, Zod config, maintenance scheduler, local AWS substitution, staging cost downgrades, RabbitMQ broker |
+| deployment | 32 | Docker builds, env config, containers, Compose, nginx, AWS Lambda, SAM/CloudFormation, AWS Batch, Flyway, SQS queues, Secrets Manager, Tauri desktop, npm CLI packaging, GitHub Actions CI + composite action, Zod config, maintenance scheduler, local AWS substitution, staging cost downgrades, RabbitMQ broker, outbound-only agent, file state with atomic writes, OS service install, private-network exposure |
 
 ## ADR Format
 

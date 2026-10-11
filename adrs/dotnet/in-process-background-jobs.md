@@ -1,6 +1,7 @@
 ---
 category: dotnet
 stack: dotnet
+family: in-process-background-work
 status: Active
 requires:
   - adrs/dotnet/async-all-the-way.md

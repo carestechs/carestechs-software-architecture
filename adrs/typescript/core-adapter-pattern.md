@@ -1,10 +1,12 @@
 ---
 category: typescript
 stack: typescript
+family: core-adapter-pattern
 status: Active
 requires:
   - adrs/typescript/strict-typescript.md
-conflicts_with: []
+conflicts_with:
+  - adrs/python/core-adapter-pattern.md
 last_reviewed: 2026-07-29
 ---
 

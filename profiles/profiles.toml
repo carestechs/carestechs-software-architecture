@@ -961,3 +961,137 @@ summary = "All config via env vars. External service credentials via env vars. `
 
 [profile.typescript-cli-tool-npm.override."adrs/deployment/zod-config-validation.md"]
 summary = "Zod for runtime validation of config files, env vars, and external input. Types derived from schemas."
+
+# --- ADRs added 2026-10-11 with the Python first-rung and agent profiles ---------------------
+
+[adr."adrs/python/single-package-app.md"]
+summary = "ONE application package, folder per feature, one SQLAlchemy metadata with one Alembic history. Service-layer and Pydantic-boundary rules apply in full - graduation to modular packages stays a restructuring PR."
+depends_on = "`fastapi-framework`"
+
+[adr."adrs/python/in-process-background-tasks.md"]
+summary = "asyncio tasks owned by the lifespan: a bounded queue for tolerable-loss work, periodic loops for scheduled work, PostgreSQL rows claimed with SKIP LOCKED for work that must survive restarts. One background-work model per system - a broker means graduating."
+alternative = "`celery-background-jobs` with Redis (the next rung)"
+depends_on = "`async-all-the-way`"
+
+[adr."adrs/python/stdlib-only-distribution.md"]
+summary = "Standard library only, at runtime and in tests; ships as one file or a zipapp; `unittest` as the runner; interpreter floor checked at start."
+depends_on = "—"
+
+[adr."adrs/python/core-adapter-pattern.md"]
+summary = "Core engine of plain functions and dataclasses with one typed entry point per operation; thin adapters (CLI, daemon loop, loopback hook, file tail, service) own all I/O. The core never imports an adapter."
+depends_on = "—"
+
+[adr."adrs/api/realtime-push-sse.md"]
+summary = "Server-sent events from the API process for live updates (same origin, same auth, resumable by Last-Event-ID, in-process fan-out) and standard Web Push with hub-owned VAPID keys for clients that are not connected. Single-replica scope; more replicas mean a broker behind the same endpoints."
+when_to_include = "Dashboards people watch change, agents reporting in, anything that must reach a phone with the app closed"
+alternative = "WebSocket when clients must stream data back; `iot-mqtt-push` at multi-tenant fan-out scale"
+
+[adr."adrs/react/pwa-installable-client.md"]
+summary = "Web manifest, a service worker that caches the shell and never API data, the Web Push subscription lifecycle, served from the API's origin. Installable on phone and desktop; works unchanged in a plain tab."
+when_to_include = "A client people install on a phone, or that needs background notifications or an offline shell"
+depends_on = "`functional-components`"
+
+[adr."adrs/deployment/outbound-only-agent.md"]
+summary = "The agent dials out for everything (POST events, long-poll commands over HTTPS with a token from the environment), binds nothing but loopback, pulls a fixed command vocabulary and acknowledges by id."
+depends_on = "—"
+
+[adr."adrs/deployment/file-state-atomic-writes.md"]
+summary = "Small local state (cursors, acknowledgements, identity) in JSON files in one directory, written temp-then-rename, tolerated missing or corrupt at startup. Secrets are never state files."
+depends_on = "—"
+
+[adr."adrs/deployment/os-service-install.md"]
+summary = "One idempotent `service install|uninstall|status` command registers the agent with the host's service manager (Task Scheduler, systemd user unit, launchd), running as the operator with restart on failure and platform logging."
+alternative = "A supervisor the host already has (Docker, NSSM, pm2) - never a new one"
+
+[adr."adrs/deployment/private-network-exposure.md"]
+summary = "Reachable only on a private overlay network (tailnet or VPN): server bound to the overlay, TLS from it, application tokens unchanged as the second lock. No public name, no open port."
+when_to_include = "Personal or team tools whose users can all join the network; swap for a public endpoint with TLS when they cannot"
+
+[profile.python-fastapi-simple-monolith-single-server]
+required = [
+  "adrs/python/single-package-app.md",
+  "adrs/python/fastapi-framework.md",
+  "adrs/python/service-layer-logic.md",
+  "adrs/python/pydantic-at-boundary.md",
+  "adrs/python/async-all-the-way.md",
+  "adrs/python/sqlalchemy-async.md",
+  "adrs/python/rfc7807-errors.md",
+  "adrs/api/rest-envelope.md",
+  "adrs/api/machine-to-machine-auth.md",
+  "adrs/react/functional-components.md",
+  "adrs/deployment/docker-multi-stage-builds.md",
+  "adrs/deployment/env-connection-urls.md",
+  "adrs/deployment/local-dev-compose.md",
+  "adrs/deployment/spa-served-by-api.md",
+]
+recommended = [
+  "adrs/python/in-process-background-tasks.md",
+  "adrs/python/pytest-testing.md",
+  "adrs/python/structured-logging.md",
+  "adrs/database/uuid-primary-keys.md",
+  "adrs/database/snake-case-naming.md",
+  "adrs/database/timestamptz-always.md",
+  "adrs/deployment/container-per-process.md",
+  "adrs/deployment/github-actions-ci.md",
+  "adrs/react/tanstack-query.md",
+  "adrs/react/tailwind-shadcn.md",
+]
+optional = [
+  "adrs/api/realtime-push-sse.md",
+  "adrs/react/pwa-installable-client.md",
+  "adrs/deployment/private-network-exposure.md",
+  "adrs/api/jwt-bearer-auth.md",
+  "adrs/api/offset-pagination.md",
+  "adrs/database/soft-deletes.md",
+]
+
+[profile.python-fastapi-simple-monolith-single-server.override."adrs/python/rfc7807-errors.md"]
+depends_on = "`fastapi-framework`"
+
+[profile.python-fastapi-simple-monolith-single-server.override."adrs/api/machine-to-machine-auth.md"]
+summary = "Opaque hashed tokens for every non-human caller - agents, scripts and personal devices alike: identifiable prefix, server stores a hash, scoped, revocable, `last_used_at` recorded. The default authentication at this rung."
+depends_on = "—"
+
+[profile.python-fastapi-simple-monolith-single-server.override."adrs/api/jwt-bearer-auth.md"]
+when_to_include = "Human users who log in interactively; the token model above already covers agents and personal devices"
+
+[profile.python-fastapi-simple-monolith-single-server.override."adrs/database/snake-case-naming.md"]
+summary = "snake_case tables/columns. Native to both Python and PostgreSQL."
+alternative = "— (already the natural convention for Python + PostgreSQL)"
+
+[profile.python-fastapi-simple-monolith-single-server.override."adrs/database/timestamptz-always.md"]
+summary = "All datetimes are timestamptz. Python uses `datetime` with UTC timezone."
+
+[profile.python-fastapi-simple-monolith-single-server.override."adrs/deployment/container-per-process.md"]
+summary = "The app (API + client bundle, one process) and PostgreSQL as separate containers."
+
+[profile.python-fastapi-simple-monolith-single-server.override."adrs/deployment/docker-multi-stage-builds.md"]
+summary = "One image: a Node stage builds the client, a python:slim runtime stage holds the app and the bundle."
+
+[profile.python-fastapi-simple-monolith-single-server.override."adrs/deployment/env-connection-urls.md"]
+summary = "All config via env vars. External services via connection URLs. Pydantic BaseSettings validates at startup."
+
+[profile.python-fastapi-simple-monolith-single-server.override."adrs/deployment/spa-served-by-api.md"]
+summary = "Client bundle built in the Dockerfile's Node stage, served by FastAPI (static mount plus `index.html` fallback registered after the API routers). One container, one origin, no CORS."
+
+[profile.python-stdlib-agent]
+required = [
+  "adrs/python/stdlib-only-distribution.md",
+  "adrs/python/core-adapter-pattern.md",
+  "adrs/deployment/outbound-only-agent.md",
+  "adrs/deployment/file-state-atomic-writes.md",
+  "adrs/deployment/env-connection-urls.md",
+]
+recommended = [
+  "adrs/deployment/os-service-install.md",
+  "adrs/deployment/github-actions-ci.md",
+]
+optional = [
+  "adrs/deployment/private-network-exposure.md",
+]
+
+[profile.python-stdlib-agent.override."adrs/deployment/env-connection-urls.md"]
+summary = "All config via environment variables read by the service adapter at start: hub URL, token source, state directory. No config file in the repository; `.env.example` documents the names."
+
+[profile.python-stdlib-agent.override."adrs/deployment/github-actions-ci.md"]
+summary = "CI gate on every push/PR: `python -m unittest discover`, the zipapp build, and a smoke run of the artifact on each supported OS."
