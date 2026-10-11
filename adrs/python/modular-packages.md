@@ -7,6 +7,7 @@ requires:
   - adrs/python/fastapi-framework.md
 conflicts_with:
   - adrs/dotnet/modular-monolith.md
+  - adrs/python/single-package-app.md
 last_reviewed: 2026-07-29
 ---
 

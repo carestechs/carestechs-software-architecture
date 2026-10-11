@@ -21,7 +21,7 @@ The SPA's production bundle is built in a Node stage of the API's multi-stage Do
 - The build stays honest: the same multi-stage Dockerfile discipline applies — Node builds the bundle, the runtime image contains only the API plus static assets.
 
 ## Constraints (non-negotiable for AI)
-- The SPA fallback MUST be registered AFTER API routes, and API paths (`/api/*`, `/health`) MUST NEVER fall back to `index.html` — an unknown API route returns its Problem Details 404, not HTML.
+- The SPA fallback MUST be registered AFTER API routes, and API paths (`/api/*`, `/health`) MUST NEVER fall back to `index.html` — an unknown API route returns its Problem Details 404, not HTML. (ASP.NET Core: `UseStaticFiles` + `MapFallbackToFile("index.html")` after the API endpoints; FastAPI: a `StaticFiles` mount for the hashed assets and a catch-all route returning `index.html`, both registered after the API routers.)
 - Hashed bundle assets get long-lived immutable cache headers; `index.html` MUST be served with no-cache semantics so deploys take effect on refresh.
 - NEVER add CORS configuration under this ADR — the SPA and API share one origin by construction. A CORS policy appearing in the codebase signals drift toward a split this ADR does not cover.
 - The production image is self-contained: the SPA bundle is built inside the Dockerfile's Node stage — NEVER copied in from a developer machine.

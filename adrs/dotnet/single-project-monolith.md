@@ -1,6 +1,7 @@
 ---
 category: dotnet
 stack: dotnet
+family: single-deployable-app
 status: Active
 requires: []
 conflicts_with:

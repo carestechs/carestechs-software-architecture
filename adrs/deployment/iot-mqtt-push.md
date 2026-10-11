@@ -4,7 +4,8 @@ stack: any
 status: Active
 requires:
   - adrs/api/cognito-authentication.md | adrs/api/jwt-bearer-auth.md
-conflicts_with: []
+conflicts_with:
+  - adrs/api/realtime-push-sse.md
 last_reviewed: 2026-07-31
 ---
 

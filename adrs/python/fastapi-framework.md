@@ -3,7 +3,8 @@ category: python
 stack: python
 status: Active
 requires: []
-conflicts_with: []
+conflicts_with:
+  - adrs/python/stdlib-only-distribution.md
 last_reviewed: 2026-07-29
 ---
 

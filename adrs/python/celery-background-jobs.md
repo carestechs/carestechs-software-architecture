@@ -4,7 +4,8 @@ stack: python
 status: Active
 requires:
   - adrs/python/service-layer-logic.md
-conflicts_with: []
+conflicts_with:
+  - adrs/python/in-process-background-tasks.md
 last_reviewed: 2026-07-29
 ---
 
